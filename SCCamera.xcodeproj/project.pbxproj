@@ -1,0 +1,410 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1429266B2253B5AC0056D569 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429266A2253B5AC0056D569 /* AppDelegate.m */; };
+		1429266E2253B5AC0056D569 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429266D2253B5AC0056D569 /* ViewController.m */; };
+		142926712253B5AC0056D569 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1429266F2253B5AC0056D569 /* Main.storyboard */; };
+		142926732253B5AE0056D569 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 142926722253B5AE0056D569 /* Assets.xcassets */; };
+		142926762253B5AE0056D569 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 142926742253B5AE0056D569 /* LaunchScreen.storyboard */; };
+		142926792253B5AE0056D569 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926782253B5AE0056D569 /* main.m */; };
+		142926842253B68F0056D569 /* SCCameraController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 142926822253B68F0056D569 /* SCCameraController.xib */; };
+		142926852253B68F0056D569 /* SCCameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926832253B68F0056D569 /* SCCameraController.m */; };
+		142926922253B6F60056D569 /* AVCaptureDevice+SCCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926872253B6F50056D569 /* AVCaptureDevice+SCCategory.m */; };
+		142926942253B6F60056D569 /* SCStableCheckTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429268A2253B6F50056D569 /* SCStableCheckTool.m */; };
+		142926952253B6F60056D569 /* UIImage+SCCameraTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429268C2253B6F60056D569 /* UIImage+SCCameraTool.m */; };
+		142926962253B6F60056D569 /* SCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429268E2253B6F60056D569 /* SCCameraManager.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		142926662253B5AC0056D569 /* SCCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SCCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		142926692253B5AC0056D569 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		1429266A2253B5AC0056D569 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		1429266C2253B5AC0056D569 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		1429266D2253B5AC0056D569 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		142926702253B5AC0056D569 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		142926722253B5AE0056D569 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		142926752253B5AE0056D569 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		142926772253B5AE0056D569 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		142926782253B5AE0056D569 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		142926812253B68F0056D569 /* SCCameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCCameraController.h; sourceTree = "<group>"; };
+		142926822253B68F0056D569 /* SCCameraController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SCCameraController.xib; sourceTree = "<group>"; };
+		142926832253B68F0056D569 /* SCCameraController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCCameraController.m; sourceTree = "<group>"; };
+		142926872253B6F50056D569 /* AVCaptureDevice+SCCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVCaptureDevice+SCCategory.m"; sourceTree = "<group>"; };
+		142926882253B6F50056D569 /* SCCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCCameraManager.h; sourceTree = "<group>"; };
+		1429268A2253B6F50056D569 /* SCStableCheckTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCStableCheckTool.m; sourceTree = "<group>"; };
+		1429268B2253B6F50056D569 /* UIImage+SCCameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+SCCameraTool.h"; sourceTree = "<group>"; };
+		1429268C2253B6F60056D569 /* UIImage+SCCameraTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+SCCameraTool.m"; sourceTree = "<group>"; };
+		1429268D2253B6F60056D569 /* SCStableCheckTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCStableCheckTool.h; sourceTree = "<group>"; };
+		1429268E2253B6F60056D569 /* SCCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCCameraManager.m; sourceTree = "<group>"; };
+		142926902253B6F60056D569 /* AVCaptureDevice+SCCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVCaptureDevice+SCCategory.h"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		142926632253B5AC0056D569 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1429265D2253B5AC0056D569 = {
+			isa = PBXGroup;
+			children = (
+				142926682253B5AC0056D569 /* SCCamera */,
+				142926672253B5AC0056D569 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		142926672253B5AC0056D569 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				142926662253B5AC0056D569 /* SCCamera.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		142926682253B5AC0056D569 /* SCCamera */ = {
+			isa = PBXGroup;
+			children = (
+				142926802253B65F0056D569 /* Camera */,
+				142926692253B5AC0056D569 /* AppDelegate.h */,
+				1429266A2253B5AC0056D569 /* AppDelegate.m */,
+				1429266C2253B5AC0056D569 /* ViewController.h */,
+				1429266D2253B5AC0056D569 /* ViewController.m */,
+				1429266F2253B5AC0056D569 /* Main.storyboard */,
+				142926722253B5AE0056D569 /* Assets.xcassets */,
+				142926742253B5AE0056D569 /* LaunchScreen.storyboard */,
+				142926772253B5AE0056D569 /* Info.plist */,
+				142926782253B5AE0056D569 /* main.m */,
+			);
+			path = SCCamera;
+			sourceTree = "<group>";
+		};
+		142926802253B65F0056D569 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				142926862253B6DD0056D569 /* Manager */,
+				142926992253B73A0056D569 /* Controller */,
+				142926982253B6FC0056D569 /* Category */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+		142926862253B6DD0056D569 /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				1429268D2253B6F60056D569 /* SCStableCheckTool.h */,
+				1429268A2253B6F50056D569 /* SCStableCheckTool.m */,
+				142926882253B6F50056D569 /* SCCameraManager.h */,
+				1429268E2253B6F60056D569 /* SCCameraManager.m */,
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
+		142926982253B6FC0056D569 /* Category */ = {
+			isa = PBXGroup;
+			children = (
+				1429268B2253B6F50056D569 /* UIImage+SCCameraTool.h */,
+				1429268C2253B6F60056D569 /* UIImage+SCCameraTool.m */,
+				142926902253B6F60056D569 /* AVCaptureDevice+SCCategory.h */,
+				142926872253B6F50056D569 /* AVCaptureDevice+SCCategory.m */,
+			);
+			path = Category;
+			sourceTree = "<group>";
+		};
+		142926992253B73A0056D569 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				142926812253B68F0056D569 /* SCCameraController.h */,
+				142926832253B68F0056D569 /* SCCameraController.m */,
+				142926822253B68F0056D569 /* SCCameraController.xib */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		142926652253B5AC0056D569 /* SCCamera */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1429267C2253B5AE0056D569 /* Build configuration list for PBXNativeTarget "SCCamera" */;
+			buildPhases = (
+				142926622253B5AC0056D569 /* Sources */,
+				142926632253B5AC0056D569 /* Frameworks */,
+				142926642253B5AC0056D569 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SCCamera;
+			productName = SCCamera;
+			productReference = 142926662253B5AC0056D569 /* SCCamera.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1429265E2253B5AC0056D569 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = SeacenLiu;
+				TargetAttributes = {
+					142926652253B5AC0056D569 = {
+						CreatedOnToolsVersion = 10.1;
+					};
+				};
+			};
+			buildConfigurationList = 142926612253B5AC0056D569 /* Build configuration list for PBXProject "SCCamera" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1429265D2253B5AC0056D569;
+			productRefGroup = 142926672253B5AC0056D569 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				142926652253B5AC0056D569 /* SCCamera */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		142926642253B5AC0056D569 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				142926762253B5AE0056D569 /* LaunchScreen.storyboard in Resources */,
+				142926732253B5AE0056D569 /* Assets.xcassets in Resources */,
+				142926842253B68F0056D569 /* SCCameraController.xib in Resources */,
+				142926712253B5AC0056D569 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		142926622253B5AC0056D569 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				142926962253B6F60056D569 /* SCCameraManager.m in Sources */,
+				1429266E2253B5AC0056D569 /* ViewController.m in Sources */,
+				142926952253B6F60056D569 /* UIImage+SCCameraTool.m in Sources */,
+				142926792253B5AE0056D569 /* main.m in Sources */,
+				142926852253B68F0056D569 /* SCCameraController.m in Sources */,
+				142926942253B6F60056D569 /* SCStableCheckTool.m in Sources */,
+				142926922253B6F60056D569 /* AVCaptureDevice+SCCategory.m in Sources */,
+				1429266B2253B5AC0056D569 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		1429266F2253B5AC0056D569 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				142926702253B5AC0056D569 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		142926742253B5AE0056D569 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				142926752253B5AE0056D569 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1429267A2253B5AE0056D569 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		1429267B2253B5AE0056D569 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1429267D2253B5AE0056D569 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 6426K9AWKV;
+				INFOPLIST_FILE = SCCamera/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cppteam.SCCamera;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1429267E2253B5AE0056D569 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 6426K9AWKV;
+				INFOPLIST_FILE = SCCamera/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cppteam.SCCamera;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		142926612253B5AC0056D569 /* Build configuration list for PBXProject "SCCamera" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1429267A2253B5AE0056D569 /* Debug */,
+				1429267B2253B5AE0056D569 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1429267C2253B5AE0056D569 /* Build configuration list for PBXNativeTarget "SCCamera" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1429267D2253B5AE0056D569 /* Debug */,
+				1429267E2253B5AE0056D569 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1429265E2253B5AC0056D569 /* Project object */;
+}
