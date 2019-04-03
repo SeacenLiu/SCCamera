@@ -8,20 +8,17 @@
 
 #import "SCCameraController.h"
 #import "SCCameraManager.h"
-
+#import "SCVideoPreviewView.h"
 
 @interface SCCameraController ()
 
-@property (weak, nonatomic) IBOutlet UIView *preview;
+@property (weak, nonatomic) IBOutlet SCVideoPreviewView *preview;
 @property (weak, nonatomic) IBOutlet UIButton *transformBtn;
 @property (weak, nonatomic) IBOutlet UIButton *takePhotoBtn;
 @property (weak, nonatomic) IBOutlet UIButton *lightSwitchBtn;
 @property (weak, nonatomic) IBOutlet UIButton *closeBtn;
 
 @property (weak, nonatomic) IBOutlet UIImageView *showImageView;
-@property (weak, nonatomic) IBOutlet UIButton *doneBtn;
-
-@property (nonatomic, strong) UIImage *detectImg;
 
 @property (nonatomic, strong) SCCameraManager *manager;
 
@@ -38,44 +35,35 @@
 #pragma mark - view life cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    isFirstLoad = true;
+    self.manager = [SCCameraManager new];
+    self.preview.captureSession = _manager.session;
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     [self.manager stop];
-    self.manager.canDetect = NO;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if (isFirstLoad) {
-        [self.manager startUp];
-        self.manager.canDetect = YES;
-        isFirstLoad = false;
-    }
+    [self.manager startUp];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    if (!isFirstLoad) {
-        [self.manager startUp];
-        self.manager.canDetect = YES;
-    }
+    [self.manager startUp];
+}
+
+- (IBAction)takePhotoClick:(id)sender {
+    
 }
 
 - (IBAction)closeClick:(UIButton *)sender {
-    if (self.showImageView.isHidden) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    } else {
-        [self.lightSwitchBtn setHidden:NO];
-        [self.transformBtn setHidden:NO];
-        [self.doneBtn setHidden:YES];
-        [self.takePhotoBtn setHidden:NO];
-        [self.showImageView setHidden:YES];
-        self.showImageView.image = nil;
-        [self.manager startUp];
-    }
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (IBAction)transformAction:(UIButton *)sender {

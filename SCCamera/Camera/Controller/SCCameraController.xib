@@ -14,7 +14,7 @@
             <connections>
                 <outlet property="closeBtn" destination="LNo-fu-FLQ" id="IKQ-wN-Uzh"/>
                 <outlet property="lightSwitchBtn" destination="mNl-Bt-Qc7" id="eEK-2O-Hwb"/>
-                <outlet property="preview" destination="4TX-fa-LSt" id="GOP-ND-JO5"/>
+                <outlet property="preview" destination="4TX-fa-LSt" id="1BL-i5-usY"/>
                 <outlet property="showImageView" destination="EZN-8N-ig8" id="ref-lC-jJh"/>
                 <outlet property="transformBtn" destination="tAE-mM-RIG" id="aZ8-Pf-gha"/>
                 <outlet property="view" destination="xEj-5W-pLi" id="Frq-re-j1J"/>
@@ -25,7 +25,7 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4TX-fa-LSt">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4TX-fa-LSt" customClass="SCVideoPreviewView">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                     <subviews>
                         <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="EZN-8N-ig8">
@@ -60,6 +60,15 @@
                                 <action selector="lightSwitchAcrion:" destination="-1" eventType="touchUpInside" id="k38-QG-dnK"/>
                             </connections>
                         </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PCp-H3-PtQ">
+                            <rect key="frame" x="172" y="591" width="31" height="30"/>
+                            <state key="normal" title="拍照">
+                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </state>
+                            <connections>
+                                <action selector="takePhotoClick:" destination="-1" eventType="touchUpInside" id="egJ-Iq-GdF"/>
+                            </connections>
+                        </button>
                     </subviews>
                     <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <constraints>
@@ -71,8 +80,10 @@
                         <constraint firstItem="mNl-Bt-Qc7" firstAttribute="leading" secondItem="4TX-fa-LSt" secondAttribute="leading" constant="20" id="ZLC-nu-jb7"/>
                         <constraint firstItem="EZN-8N-ig8" firstAttribute="leading" secondItem="4TX-fa-LSt" secondAttribute="leading" id="ZMi-gm-612"/>
                         <constraint firstAttribute="bottom" secondItem="EZN-8N-ig8" secondAttribute="bottom" id="mKh-W0-Kcr"/>
+                        <constraint firstItem="PCp-H3-PtQ" firstAttribute="centerX" secondItem="EZN-8N-ig8" secondAttribute="centerX" id="n2n-iP-uhA"/>
                         <constraint firstAttribute="bottom" secondItem="LNo-fu-FLQ" secondAttribute="bottom" constant="35" id="owL-UO-QSD"/>
                         <constraint firstItem="LNo-fu-FLQ" firstAttribute="leading" secondItem="4TX-fa-LSt" secondAttribute="leading" constant="38.5" id="uIL-mN-cOa"/>
+                        <constraint firstItem="PCp-H3-PtQ" firstAttribute="centerY" secondItem="LNo-fu-FLQ" secondAttribute="centerY" id="yqI-3B-JLb"/>
                     </constraints>
                 </view>
             </subviews>

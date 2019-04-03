@@ -7,12 +7,18 @@
 //
 
 #import "ViewController.h"
+#import "SCCameraController.h"
 
 @interface ViewController ()
 
 @end
 
 @implementation ViewController
+
+- (IBAction)openCamera:(id)sender {
+    SCCameraController *cc = [SCCameraController new];
+    [self presentViewController:cc animated:YES completion:nil];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
