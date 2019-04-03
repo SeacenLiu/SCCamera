@@ -22,6 +22,8 @@
 
 @property (nonatomic, strong) SCCameraManager *manager;
 
+@property (nonatomic, strong) UITapGestureRecognizer *tap;
+
 @end
 
 @implementation SCCameraController {
@@ -37,6 +39,9 @@
     [super viewDidLoad];
     self.manager = [SCCameraManager new];
     self.manager.delegate = self;
+    // 手势添加
+    self.tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(focusingTapClcik:)];
+    [self.preview addGestureRecognizer:self.tap];
 }
 
 - (void)viewDidLayoutSubviews {
@@ -61,8 +66,9 @@
 #pragma mark - 操作
 /** 聚焦手势 */
 - (void)focusingTapClcik:(UITapGestureRecognizer *)tap {
-    CGPoint location = [tap locationInView:self.preview];
-    [self.manager focusInPoint:location];
+    CGPoint point = [tap locationInView:self.preview];
+    CGPoint devicePoint = [self.preview.videoPreviewLayer captureDevicePointOfInterestForPoint:point];
+    [self.manager focusInPoint:devicePoint];
 }
 
 - (IBAction)takePhotoClick:(id)sender {
