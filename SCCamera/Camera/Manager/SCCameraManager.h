@@ -30,13 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** 暂停Session */
 - (void)stop;
 
-/**
- 拍照方法
-
- @param orientation 方向
- @param handle 获取UIImage的Block
- */
-- (void)takePhoto:(AVCaptureVideoOrientation)orientation handle:(void(^)(UIImage*))handle;
+/** 拍照方法 */
+- (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer handle:(void (^)(UIImage *originImage, UIImage *scaledImage, UIImage *croppedImage))handle;
 
 /** 设置闪光灯 */
 - (void)setFlashMode:(AVCaptureFlashMode)mode;

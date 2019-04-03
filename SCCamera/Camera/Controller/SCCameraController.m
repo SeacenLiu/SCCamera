@@ -9,6 +9,7 @@
 #import "SCCameraController.h"
 #import "SCCameraManager.h"
 #import "SCVideoPreviewView.h"
+#import "SCCameraResultController.h"
 
 // TODO: - 聚焦，曝光，人脸检测动画
 
@@ -90,9 +91,12 @@
 
 /** 拍照 */
 - (IBAction)takePhotoClick:(id)sender {
-    NSLog(@"拍照操作");
-    [self.manager takePhoto:self.previewView.videoOrientation handle:^(UIImage * _Nonnull image) {
-        
+    [self.takePhotoBtn setEnabled:NO];
+    [self.manager takePhoto:self.previewView.videoPreviewLayer handle:^(UIImage * _Nonnull originImage, UIImage * _Nonnull scaledImage, UIImage * _Nonnull croppedImage) {
+        [self.takePhotoBtn setEnabled:YES];
+        SCCameraResultController *rc = [SCCameraResultController new];
+        rc.img = croppedImage;
+        [self presentViewController:rc animated:YES completion:nil];
     }];
 }
 

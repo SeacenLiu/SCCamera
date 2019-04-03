@@ -20,6 +20,8 @@
 		142926962253B6F60056D569 /* SCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429268E2253B6F60056D569 /* SCCameraManager.m */; };
 		142926B82254A10A0056D569 /* UIImage+SCCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926B72254A10A0056D569 /* UIImage+SCCamera.m */; };
 		142926BC2254B1510056D569 /* SCVideoPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926BB2254B1510056D569 /* SCVideoPreviewView.m */; };
+		142926C0225510280056D569 /* SCCameraResultController.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926BE225510280056D569 /* SCCameraResultController.m */; };
+		142926C1225510280056D569 /* SCCameraResultController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 142926BF225510280056D569 /* SCCameraResultController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +48,9 @@
 		142926B72254A10A0056D569 /* UIImage+SCCamera.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+SCCamera.m"; sourceTree = "<group>"; };
 		142926BA2254B1510056D569 /* SCVideoPreviewView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCVideoPreviewView.h; sourceTree = "<group>"; };
 		142926BB2254B1510056D569 /* SCVideoPreviewView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCVideoPreviewView.m; sourceTree = "<group>"; };
+		142926BD225510270056D569 /* SCCameraResultController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCCameraResultController.h; sourceTree = "<group>"; };
+		142926BE225510280056D569 /* SCCameraResultController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCCameraResultController.m; sourceTree = "<group>"; };
+		142926BF225510280056D569 /* SCCameraResultController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SCCameraResultController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +136,9 @@
 				142926812253B68F0056D569 /* SCCameraController.h */,
 				142926832253B68F0056D569 /* SCCameraController.m */,
 				142926822253B68F0056D569 /* SCCameraController.xib */,
+				142926BD225510270056D569 /* SCCameraResultController.h */,
+				142926BE225510280056D569 /* SCCameraResultController.m */,
+				142926BF225510280056D569 /* SCCameraResultController.xib */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -201,6 +209,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				142926C1225510280056D569 /* SCCameraResultController.xib in Resources */,
 				142926762253B5AE0056D569 /* LaunchScreen.storyboard in Resources */,
 				142926732253B5AE0056D569 /* Assets.xcassets in Resources */,
 				142926842253B68F0056D569 /* SCCameraController.xib in Resources */,
@@ -220,6 +229,7 @@
 				142926792253B5AE0056D569 /* main.m in Sources */,
 				142926852253B68F0056D569 /* SCCameraController.m in Sources */,
 				142926942253B6F60056D569 /* SCStableCheckTool.m in Sources */,
+				142926C0225510280056D569 /* SCCameraResultController.m in Sources */,
 				142926922253B6F60056D569 /* AVCaptureDevice+SCCategory.m in Sources */,
 				1429266B2253B5AC0056D569 /* AppDelegate.m in Sources */,
 				142926B82254A10A0056D569 /* UIImage+SCCamera.m in Sources */,
