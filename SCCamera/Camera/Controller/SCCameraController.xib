@@ -14,8 +14,9 @@
             <connections>
                 <outlet property="closeBtn" destination="LNo-fu-FLQ" id="IKQ-wN-Uzh"/>
                 <outlet property="lightSwitchBtn" destination="mNl-Bt-Qc7" id="eEK-2O-Hwb"/>
-                <outlet property="preview" destination="4TX-fa-LSt" id="1BL-i5-usY"/>
+                <outlet property="previewView" destination="4TX-fa-LSt" id="1Ih-qo-3qw"/>
                 <outlet property="showImageView" destination="EZN-8N-ig8" id="ref-lC-jJh"/>
+                <outlet property="takePhotoBtn" destination="PCp-H3-PtQ" id="JWP-d4-m99"/>
                 <outlet property="transformBtn" destination="tAE-mM-RIG" id="aZ8-Pf-gha"/>
                 <outlet property="view" destination="xEj-5W-pLi" id="Frq-re-j1J"/>
             </connections>
@@ -57,7 +58,7 @@
                                 <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <connections>
-                                <action selector="lightSwitchAcrion:" destination="-1" eventType="touchUpInside" id="k38-QG-dnK"/>
+                                <action selector="lightSwitchClick:" destination="-1" eventType="touchUpInside" id="wTn-dT-ss4"/>
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PCp-H3-PtQ">

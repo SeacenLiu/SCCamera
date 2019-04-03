@@ -44,8 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** 切换前后置摄像头 */
 - (void)changeCameraInputDeviceisFront:(BOOL)isFront;
 
-/** 对焦 */
+/** 聚焦 */
 - (void)focusInPoint:(CGPoint)devicePoint;
+
+/** 曝光 */
+- (void)exposePoint:(CGPoint)point;
 
 @end
 

@@ -204,6 +204,50 @@
     }];
 }
 
+#pragma mark - 曝光
+static const NSString *CameraAdjustingExposureContext;
+- (void)exposePoint:(CGPoint)point {
+    [self expose:self.currentCameraInput.device point:point];
+}
+
+- (void)expose:(AVCaptureDevice *)device point:(CGPoint)point {
+    BOOL supported = [device isExposurePointOfInterestSupported] &&
+    [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure];
+    if (supported) {
+        [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+            if (error) {
+                NSLog(@"%@", error);
+                return;
+            }
+            device.exposurePointOfInterest = point;
+            device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+            if ([device isExposureModeSupported:AVCaptureExposureModeLocked]) {
+                [device addObserver:self forKeyPath:@"adjustingExposure" options:NSKeyValueObservingOptionNew context:&CameraAdjustingExposureContext];
+            }
+        }];
+    }
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
+    if (context == &CameraAdjustingExposureContext) {
+        AVCaptureDevice *device = (AVCaptureDevice *)object;
+        if (!device.isAdjustingExposure && [device isExposureModeSupported:AVCaptureExposureModeLocked]) {
+            [object removeObserver:self forKeyPath:@"adjustingExposure" context:&CameraAdjustingExposureContext];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSError *error;
+                if ([device lockForConfiguration:&error]) {
+                    device.exposureMode = AVCaptureExposureModeLocked;
+                    [device unlockForConfiguration];
+                } else {
+                    NSLog(@"%@", error);
+                }
+            });
+        }
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
 #pragma mark - 切换前后置摄像头
 - (void)changeCameraInputDeviceisFront:(BOOL)isFront {
     dispatch_async(self.sessionQueue, ^{
