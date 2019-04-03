@@ -45,6 +45,13 @@
 
 - (void)setCaptureSession:(AVCaptureSession*)captureSession {
     self.videoPreviewLayer.session = captureSession;
+    UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    AVCaptureVideoOrientation initialVideoOrientation = AVCaptureVideoOrientationPortrait;
+    if (statusBarOrientation != UIInterfaceOrientationUnknown) {
+        initialVideoOrientation = (AVCaptureVideoOrientation)statusBarOrientation;
+    }
+    // videoPreviewLayer 也有 connection
+    self.videoPreviewLayer.connection.videoOrientation = initialVideoOrientation;
 }
 
 @end

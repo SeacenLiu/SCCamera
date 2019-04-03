@@ -23,31 +23,37 @@
 @property (nonatomic, strong) UIImageView *faceImageView;
 @property (nonatomic, assign) BOOL isStartFaceRecognition;
 
+
+@property (nonatomic) dispatch_queue_t sessionQueue;
+@property (nonatomic) dispatch_queue_t videoQueue;
+@property (nonatomic) dispatch_queue_t metaQueue;
+
+@property (nonatomic, strong) AVCaptureDeviceInput *videoInput;
+@property (nonatomic, strong) AVCaptureConnection *videoConnection;
+@property (nonatomic, strong) AVCaptureConnection *audioConnection;
+@property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
+@property (nonatomic, strong) AVCaptureMetadataOutput *metaOutput;
+@property (nonatomic, strong) AVCapturePhotoOutput *photoOutput;;
+// 录制
+@property (nonatomic, assign, getter=isRecording) BOOL recording;
+
 @end
 
-@implementation SCCameraManager {
-    dispatch_queue_t _sessionQueue;
-    dispatch_queue_t _videoQueue;
-    dispatch_queue_t _metaQueue;
-    // 会话
-//    AVCaptureSession *_session;
-    // 输入
-    AVCaptureDeviceInput *_videoInput;
-    // 输出
-    AVCaptureConnection *_videoConnection;
-    AVCaptureConnection *_audioConnection;
-    AVCaptureVideoDataOutput *_videoOutput;
-    AVCaptureMetadataOutput *_metaOutput;
-    AVCapturePhotoOutput *_photoOutput;
-    // 录制
-    BOOL _recording;
-}
+@implementation SCCameraManager
 
 #pragma mark - init
 - (instancetype)init {
     if (self = [super init]) {
-        NSError *error;
-        [self setupSession:&error];
+        // 初始化队列
+        self.sessionQueue = dispatch_queue_create("com.seacen.sessionQueue", DISPATCH_QUEUE_SERIAL);
+        self.videoQueue = dispatch_queue_create("com.seacen.videoQueue", DISPATCH_QUEUE_SERIAL);
+        self.metaQueue = dispatch_queue_create("com.seacen.metaQueue", DISPATCH_QUEUE_SERIAL);
+        
+        self.session = [[AVCaptureSession alloc] init];
+        dispatch_async(self.sessionQueue, ^{
+            NSError *error;
+            [self configureSession:&error];
+        });
     }
     return self;
 }
@@ -58,33 +64,34 @@
 }
 
 - (void)startUp {
-//    dispatch_async(_sessionQueue, ^{
-        if (!self->_session.isRunning) {
-            [self->_session startRunning];
+    dispatch_async(self.sessionQueue, ^{
+        if (!self.session.isRunning) {
+            [self.session startRunning];
         }
-//    });
+    });
 }
 
 - (void)stop {
-//    dispatch_async(_sessionQueue, ^{
-        if (self->_session.isRunning) {
-            [self->_session stopRunning];
+    dispatch_async(self.sessionQueue, ^{
+        if (self.session.isRunning) {
+            [self.session stopRunning];
         }
-//    });
+    });
 }
 
 #pragma mark - 配置
 /** 配置会话 */
-- (void)setupSession:(NSError**)error {
-    // 初始化队列
-    _sessionQueue = dispatch_queue_create("com.seacen.sessionQueue", DISPATCH_QUEUE_SERIAL);
-    _videoQueue = dispatch_queue_create("com.seacen.videoQueue", DISPATCH_QUEUE_SERIAL);
-    _metaQueue = dispatch_queue_create("com.seacen.metaQueue", DISPATCH_QUEUE_SERIAL);
-    
-    _session = [[AVCaptureSession alloc] init];
-    _session.sessionPreset = AVCaptureSessionPresetHigh;//AVCaptureSessionPreset1280x720;
+- (void)configureSession:(NSError**)error {
+    [self.session beginConfiguration];
+    self.session.sessionPreset = AVCaptureSessionPresetPhoto;//AVCaptureSessionPreset1280x720;
     [self setupSessionInput:error];
     [self setupSessionOutput:error];
+    [self.session commitConfiguration];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(cameraManagerDidLoadSession:session:)]) {
+            [self.delegate cameraManagerDidLoadSession:self session:self.session];
+        }
+    });
 }
 
 /** 配置输入 */
@@ -113,6 +120,7 @@
         [_session addOutput:_videoOutput];
     }
     _videoConnection = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
+    NSLog(@"%@", self.videoConnection);
     
     // TODO: - 音频输出
     // ...
@@ -122,7 +130,7 @@
     [_metaOutput setMetadataObjectsDelegate:self queue:_sessionQueue];
     if ([_session canAddOutput:_metaOutput]) {
         [_session addOutput:_metaOutput];
-        [_metaOutput setMetadataObjectTypes:@[AVMetadataObjectTypeFace]];
+//        [_metaOutput setMetadataObjectTypes:@[AVMetadataObjectTypeFace]];
     }
     
     // 静态图片输出

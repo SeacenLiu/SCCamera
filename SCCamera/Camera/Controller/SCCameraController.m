@@ -10,7 +10,7 @@
 #import "SCCameraManager.h"
 #import "SCVideoPreviewView.h"
 
-@interface SCCameraController ()
+@interface SCCameraController () <SCCameraManagerDelegate>
 
 @property (weak, nonatomic) IBOutlet SCVideoPreviewView *preview;
 @property (weak, nonatomic) IBOutlet UIButton *transformBtn;
@@ -32,11 +32,25 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+}
+
+- (void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    
+    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+    
+    if (UIDeviceOrientationIsPortrait(deviceOrientation) || UIDeviceOrientationIsLandscape(deviceOrientation)) {
+        self.preview.videoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
+    }
+}
+
 #pragma mark - view life cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.manager = [SCCameraManager new];
-    self.preview.captureSession = _manager.session;
+    self.manager.delegate = self;
 }
 
 - (void)viewDidLayoutSubviews {
@@ -58,6 +72,12 @@
     [self.manager startUp];
 }
 
+#pragma mark - SCCameraManagerDelegate
+- (void)cameraManagerDidLoadSession:(SCCameraManager *)manager session:(AVCaptureSession *)session {
+    self.preview.captureSession = session;
+}
+
+#pragma mark - 操作
 - (IBAction)takePhotoClick:(id)sender {
     
 }

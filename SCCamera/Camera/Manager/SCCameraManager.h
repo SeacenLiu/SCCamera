@@ -11,10 +11,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SCDetectorResultModel;
+@class SCCameraManager;
 @protocol SCCameraManagerDelegate <NSObject>
 
-
+- (void)cameraManagerDidLoadSession:(SCCameraManager*)manager session:(AVCaptureSession*)session;
 
 @end
 
