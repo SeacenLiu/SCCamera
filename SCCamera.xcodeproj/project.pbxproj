@@ -17,7 +17,6 @@
 		142926852253B68F0056D569 /* SCCameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926832253B68F0056D569 /* SCCameraController.m */; };
 		142926922253B6F60056D569 /* AVCaptureDevice+SCCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926872253B6F50056D569 /* AVCaptureDevice+SCCategory.m */; };
 		142926942253B6F60056D569 /* SCStableCheckTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429268A2253B6F50056D569 /* SCStableCheckTool.m */; };
-		142926952253B6F60056D569 /* UIImage+SCCameraTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429268C2253B6F60056D569 /* UIImage+SCCameraTool.m */; };
 		142926962253B6F60056D569 /* SCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429268E2253B6F60056D569 /* SCCameraManager.m */; };
 		142926B82254A10A0056D569 /* UIImage+SCCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926B72254A10A0056D569 /* UIImage+SCCamera.m */; };
 		142926BC2254B1510056D569 /* SCVideoPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926BB2254B1510056D569 /* SCVideoPreviewView.m */; };
@@ -40,8 +39,6 @@
 		142926872253B6F50056D569 /* AVCaptureDevice+SCCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVCaptureDevice+SCCategory.m"; sourceTree = "<group>"; };
 		142926882253B6F50056D569 /* SCCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCCameraManager.h; sourceTree = "<group>"; };
 		1429268A2253B6F50056D569 /* SCStableCheckTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCStableCheckTool.m; sourceTree = "<group>"; };
-		1429268B2253B6F50056D569 /* UIImage+SCCameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+SCCameraTool.h"; sourceTree = "<group>"; };
-		1429268C2253B6F60056D569 /* UIImage+SCCameraTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+SCCameraTool.m"; sourceTree = "<group>"; };
 		1429268D2253B6F60056D569 /* SCStableCheckTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCStableCheckTool.h; sourceTree = "<group>"; };
 		1429268E2253B6F60056D569 /* SCCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCCameraManager.m; sourceTree = "<group>"; };
 		142926902253B6F60056D569 /* AVCaptureDevice+SCCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVCaptureDevice+SCCategory.h"; sourceTree = "<group>"; };
@@ -120,8 +117,6 @@
 		142926982253B6FC0056D569 /* Category */ = {
 			isa = PBXGroup;
 			children = (
-				1429268B2253B6F50056D569 /* UIImage+SCCameraTool.h */,
-				1429268C2253B6F60056D569 /* UIImage+SCCameraTool.m */,
 				142926902253B6F60056D569 /* AVCaptureDevice+SCCategory.h */,
 				142926872253B6F50056D569 /* AVCaptureDevice+SCCategory.m */,
 				142926B62254A10A0056D569 /* UIImage+SCCamera.h */,
@@ -222,7 +217,6 @@
 			files = (
 				142926962253B6F60056D569 /* SCCameraManager.m in Sources */,
 				1429266E2253B5AC0056D569 /* ViewController.m in Sources */,
-				142926952253B6F60056D569 /* UIImage+SCCameraTool.m in Sources */,
 				142926792253B5AE0056D569 /* main.m in Sources */,
 				142926852253B68F0056D569 /* SCCameraController.m in Sources */,
 				142926942253B6F60056D569 /* SCStableCheckTool.m in Sources */,
@@ -374,7 +368,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6426K9AWKV;
 				INFOPLIST_FILE = SCCamera/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -392,7 +386,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6426K9AWKV;
 				INFOPLIST_FILE = SCCamera/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

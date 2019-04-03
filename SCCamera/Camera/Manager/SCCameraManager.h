@@ -23,9 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id<SCCameraManagerDelegate> delegate;
 
 @property (nonatomic, strong) AVCaptureSession *session;
-@property (nonatomic, assign) BOOL faceRecognition;
-@property (nonatomic, assign) BOOL isDetectFace;
-
 
 /** 开启Session */
 - (void)startUp;
@@ -33,13 +30,21 @@ NS_ASSUME_NONNULL_BEGIN
 /** 暂停Session */
 - (void)stop;
 
-// 开启闪光灯
-- (void)openFlashLight;
-// 关闭闪光灯
-- (void)closeFlashLight;
-// 切换前后置摄像头
+/**
+ 拍照方法
+
+ @param orientation 方向
+ @param handle 获取UIImage的Block
+ */
+- (void)takePhoto:(AVCaptureVideoOrientation)orientation handle:(void(^)(UIImage*))handle;
+
+/** 设置闪光灯 */
+- (void)setFlashMode:(AVCaptureFlashMode)mode;
+
+/** 切换前后置摄像头 */
 - (void)changeCameraInputDeviceisFront:(BOOL)isFront;
-// 对焦
+
+/** 对焦 */
 - (void)focusInPoint:(CGPoint)devicePoint;
 
 @end

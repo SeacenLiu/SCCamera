@@ -32,20 +32,6 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskAll;
-}
-
-- (void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
-    
-    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
-    
-    if (UIDeviceOrientationIsPortrait(deviceOrientation) || UIDeviceOrientationIsLandscape(deviceOrientation)) {
-        self.preview.videoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
-    }
-}
-
 #pragma mark - view life cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -62,11 +48,6 @@
     [self.manager stop];
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    [self.manager startUp];
-}
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.manager startUp];
@@ -78,8 +59,14 @@
 }
 
 #pragma mark - 操作
+/** 聚焦手势 */
+- (void)focusingTapClcik:(UITapGestureRecognizer *)tap {
+    CGPoint location = [tap locationInView:self.preview];
+    [self.manager focusInPoint:location];
+}
+
 - (IBAction)takePhotoClick:(id)sender {
-    
+    NSLog(@"拍照操作");
 }
 
 - (IBAction)closeClick:(UIButton *)sender {
@@ -89,21 +76,28 @@
 - (IBAction)transformAction:(UIButton *)sender {
     self.transformBtn.selected = !self.transformBtn.selected;
     [self.manager changeCameraInputDeviceisFront:sender.selected];
-    if (self.transformBtn.selected == YES) { // 切换为前置镜头关闭闪光灯
-        self.lightSwitchBtn.selected = NO;
-        [self.manager closeFlashLight];
-    }
+    // TODO: - 闪光灯状态问题
 }
 
 - (IBAction)lightSwitchAcrion:(UIButton *)sender {
-    if (self.transformBtn.selected) { // 当前为前置镜头的时候不能打开闪光灯
-        return;
-    }
     self.lightSwitchBtn.selected = !self.lightSwitchBtn.selected;
     if (self.lightSwitchBtn.selected) {
-        [self.manager openFlashLight];
+        [self.manager setFlashMode:AVCaptureFlashModeOn];
     } else {
-        [self.manager closeFlashLight];
+        [self.manager setFlashMode:AVCaptureFlashModeOff];
+    }
+}
+
+#pragma mark - 方向变化处理
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+}
+
+- (void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+    if (UIDeviceOrientationIsPortrait(deviceOrientation) || UIDeviceOrientationIsLandscape(deviceOrientation)) {
+        self.preview.videoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
     }
 }
 

@@ -8,16 +8,10 @@
 
 #import "SCCameraManager.h"
 #import <AVFoundation/AVFoundation.h>
-#import "UIImage+SCCameraTool.h"
-#import "SCStableCheckTool.h"
+#import "UIImage+SCCamera.h"
 
 @interface SCCameraManager ()<AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureMetadataOutputObjectsDelegate>
 
-@property (nonatomic, strong) AVCaptureDeviceInput *backCameraInput; // 后置摄像头输入
-@property (nonatomic, strong) AVCaptureDeviceInput *frontCameraInput; // 前置摄像头输入
-@property (nonatomic, strong) AVCaptureDeviceInput *currentCameraInput;
-
-@property (nonatomic, strong) UIImageView *focusImageView;
 @property (nonatomic, assign) BOOL isManualFocus; // 判断是否手动对焦
 
 @property (nonatomic, strong) UIImageView *faceImageView;
@@ -28,12 +22,15 @@
 @property (nonatomic) dispatch_queue_t videoQueue;
 @property (nonatomic) dispatch_queue_t metaQueue;
 
-@property (nonatomic, strong) AVCaptureDeviceInput *videoInput;
+@property (nonatomic, strong) AVCaptureDeviceInput *backCameraInput; // 后置摄像头输入
+@property (nonatomic, strong) AVCaptureDeviceInput *frontCameraInput; // 前置摄像头输入
+@property (nonatomic, strong) AVCaptureDeviceInput *currentCameraInput;
+
 @property (nonatomic, strong) AVCaptureConnection *videoConnection;
 @property (nonatomic, strong) AVCaptureConnection *audioConnection;
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metaOutput;
-@property (nonatomic, strong) AVCapturePhotoOutput *photoOutput;;
+@property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
 // 录制
 @property (nonatomic, assign, getter=isRecording) BOOL recording;
 
@@ -97,11 +94,10 @@
 /** 配置输入 */
 - (void)setupSessionInput:(NSError**)error {
     // 视频输入(默认是后置摄像头)
-    AVCaptureDevice *videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    _videoInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:error];
-    if ([_session canAddInput:_videoInput]) {
-        [_session addInput:_videoInput];
+    if ([_session canAddInput:self.backCameraInput]) {
+        [_session addInput:self.backCameraInput];
     }
+    self.currentCameraInput = _backCameraInput;
     
     // TODO: - 音频输入
     // ...
@@ -114,29 +110,27 @@
     NSDictionary *rgbOutputSettings = [NSDictionary dictionaryWithObject:
                                        [NSNumber numberWithInt:kCMPixelFormat_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
     [_videoOutput setVideoSettings:rgbOutputSettings];
-//    [_videoOutput setAlwaysDiscardsLateVideoFrames:YES];
     [_videoOutput setSampleBufferDelegate:self queue:_videoQueue];
     if ([_session canAddOutput:_videoOutput]) {
         [_session addOutput:_videoOutput];
     }
     _videoConnection = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
-    NSLog(@"%@", self.videoConnection);
     
     // TODO: - 音频输出
     // ...
     
     // 添加元素输出（识别）
     _metaOutput = [AVCaptureMetadataOutput new];
-    [_metaOutput setMetadataObjectsDelegate:self queue:_sessionQueue];
+    [_metaOutput setMetadataObjectsDelegate:self queue:_metaQueue];
     if ([_session canAddOutput:_metaOutput]) {
         [_session addOutput:_metaOutput];
-//        [_metaOutput setMetadataObjectTypes:@[AVMetadataObjectTypeFace]];
+        [_metaOutput setMetadataObjectTypes:@[AVMetadataObjectTypeFace]];
     }
     
     // 静态图片输出
-    _photoOutput = [AVCapturePhotoOutput new];
-    if ([_session canAddOutput:_photoOutput]) {
-        [_session addOutput:_photoOutput];
+    _stillImageOutput = [AVCaptureStillImageOutput new];
+    if ([_session canAddOutput:_stillImageOutput]) {
+        [_session addOutput:_stillImageOutput];
     }
 }
 
@@ -150,12 +144,24 @@
     
 }
 
-- (void)tapClcik:(UITapGestureRecognizer *)tap {
-//    CGPoint location = [tap locationInView:self.parentView];
-//    [self focusInPoint:location];
+#pragma mark - 拍照操作
+- (void)takePhoto:(AVCaptureVideoOrientation)orientation handle:(void(^)(UIImage*))handle {
+    dispatch_async(self.sessionQueue, ^{
+        AVCaptureConnection* stillImageConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+        stillImageConnection.videoOrientation = orientation;
+        [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:stillImageConnection completionHandler:^(CMSampleBufferRef  _Nullable imageDataSampleBuffer, NSError * _Nullable error) {
+            if (error) {
+                NSLog(@"%@", error);
+                return;
+            }
+            // FIXME: - 需要裁剪到和预览图一致
+            UIImage *originImg = [UIImage imageFromSampleBuffer:imageDataSampleBuffer];
+            handle(originImg);
+        }];
+    });
 }
 
-// 开启自动白平衡
+#pragma mark - 自动白平衡
 - (void)openAutoWhiteBalance {
     [self settingWithDevice:self.currentCameraInput.device config:^(AVCaptureDevice *device, NSError *error) {
         if ([device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeAutoWhiteBalance]) {
@@ -164,63 +170,24 @@
     }];
 }
 
-// 开启闪光灯
-- (void)openFlashLight {
-    AVCaptureDevice *backCamera = [self backCamera];
-    if (backCamera.torchMode == AVCaptureTorchModeOff) {
-        [self settingWithDevice:backCamera config:^(AVCaptureDevice *device, NSError *error) {
-            device.torchMode = AVCaptureTorchModeOn;
-            device.flashMode = AVCaptureFlashModeOn;
+#pragma mark - 闪光灯
+- (void)setFlashMode:(AVCaptureFlashMode)mode {
+    AVCaptureDevice *device = self.currentCameraInput.device;
+    if ([device isFlashModeSupported:mode]) {
+        [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+            if (error) {
+                NSLog(@"%@", error);
+                return;
+            }
+            device.flashMode = mode;
         }];
     }
-}
-
-// 关闭闪光灯
-- (void)closeFlashLight {
-    AVCaptureDevice *backCamera = [self backCamera];
-    if (backCamera.torchMode == AVCaptureTorchModeOn) {
-        [self settingWithDevice:backCamera config:^(AVCaptureDevice *device, NSError *error) {
-            device.torchMode = AVCaptureTorchModeOff;
-            device.flashMode = AVCaptureTorchModeOff;
-        }];
-    }
-}
-
-- (void)changeCameraAnimation {
-//    CATransition *changeAnimation = [CATransition animation];
-////    changeAnimation.delegate = self;
-//    changeAnimation.duration = 0.55;
-//    changeAnimation.type = @"oglFlip";
-//    changeAnimation.subtype = kCATransitionFromRight;
-//    changeAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-//    [self.previewLayer addAnimation:changeAnimation forKey:@"changeAnimation"];
 }
 
 #pragma mark - 聚焦
-- (void)focusInPoint:(CGPoint)devicePoint {
-//    if (!CGRectContainsPoint(self.previewLayer.bounds, devicePoint)) {
-//        return;
-//    }
-//    self.isManualFocus = YES;
-//    [self focusImageAnimateWithCenterPoint:devicePoint];
-//    devicePoint = [self.previewLayer captureDevicePointOfInterestForPoint:devicePoint];
-//    [self focusWithMode:AVCaptureFocusModeAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
-}
-
-- (void)focusImageAnimateWithCenterPoint:(CGPoint)point {
-    [self.focusImageView setCenter:point];
-    self.focusImageView.transform = CGAffineTransformMakeScale(2.0, 2.0);
-    __weak typeof(self) weak = self;
-    [UIView animateWithDuration:0.3f delay:0.f options:UIViewAnimationOptionAllowUserInteraction animations:^{
-        weak.focusImageView.alpha = 1.f;
-        weak.focusImageView.transform = CGAffineTransformMakeScale(1.0, 1.0);
-    } completion:^(BOOL finished) {
-        [UIView animateWithDuration:0.5f delay:0.5f options:UIViewAnimationOptionAllowUserInteraction animations:^{
-            weak.focusImageView.alpha = 0.f;
-        } completion:^(BOOL finished) {
-            weak.isManualFocus = NO;
-        }];
-    }];
+- (void)focusInPoint:(CGPoint)devicePoint; {
+    self.isManualFocus = YES;
+    [self focusWithMode:AVCaptureFocusModeAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
 }
 
 - (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange {
@@ -237,7 +204,61 @@
     }];
 }
 
+#pragma mark - 切换前后置摄像头
+- (void)changeCameraInputDeviceisFront:(BOOL)isFront {
+    dispatch_async(self.sessionQueue, ^{
+        [self.session beginConfiguration];
+        if (isFront) {
+            [self.session removeInput:self.backCameraInput];
+            if ([self.session canAddInput:self.frontCameraInput]) {
+                [self.session addInput:self.frontCameraInput];
+                self.currentCameraInput = self.frontCameraInput;
+            }
+        } else {
+            [self.session removeInput:self.frontCameraInput];
+            if ([self.session canAddInput:self.backCameraInput]) {
+                [self.session addInput:self.backCameraInput];
+                self.currentCameraInput = self.backCameraInput;
+            }
+        }
+        [self.session commitConfiguration];
+    });
+}
+
+
+#pragma mark - getter/setter
+- (AVCaptureDeviceInput *)backCameraInput {
+    if (_backCameraInput == nil) {
+        NSError *error;
+        _backCameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self backCamera] error:&error];
+        if (error) {
+            NSLog(@"获取后置摄像头失败~");
+        }
+    }
+    return _backCameraInput;
+}
+
+- (AVCaptureDeviceInput *)frontCameraInput {
+    if (_frontCameraInput == nil) {
+        NSError *error;
+        _frontCameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontCamera] error:&error];
+        if (error) {
+            NSLog(@"获取前置摄像头失败~");
+        }
+    }
+    return _frontCameraInput;
+}
+
+- (AVCaptureDevice *)frontCamera {
+    return [self cameraWithPosition:AVCaptureDevicePositionFront];
+}
+
+- (AVCaptureDevice *)backCamera {
+    return [self cameraWithPosition:AVCaptureDevicePositionBack];
+}
+
 #pragma mark - Tool
+/** 在sessionQueue中设置Device */
 - (void)settingWithDevice:(AVCaptureDevice*)device config:(void(^)(AVCaptureDevice* device, NSError* error))config {
     dispatch_async(_sessionQueue, ^{
         NSError *error;
@@ -251,90 +272,15 @@
     });
 }
 
-#pragma mark - getter/setter
-// 后置摄像头输入
-- (AVCaptureDeviceInput *)backCameraInput {
-    if (_backCameraInput == nil) {
-        NSError *error;
-        _backCameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self backCamera] error:&error];
-        if (error) {
-            NSLog(@"获取后置摄像头失败~");
-        }
-    }
-    return _backCameraInput;
-}
-
-// 前置摄像头输入
-- (AVCaptureDeviceInput *)frontCameraInput {
-    if (_frontCameraInput == nil) {
-        NSError *error;
-        _frontCameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontCamera] error:&error];
-        if (error) {
-            NSLog(@"获取前置摄像头失败~");
-        }
-    }
-    return _frontCameraInput;
-}
-// 返回前置摄像头
-- (AVCaptureDevice *)frontCamera {
-    return [self cameraWithPosition:AVCaptureDevicePositionFront];
-}
-
-// 返回后置摄像头
-- (AVCaptureDevice *)backCamera {
-    return [self cameraWithPosition:AVCaptureDevicePositionBack];
-}
-
-// 切换前后置摄像头
-- (void)changeCameraInputDeviceisFront:(BOOL)isFront {
-    [self changeCameraAnimation];
-//    __weak typeof(self) weak = self;
-//    dispatch_async(self.sessionQueue, ^{
-//        [weak.session beginConfiguration];
-//        if (isFront) {
-//            [weak.session removeInput:weak.backCameraInput];
-//            if ([weak.session canAddInput:weak.frontCameraInput]) {
-//                [weak.session addInput:weak.frontCameraInput];
-//                weak.currentCameraInput = weak.frontCameraInput;
-//            }
-//        } else {
-//            [weak.session removeInput:weak.frontCameraInput];
-//            if ([weak.session canAddInput:weak.backCameraInput]) {
-//                [weak.session addInput:weak.backCameraInput];
-//                weak.currentCameraInput = weak.backCameraInput;
-//            }
-//        }
-//        [weak.session commitConfiguration];
-//    });
-}
-
-// 用来返回是前置摄像头还是后置摄像头
+/** 用来获取前置摄像头/后置摄像头 */
 - (AVCaptureDevice *)cameraWithPosition:(AVCaptureDevicePosition) position {
-    // 返回和视频录制相关的所有默认设备
     NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-    // 遍历这些设备返回跟position相关的设备
     for (AVCaptureDevice *device in devices) {
         if ([device position] == position) {
             return device;
         }
     }
     return nil;
-}
-
-- (UIImageView *)focusImageView {
-    if (_focusImageView == nil) {
-        _focusImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"touch_focus"]];
-        _focusImageView.alpha = 0;
-    }
-    return _focusImageView;
-}
-
-- (UIImageView *)faceImageView {
-    if (_faceImageView == nil) {
-        _faceImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"face"]];
-        _faceImageView.alpha = 0;
-    }
-    return _faceImageView;
 }
 
 @end

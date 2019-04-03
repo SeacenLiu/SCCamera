@@ -14,7 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SCVideoPreviewView : UIView
 
 @property (nonatomic, readonly) AVCaptureVideoPreviewLayer *videoPreviewLayer;
-@property (strong, nonatomic) AVCaptureSession *captureSession;
+@property (nonatomic, strong) AVCaptureSession *captureSession;
+@property (nonatomic, assign, readonly) AVCaptureVideoOrientation videoOrientation;
 
 - (CGPoint)captureDevicePointForPoint:(CGPoint)point;
 

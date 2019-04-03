@@ -54,4 +54,8 @@
     self.videoPreviewLayer.connection.videoOrientation = initialVideoOrientation;
 }
 
+- (AVCaptureVideoOrientation)videoOrientation {
+    return self.videoPreviewLayer.connection.videoOrientation;
+}
+
 @end
