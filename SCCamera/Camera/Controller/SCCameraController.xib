@@ -63,6 +63,7 @@
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PCp-H3-PtQ">
                             <rect key="frame" x="157.5" y="576" width="60" height="60"/>
+                            <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="60" id="KIc-V4-0wN"/>
                                 <constraint firstAttribute="height" constant="60" id="crn-Hk-cGy"/>

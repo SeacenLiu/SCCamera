@@ -10,27 +10,27 @@
 #import <AVFoundation/AVFoundation.h>
 #import "UIImage+SCCamera.h"
 
-@interface SCCameraManager ()<AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureMetadataOutputObjectsDelegate>
+// TODO: - 判断权限
 
-@property (nonatomic, assign) BOOL isManualFocus; // 判断是否手动对焦
-
-@property (nonatomic, strong) UIImageView *faceImageView;
-@property (nonatomic, assign) BOOL isStartFaceRecognition;
-
-
+@interface SCCameraManager ()<AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureMetadataOutputObjectsDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>
+// queue
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) dispatch_queue_t videoQueue;
+@property (nonatomic) dispatch_queue_t audioQueue;
 @property (nonatomic) dispatch_queue_t metaQueue;
-
-@property (nonatomic, strong) AVCaptureDeviceInput *backCameraInput; // 后置摄像头输入
-@property (nonatomic, strong) AVCaptureDeviceInput *frontCameraInput; // 前置摄像头输入
+// 输入
+@property (nonatomic, strong) AVCaptureDeviceInput *backCameraInput;
+@property (nonatomic, strong) AVCaptureDeviceInput *frontCameraInput;
 @property (nonatomic, strong) AVCaptureDeviceInput *currentCameraInput;
-
+// Connection
 @property (nonatomic, strong) AVCaptureConnection *videoConnection;
 @property (nonatomic, strong) AVCaptureConnection *audioConnection;
+// 输出
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metaOutput;
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
+// 判断是否手动对焦
+@property (nonatomic, assign) BOOL isManualFocus;
 // 录制
 @property (nonatomic, assign, getter=isRecording) BOOL recording;
 
@@ -45,6 +45,7 @@
         self.sessionQueue = dispatch_queue_create("com.seacen.sessionQueue", DISPATCH_QUEUE_SERIAL);
         self.videoQueue = dispatch_queue_create("com.seacen.videoQueue", DISPATCH_QUEUE_SERIAL);
         self.metaQueue = dispatch_queue_create("com.seacen.metaQueue", DISPATCH_QUEUE_SERIAL);
+        self.audioQueue = dispatch_queue_create("com.seacen.audioQueue", DISPATCH_QUEUE_SERIAL);
         
         self.session = [[AVCaptureSession alloc] init];
         dispatch_async(self.sessionQueue, ^{
@@ -70,17 +71,28 @@
 
 - (void)stop {
     dispatch_async(self.sessionQueue, ^{
-        if (self.session.isRunning) {
+        // 预防 session 已经被释放
+        if (!self.session && self.session.isRunning) {
             [self.session stopRunning];
         }
     });
+}
+
+#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+    
+}
+
+#pragma mark - AVCaptureMetadataOutputObjectsDelegate
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
+    // 音频视频都在这里
 }
 
 #pragma mark - 配置
 /** 配置会话 */
 - (void)configureSession:(NSError**)error {
     [self.session beginConfiguration];
-    self.session.sessionPreset = AVCaptureSessionPresetPhoto;//AVCaptureSessionPreset1280x720;
+    self.session.sessionPreset = AVCaptureSessionPresetPhoto;
     [self setupSessionInput:error];
     [self setupSessionOutput:error];
     [self.session commitConfiguration];
@@ -99,8 +111,12 @@
     }
     self.currentCameraInput = _backCameraInput;
     
-    // TODO: - 音频输入
-    // ...
+    // 音频输入
+    AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    AVCaptureDeviceInput *audioIn = [[AVCaptureDeviceInput alloc] initWithDevice:audioDevice error:error];
+    if ([_session canAddInput:audioIn]){
+        [_session addInput:audioIn];
+    }
 }
 
 /** 配置输出 */
@@ -116,8 +132,13 @@
     }
     _videoConnection = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
     
-    // TODO: - 音频输出
-    // ...
+    // 音频输出
+    AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
+    [audioOut setSampleBufferDelegate:self queue:self.audioQueue];
+    if ([_session canAddOutput:audioOut]){
+        [_session addOutput:audioOut];
+    }
+    _audioConnection = [audioOut connectionWithMediaType:AVMediaTypeAudio];
     
     // 添加元素输出（识别）
     _metaOutput = [AVCaptureMetadataOutput new];
@@ -134,22 +155,15 @@
     }
 }
 
-#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
-    
-}
-
-#pragma mark - AVCaptureMetadataOutputObjectsDelegate
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-    
-}
-
 #pragma mark - 拍照操作
 - (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer handle:(void (^)(UIImage *, UIImage *, UIImage *))handle {
+    NSLog(@"takePhoto");
     dispatch_async(self.sessionQueue, ^{
+        NSLog(@"queue");
         AVCaptureConnection* stillImageConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
         stillImageConnection.videoOrientation = previewLayer.connection.videoOrientation;
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:stillImageConnection completionHandler:^(CMSampleBufferRef  _Nullable imageDataSampleBuffer, NSError * _Nullable error) {
+            NSLog(@"call back");
             if (!imageDataSampleBuffer) {
                 return;
             }
