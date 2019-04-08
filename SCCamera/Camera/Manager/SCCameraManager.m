@@ -57,7 +57,8 @@
 }
 
 - (void)dealloc {
-    [self stop];
+    // 感觉不太需要 stop
+//    [self stop];
     NSLog(@"SCCameraManager dealloc");
 }
 
@@ -158,8 +159,8 @@
 #pragma mark - 拍照操作
 - (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer handle:(void (^)(UIImage *, UIImage *, UIImage *))handle {
     NSLog(@"takePhoto");
-    dispatch_async(self.sessionQueue, ^{
-        NSLog(@"queue");
+//    dispatch_async(self.sessionQueue, ^{
+//        NSLog(@"queue");
         AVCaptureConnection* stillImageConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
         stillImageConnection.videoOrientation = previewLayer.connection.videoOrientation;
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:stillImageConnection completionHandler:^(CMSampleBufferRef  _Nullable imageDataSampleBuffer, NSError * _Nullable error) {
@@ -207,7 +208,7 @@
                 }
             });
         }];
-    });
+//    });
 }
 
 #pragma mark - 自动白平衡

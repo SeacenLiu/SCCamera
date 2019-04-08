@@ -91,6 +91,7 @@
 
 /** 拍照 */
 - (IBAction)takePhotoClick:(id)sender {
+    NSLog(@"拍照功能");
     [self.takePhotoBtn setEnabled:NO];
     [self.manager takePhoto:self.previewView.videoPreviewLayer handle:^(UIImage * _Nonnull originImage, UIImage * _Nonnull scaledImage, UIImage * _Nonnull croppedImage) {
         [self.takePhotoBtn setEnabled:YES];
