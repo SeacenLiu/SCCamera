@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** 曝光 */
 - (void)exposePoint:(CGPoint)point;
 
+#pragma mark - 视频处理
+
 @end
 
 NS_ASSUME_NONNULL_END
