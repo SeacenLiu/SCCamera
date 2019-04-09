@@ -15,7 +15,6 @@
 		142926732253B5AE0056D569 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 142926722253B5AE0056D569 /* Assets.xcassets */; };
 		142926762253B5AE0056D569 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 142926742253B5AE0056D569 /* LaunchScreen.storyboard */; };
 		142926792253B5AE0056D569 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926782253B5AE0056D569 /* main.m */; };
-		142926842253B68F0056D569 /* SCCameraController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 142926822253B68F0056D569 /* SCCameraController.xib */; };
 		142926852253B68F0056D569 /* SCCameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926832253B68F0056D569 /* SCCameraController.m */; };
 		142926922253B6F60056D569 /* AVCaptureDevice+SCCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926872253B6F50056D569 /* AVCaptureDevice+SCCategory.m */; };
 		142926942253B6F60056D569 /* SCStableCheckTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429268A2253B6F50056D569 /* SCStableCheckTool.m */; };
@@ -42,7 +41,6 @@
 		142926772253B5AE0056D569 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		142926782253B5AE0056D569 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		142926812253B68F0056D569 /* SCCameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCCameraController.h; sourceTree = "<group>"; };
-		142926822253B68F0056D569 /* SCCameraController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SCCameraController.xib; sourceTree = "<group>"; };
 		142926832253B68F0056D569 /* SCCameraController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCCameraController.m; sourceTree = "<group>"; };
 		142926872253B6F50056D569 /* AVCaptureDevice+SCCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVCaptureDevice+SCCategory.m"; sourceTree = "<group>"; };
 		142926882253B6F50056D569 /* SCCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCCameraManager.h; sourceTree = "<group>"; };
@@ -145,7 +143,6 @@
 			children = (
 				142926812253B68F0056D569 /* SCCameraController.h */,
 				142926832253B68F0056D569 /* SCCameraController.m */,
-				142926822253B68F0056D569 /* SCCameraController.xib */,
 				142926BD225510270056D569 /* SCCameraResultController.h */,
 				142926BE225510280056D569 /* SCCameraResultController.m */,
 				142926BF225510280056D569 /* SCCameraResultController.xib */,
@@ -226,7 +223,6 @@
 				1413CBB8225B7C860052E78A /* SCCameraView.xib in Resources */,
 				142926762253B5AE0056D569 /* LaunchScreen.storyboard in Resources */,
 				142926732253B5AE0056D569 /* Assets.xcassets in Resources */,
-				142926842253B68F0056D569 /* SCCameraController.xib in Resources */,
 				142926712253B5AC0056D569 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

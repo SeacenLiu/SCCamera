@@ -12,7 +12,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="H7S-Cs-rMa">
+        <view contentMode="scaleToFill" id="H7S-Cs-rMa" customClass="SCCameraView">
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
@@ -27,10 +27,16 @@
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6IL-g0-sEJ">
                     <rect key="frame" x="16" y="590" width="37" height="34"/>
                     <state key="normal" title="取消"/>
+                    <connections>
+                        <action selector="cancelClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="ZbS-m1-AuE"/>
+                    </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XaX-uc-iLF">
                     <rect key="frame" x="285" y="40" width="74" height="34"/>
                     <state key="normal" title="转换镜头"/>
+                    <connections>
+                        <action selector="switchCameraClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="nmW-06-8Mg"/>
+                    </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KSL-QZ-4cf">
                     <rect key="frame" x="16" y="40" width="74" height="34"/>
@@ -38,6 +44,9 @@
                     <state key="selected" title="闪光灯开">
                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </state>
+                    <connections>
+                        <action selector="flashLightClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="62R-Mr-Nsw"/>
+                    </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VoU-X9-41W">
                     <rect key="frame" x="157.5" y="577" width="60" height="60"/>
@@ -49,6 +58,20 @@
                     <state key="normal" title="拍照">
                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </state>
+                    <connections>
+                        <action selector="takePhotoClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="aJ1-tS-V2S"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r9m-OU-hRX">
+                    <rect key="frame" x="159.5" y="40" width="56" height="34"/>
+                    <state key="normal" title="补光关"/>
+                    <state key="selected" title="补光开">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <connections>
+                        <action selector="flashLightClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="lwJ-no-ABT"/>
+                        <action selector="torchLightClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="dcN-jH-Rc4"/>
+                    </connections>
                 </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -63,14 +86,19 @@
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="trailing" secondItem="YvZ-r1-EmH" secondAttribute="trailing" id="L2i-IK-pFV"/>
                 <constraint firstItem="KSL-QZ-4cf" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" constant="16" id="Obg-UN-Wua"/>
                 <constraint firstItem="XaX-uc-iLF" firstAttribute="top" secondItem="YvZ-r1-EmH" secondAttribute="top" constant="20" id="Pf4-Vw-ABC"/>
+                <constraint firstItem="r9m-OU-hRX" firstAttribute="centerY" secondItem="KSL-QZ-4cf" secondAttribute="centerY" id="a6f-pd-hMS"/>
                 <constraint firstItem="KSL-QZ-4cf" firstAttribute="top" secondItem="YvZ-r1-EmH" secondAttribute="top" constant="20" id="feR-sz-jt3"/>
                 <constraint firstItem="YvZ-r1-EmH" firstAttribute="bottom" secondItem="VoU-X9-41W" secondAttribute="bottom" constant="30" id="fwN-Zl-owX"/>
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="bottom" secondItem="YvZ-r1-EmH" secondAttribute="bottom" id="gaz-In-9cv"/>
                 <constraint firstItem="1DL-l0-VxH" firstAttribute="top" secondItem="H7S-Cs-rMa" secondAttribute="top" id="ruw-bR-cNm"/>
                 <constraint firstItem="1DL-l0-VxH" firstAttribute="trailing" secondItem="YvZ-r1-EmH" secondAttribute="trailing" id="tUZ-2S-sil"/>
+                <constraint firstItem="r9m-OU-hRX" firstAttribute="centerX" secondItem="1DL-l0-VxH" secondAttribute="centerX" id="vYo-Kx-G0e"/>
                 <constraint firstItem="6IL-g0-sEJ" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" constant="16" id="yGq-9l-z2S"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="YvZ-r1-EmH"/>
+            <connections>
+                <outlet property="previewView" destination="a6Q-nO-Q96" id="3hR-v2-VdE"/>
+            </connections>
             <point key="canvasLocation" x="-625" y="63"/>
         </view>
     </objects>

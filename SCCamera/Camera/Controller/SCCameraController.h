@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SCCameraControllerDelegate <NSObject>
 
-//- (void)cameraControllerDidSelectImage:(UIImage*)image;
+
 
 @end
 
