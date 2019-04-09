@@ -11,6 +11,8 @@
 		1413CBB8225B7C860052E78A /* SCCameraView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1413CBB7225B7C860052E78A /* SCCameraView.xib */; };
 		1413CBBB225C946A0052E78A /* UIView+SCCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBBA225C946A0052E78A /* UIView+SCCategory.m */; };
 		1413CBC1225C9B620052E78A /* SCPhotographManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBC0225C9B620052E78A /* SCPhotographManager.m */; };
+		1413CBCF225CDE760052E78A /* SCMovieManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBCE225CDE760052E78A /* SCMovieManager.m */; };
+		1413CBD2225CE28B0052E78A /* UIView+CCHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBD0225CE28A0052E78A /* UIView+CCHUD.m */; };
 		1429266B2253B5AC0056D569 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429266A2253B5AC0056D569 /* AppDelegate.m */; };
 		1429266E2253B5AC0056D569 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429266D2253B5AC0056D569 /* ViewController.m */; };
 		142926712253B5AC0056D569 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1429266F2253B5AC0056D569 /* Main.storyboard */; };
@@ -36,6 +38,10 @@
 		1413CBBA225C946A0052E78A /* UIView+SCCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+SCCategory.m"; sourceTree = "<group>"; };
 		1413CBBF225C9B620052E78A /* SCPhotographManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCPhotographManager.h; sourceTree = "<group>"; };
 		1413CBC0225C9B620052E78A /* SCPhotographManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCPhotographManager.m; sourceTree = "<group>"; };
+		1413CBCD225CDE760052E78A /* SCMovieManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCMovieManager.h; sourceTree = "<group>"; };
+		1413CBCE225CDE760052E78A /* SCMovieManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCMovieManager.m; sourceTree = "<group>"; };
+		1413CBD0225CE28A0052E78A /* UIView+CCHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+CCHUD.m"; sourceTree = "<group>"; };
+		1413CBD1225CE28A0052E78A /* UIView+CCHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+CCHUD.h"; sourceTree = "<group>"; };
 		142926662253B5AC0056D569 /* SCCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SCCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		142926692253B5AC0056D569 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1429266A2253B5AC0056D569 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -129,6 +135,8 @@
 				1429268E2253B6F60056D569 /* SCCameraManager.m */,
 				1413CBBF225C9B620052E78A /* SCPhotographManager.h */,
 				1413CBC0225C9B620052E78A /* SCPhotographManager.m */,
+				1413CBCD225CDE760052E78A /* SCMovieManager.h */,
+				1413CBCE225CDE760052E78A /* SCMovieManager.m */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -136,6 +144,8 @@
 		142926982253B6FC0056D569 /* Category */ = {
 			isa = PBXGroup;
 			children = (
+				1413CBD1225CE28A0052E78A /* UIView+CCHUD.h */,
+				1413CBD0225CE28A0052E78A /* UIView+CCHUD.m */,
 				142926902253B6F60056D569 /* AVCaptureDevice+SCCategory.h */,
 				142926872253B6F50056D569 /* AVCaptureDevice+SCCategory.m */,
 				142926B62254A10A0056D569 /* UIImage+SCCamera.h */,
@@ -248,8 +258,10 @@
 				142926962253B6F60056D569 /* SCCameraManager.m in Sources */,
 				1429266E2253B5AC0056D569 /* ViewController.m in Sources */,
 				142926792253B5AE0056D569 /* main.m in Sources */,
+				1413CBD2225CE28B0052E78A /* UIView+CCHUD.m in Sources */,
 				142926852253B68F0056D569 /* SCCameraController.m in Sources */,
 				142926942253B6F60056D569 /* SCStableCheckTool.m in Sources */,
+				1413CBCF225CDE760052E78A /* SCMovieManager.m in Sources */,
 				142926C0225510280056D569 /* SCCameraResultController.m in Sources */,
 				143B9A972255FA520038C15A /* UIViewController+SCCamera.m in Sources */,
 				142926922253B6F60056D569 /* AVCaptureDevice+SCCategory.m in Sources */,

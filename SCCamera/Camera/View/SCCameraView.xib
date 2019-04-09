@@ -59,7 +59,7 @@
                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </state>
                     <connections>
-                        <action selector="takePhotoClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="aJ1-tS-V2S"/>
+                        <action selector="photoClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="5LA-Zu-44p"/>
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r9m-OU-hRX">
@@ -72,6 +72,13 @@
                         <action selector="torchLightClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="Jna-sR-Yxr"/>
                     </connections>
                 </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aP4-Rl-Ysu">
+                    <rect key="frame" x="322" y="590" width="37" height="34"/>
+                    <state key="normal" title="拍照"/>
+                    <connections>
+                        <action selector="cameraTypeClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="KJN-ZU-3wb"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
@@ -79,8 +86,10 @@
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" id="2S1-8Z-L0B"/>
                 <constraint firstItem="1DL-l0-VxH" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" id="9Ve-j5-BTN"/>
                 <constraint firstItem="VoU-X9-41W" firstAttribute="centerX" secondItem="1DL-l0-VxH" secondAttribute="centerX" id="AOw-99-RG9"/>
+                <constraint firstItem="aP4-Rl-Ysu" firstAttribute="centerY" secondItem="VoU-X9-41W" secondAttribute="centerY" id="AyM-f3-qV1"/>
                 <constraint firstItem="YvZ-r1-EmH" firstAttribute="trailing" secondItem="XaX-uc-iLF" secondAttribute="trailing" constant="16" id="DHg-DW-tPi"/>
                 <constraint firstItem="1DL-l0-VxH" firstAttribute="bottom" secondItem="YvZ-r1-EmH" secondAttribute="bottom" id="FET-xo-TiU"/>
+                <constraint firstItem="YvZ-r1-EmH" firstAttribute="trailing" secondItem="aP4-Rl-Ysu" secondAttribute="trailing" constant="16" id="FhH-8Y-n3J"/>
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="top" secondItem="H7S-Cs-rMa" secondAttribute="top" id="Kps-Yy-KXC"/>
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="trailing" secondItem="YvZ-r1-EmH" secondAttribute="trailing" id="L2i-IK-pFV"/>
                 <constraint firstItem="KSL-QZ-4cf" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" constant="16" id="Obg-UN-Wua"/>
@@ -96,7 +105,9 @@
             </constraints>
             <viewLayoutGuide key="safeArea" id="YvZ-r1-EmH"/>
             <connections>
+                <outlet property="photoBtn" destination="VoU-X9-41W" id="Kdl-sF-U5I"/>
                 <outlet property="previewView" destination="a6Q-nO-Q96" id="3hR-v2-VdE"/>
+                <outlet property="typeSelBtn" destination="aP4-Rl-Ysu" id="jpf-se-gWU"/>
             </connections>
             <point key="canvasLocation" x="-625" y="63"/>
         </view>

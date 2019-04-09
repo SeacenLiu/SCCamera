@@ -11,17 +11,18 @@
 #import "SCCameraResultController.h"
 #import "SCCameraView.h"
 #import "AVCaptureDevice+SCCategory.h"
+#import "UIView+CCHUD.h"
+#import <AssetsLibrary/AssetsLibrary.h>
+#import <Photos/Photos.h>
 
 #import "SCCameraManager.h"
 #import "SCPhotographManager.h"
+#import "SCMovieManager.h"
 
-@interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate>
-@property (nonatomic, strong) SCCameraView *cameraView;
-@property (nonatomic, strong) SCCameraManager *cameraManager;
-@property (nonatomic, strong) SCPhotographManager *photographManager;
-
+@interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) dispatch_queue_t metaQueue;
+@property (nonatomic) dispatch_queue_t captureQueue;
 // 会话
 @property (nonatomic, strong) AVCaptureSession *session;
 // 输入
@@ -35,6 +36,13 @@
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metaOutput;
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
+
+@property (nonatomic, strong) SCCameraView *cameraView;
+@property (nonatomic, strong) SCCameraManager *cameraManager;
+@property (nonatomic, strong) SCPhotographManager *photographManager;
+@property (nonatomic, strong) SCMovieManager *movieManager;
+
+@property (nonatomic, assign) BOOL recording;
 @end
 
 @implementation SCCameraController
@@ -54,9 +62,11 @@
     
     self.cameraManager = [SCCameraManager new];
     self.photographManager = [SCPhotographManager new];
+    self.movieManager = [SCMovieManager new];
     
     _sessionQueue = dispatch_queue_create("com.seacen.sessionQueue", DISPATCH_QUEUE_SERIAL);
     _metaQueue = dispatch_queue_create("com.seacen.metaQueue", DISPATCH_QUEUE_SERIAL);
+    _captureQueue = dispatch_queue_create("com.seacen.captureQueue", DISPATCH_QUEUE_SERIAL);
     dispatch_async(_sessionQueue, ^{
         [self configureSession:nil];
     });
@@ -78,6 +88,13 @@
 #pragma mark - AVCaptureMetadataOutputObjectsDelegate
 - (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
     
+}
+
+#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
+    if (_recording) {
+        [_movieManager writeData:connection video:_videoConnection audio:_audioConnection buffer:sampleBuffer];
+    }
 }
 
 #pragma mark - 会话配置
@@ -119,7 +136,7 @@
                                        [NSNumber numberWithInt:kCMPixelFormat_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
     [_videoOutput setVideoSettings:rgbOutputSettings];
     // TODO: - 监听视频流
-//    [_videoOutput setSampleBufferDelegate:self queue:_videoQueue];
+    [_videoOutput setSampleBufferDelegate:self queue:_captureQueue];
     if ([_session canAddOutput:_videoOutput]) {
         [_session addOutput:_videoOutput];
     }
@@ -128,7 +145,7 @@
     // 音频输出
     AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
     // TODO: - 监听音频流
-//    [audioOut setSampleBufferDelegate:self queue:_audioQueue];
+    [audioOut setSampleBufferDelegate:self queue:_captureQueue];
     if ([_session canAddOutput:audioOut]){
         [_session addOutput:audioOut];
     }
@@ -211,14 +228,46 @@
 }
 
 #pragma mark - 录制视频
-/// 开始录制视频
-- (void)startRecordVideoAction:(SCCameraView *)cameraView {
-    
+/// 开始录像视频
+- (void)startRecordVideoAction:(SCCameraView *)cameraView{
+    _recording = YES;
+    _movieManager.currentDevice = self.currentCameraInput.device;
+    _movieManager.currentOrientation = cameraView.previewView.videoOrientation;
+    [_movieManager start:^(NSError * _Nonnull error) {
+        if (error)
+            [self.view showError:error];
+    }];
 }
 
-/// 停止录制视频
-- (void)stopRecordVideoAction:(SCCameraView *)cameraView {
-    
+/// 停止录像视频
+- (void)stopRecordVideoAction:(SCCameraView *)cameraView{
+    _recording = NO;
+    [_movieManager stop:^(NSURL * _Nonnull url, NSError * _Nonnull error) {
+        if (error) {
+            [self.view showError:error];
+        } else {
+            [self.view showAlertView:@"是否保存到相册" ok:^(UIAlertAction *act) {
+                [self saveMovieToCameraRoll: url];
+            } cancel:nil];
+        }
+    }];
+}
+
+// 保存视频
+- (void)saveMovieToCameraRoll:(NSURL *)url{
+    [self.view showLoadHUD:@"保存中..."];
+    [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
+        if (status != PHAuthorizationStatusAuthorized) return;
+        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+            PHAssetCreationRequest *videoRequest = [PHAssetCreationRequest creationRequestForAsset];
+            [videoRequest addResourceWithType:PHAssetResourceTypeVideo fileURL:url options:nil];
+        } completionHandler:^( BOOL success, NSError * _Nullable error ) {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                [self.view hideHUD];
+            });
+            success?:[self.view showError:error];
+        }];
+    }];
 }
 
 #pragma mark - 方向变化处理

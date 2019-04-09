@@ -10,9 +10,18 @@
 #import "SCVideoPreviewView.h"
 #import "UIView+SCCategory.h"
 
+typedef NS_ENUM(NSInteger, SCCameraType) {
+    SCCameraTypePhoto,
+    SCCameraTypeMovie
+};
+
 @interface SCCameraView ()
 /// 聚焦动画 view
-@property(nonatomic, strong) UIView *focusView;
+@property (nonatomic, strong) UIView *focusView;
+
+@property (weak, nonatomic) IBOutlet UIButton *photoBtn;
+@property (weak, nonatomic) IBOutlet UIButton *typeSelBtn;
+@property (nonatomic, assign) SCCameraType currentType;
 @end
 
 // TODO: - 聚焦，曝光，人脸检测动画
@@ -76,10 +85,51 @@
     }
 }
 
-- (IBAction)takePhotoClick:(id)sender {
-    if ([_delegate respondsToSelector:@selector(takePhotoAction:)]) {
-        [_delegate takePhotoAction:self];
+- (IBAction)cameraTypeClick:(UIButton*)sender {
+    // 如果是 photoBtn 被选中（正在录像）则不做事
+    if (self.photoBtn.isSelected) {
+        return;
     }
+    switch (self.currentType) {
+        case SCCameraTypePhoto:
+            [self.photoBtn setTitle:@"开始" forState:UIControlStateNormal];
+            [self.photoBtn setTitle:@"停止" forState:UIControlStateSelected];
+            [self.typeSelBtn setTitle:@"录像" forState:UIControlStateNormal];
+            self.currentType = SCCameraTypeMovie;
+            break;
+        case SCCameraTypeMovie:
+            [self.photoBtn setSelected:NO];
+            [self.photoBtn setTitle:@"拍照" forState:UIControlStateNormal];
+            [self.photoBtn setTitle:@"拍照" forState:UIControlStateSelected];
+            [self.typeSelBtn setTitle:@"拍照" forState:UIControlStateNormal];
+            self.currentType = SCCameraTypePhoto;
+            break;
+    }
+}
+
+- (IBAction)photoClick:(UIButton*)sender {
+    switch (self.currentType) {
+        case SCCameraTypePhoto:
+            if ([_delegate respondsToSelector:@selector(takePhotoAction:)]) {
+                [_delegate takePhotoAction:self];
+            }
+            break;
+        case SCCameraTypeMovie:
+            [sender setSelected:!sender.isSelected];
+            if (sender.isSelected) {
+                // 开始录制
+                if ([_delegate respondsToSelector:@selector(startRecordVideoAction:)]) {
+                    [_delegate startRecordVideoAction:self];
+                }
+            } else {
+                // 停止录制
+                if ([_delegate respondsToSelector:@selector(stopRecordVideoAction:)]) {
+                    [_delegate stopRecordVideoAction:self];
+                }
+            }
+            break;
+    }
+    
 }
 
 #pragma mark - Animation
