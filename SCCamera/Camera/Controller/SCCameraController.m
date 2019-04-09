@@ -159,9 +159,11 @@
 
 /// 转换镜头
 - (void)switchCameraAction:(SCCameraView *)cameraView isFront:(BOOL)isFront handle:(void(^)(NSError *error))handle {
-    AVCaptureDeviceInput *old = isFront ? self.frontCameraInput : self.backCameraInput;
-    AVCaptureDeviceInput *new = isFront ? self.backCameraInput : self.frontCameraInput;
-    [self.cameraManager switchCamera:_session old:old new:new handle:handle];
+    dispatch_async(_sessionQueue, ^{
+        AVCaptureDeviceInput *old = isFront ? self.backCameraInput : self.frontCameraInput;
+        AVCaptureDeviceInput *new = isFront ? self.frontCameraInput : self.backCameraInput;
+        [self.cameraManager switchCamera:self.session old:old new:new handle:handle];
+    });
 }
 
 /// 闪光灯

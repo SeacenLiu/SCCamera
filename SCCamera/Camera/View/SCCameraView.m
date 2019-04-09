@@ -64,7 +64,12 @@
 }
 
 - (IBAction)switchCameraClick:(UIButton*)sender {
-    
+    if ([_delegate respondsToSelector:@selector(switchCameraAction:isFront:handle:)]) {
+        [sender setSelected:!sender.isSelected];
+        [_delegate switchCameraAction:self isFront:sender.isSelected handle:^(NSError * _Nonnull error) {
+            // TODO: - handle error
+        }];
+    }
 }
 
 - (IBAction)cancelClick:(id)sender {
