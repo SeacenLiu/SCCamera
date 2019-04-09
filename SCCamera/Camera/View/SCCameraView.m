@@ -13,8 +13,6 @@
 @interface SCCameraView ()
 /// 聚焦动画 view
 @property(nonatomic, strong) UIView *focusView;
-/// 曝光动画 view
-@property(nonatomic, strong) UIView *exposureView;
 @end
 
 // TODO: - 聚焦，曝光，人脸检测动画
@@ -24,6 +22,7 @@
     SCCameraView *view = (SCCameraView*)[[UINib nibWithNibName:@"SCCameraView" bundle:nil] instantiateWithOwner:self options:nil][0];
     view.frame = frame;
     [view addGestureRecognizers];
+    [view addSubview:view.focusView];
     return view;
 }
 
@@ -38,8 +37,7 @@
 - (void)focusingTapClcik:(UITapGestureRecognizer *)tap {
     if ([_delegate respondsToSelector:@selector(focusAndExposeAction:point:handle:)]) {
         CGPoint point = [tap locationInView:self.previewView];
-        [self runFocusAnimation:self.focusView point:point];
-        [_delegate focusAndExposeAction:self point:[self.previewView captureDevicePointForPoint:point] handle:^(NSError * _Nonnull error) {
+        [_delegate focusAndExposeAction:self point:point handle:^(NSError * _Nonnull error) {
             // TODO: - handle error
         }];
     }
@@ -85,8 +83,12 @@
 }
 
 #pragma mark - Animation
+- (void)runFocusAnimation:(CGPoint)center {
+    [self runFocusAnimation:self.focusView point:center];
+}
+
 /// 聚焦、曝光动画
--(void)runFocusAnimation:(UIView *)view point:(CGPoint)point {
+- (void)runFocusAnimation:(UIView *)view point:(CGPoint)point {
     view.center = point;
     view.hidden = NO;
     [UIView animateWithDuration:0.15f delay:0.0f options:UIViewAnimationOptionCurveEaseInOut animations:^{
@@ -97,28 +99,6 @@
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
             view.hidden = YES;
             view.transform = CGAffineTransformIdentity;
-        });
-    }];
-}
-
-/// 自动聚焦、曝光动画
-- (void)runResetAnimation {
-    self.focusView.center = CGPointMake(self.previewView.width/2, self.previewView.height/2);
-    self.exposureView.center = CGPointMake(self.previewView.width/2, self.previewView.height/2);;
-    self.exposureView.transform = CGAffineTransformMakeScale(1.2f, 1.2f);
-    self.focusView.hidden = NO;
-    self.focusView.hidden = NO;
-    [UIView animateWithDuration:0.15f delay:0.0f options:UIViewAnimationOptionCurveEaseInOut animations:^{
-        self.focusView.layer.transform = CATransform3DMakeScale(0.5, 0.5, 1.0);
-        self.exposureView.layer.transform = CATransform3DMakeScale(0.7, 0.7, 1.0);
-    } completion:^(BOOL complete) {
-        double delayInSeconds = 0.5f;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            self.focusView.hidden = YES;
-            self.exposureView.hidden = YES;
-            self.focusView.transform = CGAffineTransformIdentity;
-            self.exposureView.transform = CGAffineTransformIdentity;
         });
     }];
 }

@@ -53,6 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 指定构造函数
 + (instancetype)cameraView:(CGRect)frame;
 
+- (void)runFocusAnimation:(CGPoint)center;
+
 @end
 
 NS_ASSUME_NONNULL_END

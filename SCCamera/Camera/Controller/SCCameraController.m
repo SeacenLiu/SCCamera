@@ -147,11 +147,16 @@
 #pragma mark - 相机操作
 /// 聚焦&曝光操作
 - (void)focusAndExposeAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void (^)(NSError * _Nonnull))handle {
+    // instestPoint 只能在主线程获取
+    CGPoint instestPoint = [cameraView.previewView captureDevicePointForPoint:point];
     dispatch_async(_sessionQueue, ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [cameraView runFocusAnimation:point];
+        });
         [self.cameraManager focusWithMode:AVCaptureFocusModeAutoFocus
                            exposeWithMode:AVCaptureExposureModeAutoExpose
                                    device:self.currentCameraInput.device
-                            atDevicePoint:point
+                            atDevicePoint:instestPoint
                  monitorSubjectAreaChange:YES
                                    handle:handle];
     });
