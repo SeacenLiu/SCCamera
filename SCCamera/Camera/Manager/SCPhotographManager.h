@@ -14,7 +14,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SCPhotographManager : NSObject
 
 /// 拍照
-- (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer stillImageOutput:(AVCaptureStillImageOutput*)stillImageOutput handle:(void (^)(UIImage *originImage, UIImage *scaledImage, UIImage *croppedImage))handle;
+- (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer
+ stillImageOutput:(AVCaptureStillImageOutput*)stillImageOutput
+           handle:(void (^)(UIImage *image))handle;
 
 @end
 
