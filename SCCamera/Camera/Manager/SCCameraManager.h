@@ -10,40 +10,26 @@
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
-@class SCCameraManager;
-@protocol SCCameraManagerDelegate <NSObject>
-
-- (void)cameraManagerDidLoadSession:(SCCameraManager*)manager session:(AVCaptureSession*)session;
-
-@end
+typedef void(^_Nullable CameraHandleError)(NSError * _Nullable error);
 
 @interface SCCameraManager : NSObject
+- (AVCaptureDeviceInput *)switchCamera:(AVCaptureSession *)session old:(AVCaptureDeviceInput *)oldinput new:(AVCaptureDeviceInput *)newinput handle:(CameraHandleError)handle;
 
-@property (nonatomic, weak) id<SCCameraManagerDelegate> delegate;
+- (void)resetFocusAndExposure:(AVCaptureDevice *)device handle:(CameraHandleError)handle;
 
-@property (nonatomic, strong) AVCaptureSession *session;
+- (void)zoom:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle;
 
-/** 开启Session */
-- (void)startUp;
+- (void)focus:(AVCaptureDevice *)device point:(CGPoint)point handle:(CameraHandleError)handle;
 
-/** 暂停Session */
-- (void)stop;
+- (void)expose:(AVCaptureDevice *)device point:(CGPoint)point handle:(CameraHandleError)handle;
 
-/** 拍照方法 */
-- (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer handle:(void (^)(UIImage *originImage, UIImage *scaledImage, UIImage *croppedImage))handle;
+- (void)changeFlash:(AVCaptureDevice *)device mode:(AVCaptureFlashMode)mode handle:(CameraHandleError)handle;
 
-/** 设置闪光灯 */
-- (void)setFlashMode:(AVCaptureFlashMode)mode;
+- (void)changeTorch:(AVCaptureDevice *)device model:(AVCaptureTorchMode)mode handle:(CameraHandleError)handle;
 
-/** 切换前后置摄像头 */
-- (void)changeCameraInputDeviceisFront:(BOOL)isFront;
+- (AVCaptureFlashMode)flashMode:(AVCaptureDevice *)device handle:(CameraHandleError)handle;
 
-/** 聚焦 */
-- (void)focusInPoint:(CGPoint)devicePoint;
-
-/** 曝光 */
-- (void)exposePoint:(CGPoint)point;
+- (AVCaptureTorchMode)torchMode:(AVCaptureDevice *)device handle:(CameraHandleError)handle;
 
 #pragma mark - 视频处理
 

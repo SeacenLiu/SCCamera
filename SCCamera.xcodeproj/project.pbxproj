@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1413CBB6225B7C590052E78A /* SCCameraView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBB5225B7C590052E78A /* SCCameraView.m */; };
 		1413CBB8225B7C860052E78A /* SCCameraView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1413CBB7225B7C860052E78A /* SCCameraView.xib */; };
+		1413CBBB225C946A0052E78A /* UIView+SCCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBBA225C946A0052E78A /* UIView+SCCategory.m */; };
 		1429266B2253B5AC0056D569 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429266A2253B5AC0056D569 /* AppDelegate.m */; };
 		1429266E2253B5AC0056D569 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429266D2253B5AC0056D569 /* ViewController.m */; };
 		142926712253B5AC0056D569 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1429266F2253B5AC0056D569 /* Main.storyboard */; };
@@ -30,6 +31,8 @@
 		1413CBB4225B7C590052E78A /* SCCameraView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCCameraView.h; sourceTree = "<group>"; };
 		1413CBB5225B7C590052E78A /* SCCameraView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCCameraView.m; sourceTree = "<group>"; };
 		1413CBB7225B7C860052E78A /* SCCameraView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SCCameraView.xib; sourceTree = "<group>"; };
+		1413CBB9225C946A0052E78A /* UIView+SCCategory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+SCCategory.h"; sourceTree = "<group>"; };
+		1413CBBA225C946A0052E78A /* UIView+SCCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+SCCategory.m"; sourceTree = "<group>"; };
 		142926662253B5AC0056D569 /* SCCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SCCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		142926692253B5AC0056D569 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1429266A2253B5AC0056D569 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -134,6 +137,8 @@
 				142926B72254A10A0056D569 /* UIImage+SCCamera.m */,
 				143B9A952255FA520038C15A /* UIViewController+SCCamera.h */,
 				143B9A962255FA520038C15A /* UIViewController+SCCamera.m */,
+				1413CBB9225C946A0052E78A /* UIView+SCCategory.h */,
+				1413CBBA225C946A0052E78A /* UIView+SCCategory.m */,
 			);
 			path = Category;
 			sourceTree = "<group>";
@@ -234,6 +239,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1413CBBB225C946A0052E78A /* UIView+SCCategory.m in Sources */,
 				142926962253B6F60056D569 /* SCCameraManager.m in Sources */,
 				1429266E2253B5AC0056D569 /* ViewController.m in Sources */,
 				142926792253B5AE0056D569 /* main.m in Sources */,

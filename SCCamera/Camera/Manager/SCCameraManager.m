@@ -9,10 +9,12 @@
 #import "SCCameraManager.h"
 #import <AVFoundation/AVFoundation.h>
 #import "UIImage+SCCamera.h"
+#import "AVCaptureDevice+SCCategory.h"
 
 // TODO: - 判断权限
 
 @interface SCCameraManager ()<AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureMetadataOutputObjectsDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>
+@property (nonatomic, strong) AVCaptureSession *session;
 // queue
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) dispatch_queue_t videoQueue;
@@ -41,17 +43,7 @@
 #pragma mark - init
 - (instancetype)init {
     if (self = [super init]) {
-        // 初始化队列
-        self.sessionQueue = dispatch_queue_create("com.seacen.sessionQueue", DISPATCH_QUEUE_SERIAL);
-        self.videoQueue = dispatch_queue_create("com.seacen.videoQueue", DISPATCH_QUEUE_SERIAL);
-        self.metaQueue = dispatch_queue_create("com.seacen.metaQueue", DISPATCH_QUEUE_SERIAL);
-        self.audioQueue = dispatch_queue_create("com.seacen.audioQueue", DISPATCH_QUEUE_SERIAL);
         
-        self.session = [[AVCaptureSession alloc] init];
-        dispatch_async(self.sessionQueue, ^{
-            NSError *error;
-            [self configureSession:&error];
-        });
     }
     return self;
 }
@@ -62,98 +54,91 @@
     NSLog(@"SCCameraManager dealloc");
 }
 
-- (void)startUp {
-    dispatch_async(self.sessionQueue, ^{
-        if (!self.session.isRunning) {
-            [self.session startRunning];
+#pragma mark - 缩放
+- (void)zoom:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle {
+    // TODO: - 缩放
+}
+
+#pragma mark - 聚焦
+- (void)focus:(AVCaptureDevice *)device point:(CGPoint)point handle:(CameraHandleError)handle {
+    self.isManualFocus = YES;
+    NSLog(@"%@", NSStringFromCGPoint(point));
+    [self focusWithMode:AVCaptureFocusModeAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:point monitorSubjectAreaChange:YES];
+}
+
+- (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange {
+    [self settingWithDevice:[self.currentCameraInput device] config:^(AVCaptureDevice *device, NSError *error) {
+        if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:focusMode]) {
+            [device setFocusMode:focusMode];
+            [device setFocusPointOfInterest:point];
         }
-    });
-}
-
-- (void)stop {
-    dispatch_async(self.sessionQueue, ^{
-        // 预防 session 已经被释放
-        if (!self.session && self.session.isRunning) {
-            [self.session stopRunning];
+        if ([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:exposureMode]) {
+            [device setExposureMode:exposureMode];
+            [device setExposurePointOfInterest:point];
         }
-    });
+        [device setSubjectAreaChangeMonitoringEnabled:monitorSubjectAreaChange];
+    }];
 }
 
-#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+- (void)resetFocusAndExposure:(AVCaptureDevice *)device handle:(CameraHandleError)handle {
     
 }
 
-#pragma mark - AVCaptureMetadataOutputObjectsDelegate
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-    // 音频视频都在这里
+#pragma mark - 曝光
+static const NSString *CameraAdjustingExposureContext;
+- (void)expose:(AVCaptureDevice *)device point:(CGPoint)point handle:(CameraHandleError)handle {
+    BOOL supported = [device isExposurePointOfInterestSupported] &&
+    [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure];
+    if (supported) {
+        [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+            if (error) {
+                NSLog(@"%@", error);
+                return;
+            }
+            device.exposurePointOfInterest = point;
+            device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+            if ([device isExposureModeSupported:AVCaptureExposureModeLocked]) {
+                [device addObserver:self forKeyPath:@"adjustingExposure" options:NSKeyValueObservingOptionNew context:&CameraAdjustingExposureContext];
+            }
+        }];
+    }
 }
-
-#pragma mark - 配置
-/** 配置会话 */
-- (void)configureSession:(NSError**)error {
-    [self.session beginConfiguration];
-    self.session.sessionPreset = AVCaptureSessionPresetPhoto;
-    [self setupSessionInput:error];
-    [self setupSessionOutput:error];
-    [self.session commitConfiguration];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(cameraManagerDidLoadSession:session:)]) {
-            [self.delegate cameraManagerDidLoadSession:self session:self.session];
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
+    if (context == &CameraAdjustingExposureContext) {
+        AVCaptureDevice *device = (AVCaptureDevice *)object;
+        if (!device.isAdjustingExposure && [device isExposureModeSupported:AVCaptureExposureModeLocked]) {
+            [object removeObserver:self forKeyPath:@"adjustingExposure" context:&CameraAdjustingExposureContext];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSError *error;
+                if ([device lockForConfiguration:&error]) {
+                    device.exposureMode = AVCaptureExposureModeLocked;
+                    [device unlockForConfiguration];
+                } else {
+                    NSLog(@"%@", error);
+                }
+            });
         }
-    });
-}
-
-/** 配置输入 */
-- (void)setupSessionInput:(NSError**)error {
-    // 视频输入(默认是后置摄像头)
-    if ([_session canAddInput:self.backCameraInput]) {
-        [_session addInput:self.backCameraInput];
-    }
-    self.currentCameraInput = _backCameraInput;
-    
-    // 音频输入
-    AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    AVCaptureDeviceInput *audioIn = [[AVCaptureDeviceInput alloc] initWithDevice:audioDevice error:error];
-    if ([_session canAddInput:audioIn]){
-        [_session addInput:audioIn];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
 
-/** 配置输出 */
-- (void)setupSessionOutput:(NSError**)error {
-    // 添加视频输出
-    _videoOutput = [AVCaptureVideoDataOutput new];
-    NSDictionary *rgbOutputSettings = [NSDictionary dictionaryWithObject:
-                                       [NSNumber numberWithInt:kCMPixelFormat_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
-    [_videoOutput setVideoSettings:rgbOutputSettings];
-    [_videoOutput setSampleBufferDelegate:self queue:_videoQueue];
-    if ([_session canAddOutput:_videoOutput]) {
-        [_session addOutput:_videoOutput];
-    }
-    _videoConnection = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
+- (void)changeFlash:(AVCaptureDevice *)device mode:(AVCaptureFlashMode)mode handle:(CameraHandleError)handle {
     
-    // 音频输出
-    AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
-    [audioOut setSampleBufferDelegate:self queue:self.audioQueue];
-    if ([_session canAddOutput:audioOut]){
-        [_session addOutput:audioOut];
-    }
-    _audioConnection = [audioOut connectionWithMediaType:AVMediaTypeAudio];
+}
+
+- (void)changeTorch:(AVCaptureDevice *)device model:(AVCaptureTorchMode)mode handle:(CameraHandleError)handle {
     
-    // 添加元素输出（识别）
-    _metaOutput = [AVCaptureMetadataOutput new];
-    [_metaOutput setMetadataObjectsDelegate:self queue:_metaQueue];
-    if ([_session canAddOutput:_metaOutput]) {
-        [_session addOutput:_metaOutput];
-        [_metaOutput setMetadataObjectTypes:@[AVMetadataObjectTypeFace]];
-    }
+}
+
+- (AVCaptureFlashMode)flashMode:(AVCaptureDevice *)device handle:(CameraHandleError)handle {
     
-    // 静态图片输出
-    _stillImageOutput = [AVCaptureStillImageOutput new];
-    if ([_session canAddOutput:_stillImageOutput]) {
-        [_session addOutput:_stillImageOutput];
-    }
+    return NULL;
+}
+
+- (AVCaptureTorchMode)torchMode:(AVCaptureDevice *)device handle:(CameraHandleError)handle {
+    
+    return NULL;
 }
 
 #pragma mark - 拍照操作
@@ -234,70 +219,6 @@
     }
 }
 
-#pragma mark - 聚焦
-- (void)focusInPoint:(CGPoint)devicePoint; {
-    self.isManualFocus = YES;
-    [self focusWithMode:AVCaptureFocusModeAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
-}
-
-- (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange {
-    [self settingWithDevice:[self.currentCameraInput device] config:^(AVCaptureDevice *device, NSError *error) {
-        if ([device isFocusPointOfInterestSupported] && [device isFocusModeSupported:focusMode]) {
-            [device setFocusMode:focusMode];
-            [device setFocusPointOfInterest:point];
-        }
-        if ([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:exposureMode]) {
-            [device setExposureMode:exposureMode];
-            [device setExposurePointOfInterest:point];
-        }
-        [device setSubjectAreaChangeMonitoringEnabled:monitorSubjectAreaChange];
-    }];
-}
-
-#pragma mark - 曝光
-static const NSString *CameraAdjustingExposureContext;
-- (void)exposePoint:(CGPoint)point {
-    [self expose:self.currentCameraInput.device point:point];
-}
-
-- (void)expose:(AVCaptureDevice *)device point:(CGPoint)point {
-    BOOL supported = [device isExposurePointOfInterestSupported] &&
-    [device isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure];
-    if (supported) {
-        [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
-            if (error) {
-                NSLog(@"%@", error);
-                return;
-            }
-            device.exposurePointOfInterest = point;
-            device.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
-            if ([device isExposureModeSupported:AVCaptureExposureModeLocked]) {
-                [device addObserver:self forKeyPath:@"adjustingExposure" options:NSKeyValueObservingOptionNew context:&CameraAdjustingExposureContext];
-            }
-        }];
-    }
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
-    if (context == &CameraAdjustingExposureContext) {
-        AVCaptureDevice *device = (AVCaptureDevice *)object;
-        if (!device.isAdjustingExposure && [device isExposureModeSupported:AVCaptureExposureModeLocked]) {
-            [object removeObserver:self forKeyPath:@"adjustingExposure" context:&CameraAdjustingExposureContext];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSError *error;
-                if ([device lockForConfiguration:&error]) {
-                    device.exposureMode = AVCaptureExposureModeLocked;
-                    [device unlockForConfiguration];
-                } else {
-                    NSLog(@"%@", error);
-                }
-            });
-        }
-    } else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
-}
-
 #pragma mark - 切换前后置摄像头
 - (void)changeCameraInputDeviceisFront:(BOOL)isFront {
     dispatch_async(self.sessionQueue, ^{
@@ -320,60 +241,22 @@ static const NSString *CameraAdjustingExposureContext;
 }
 
 #pragma mark - getter/setter
-- (AVCaptureDeviceInput *)backCameraInput {
-    if (_backCameraInput == nil) {
-        NSError *error;
-        _backCameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self backCamera] error:&error];
-        if (error) {
-            NSLog(@"获取后置摄像头失败~");
-        }
-    }
-    return _backCameraInput;
-}
 
-- (AVCaptureDeviceInput *)frontCameraInput {
-    if (_frontCameraInput == nil) {
-        NSError *error;
-        _frontCameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontCamera] error:&error];
-        if (error) {
-            NSLog(@"获取前置摄像头失败~");
-        }
-    }
-    return _frontCameraInput;
-}
-
-- (AVCaptureDevice *)frontCamera {
-    return [self cameraWithPosition:AVCaptureDevicePositionFront];
-}
-
-- (AVCaptureDevice *)backCamera {
-    return [self cameraWithPosition:AVCaptureDevicePositionBack];
-}
 
 #pragma mark - Tool
 /** 在sessionQueue中设置Device */
 - (void)settingWithDevice:(AVCaptureDevice*)device config:(void(^)(AVCaptureDevice* device, NSError* error))config {
-    dispatch_async(_sessionQueue, ^{
-        NSError *error;
-        if ([device lockForConfiguration:&error]) {
-            config(device, nil);
-            [device unlockForConfiguration];
-        }
-        if (error) {
-            config(nil, error);
-        }
-    });
-}
-
-/** 用来获取前置摄像头/后置摄像头 */
-- (AVCaptureDevice *)cameraWithPosition:(AVCaptureDevicePosition) position {
-    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-    for (AVCaptureDevice *device in devices) {
-        if ([device position] == position) {
-            return device;
-        }
-    }
-    return nil;
+    [device settingWithConfig:config queue:NULL];
+//    dispatch_async(_sessionQueue, ^{
+//        NSError *error;
+//        if ([device lockForConfiguration:&error]) {
+//            config(device, nil);
+//            [device unlockForConfiguration];
+//        }
+//        if (error) {
+//            config(nil, error);
+//        }
+//    });
 }
 
 @end

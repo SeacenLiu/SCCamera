@@ -39,8 +39,21 @@
 @implementation AVCaptureDevice (SCCategory)
 @dynamic deviceQueue;
 
-- (void)settingWithConfig:(void(^)(AVCaptureDevice* device, NSError* error))config {
-    dispatch_async(self.deviceQueue, ^{
++ (AVCaptureDevice *)cameraWithPosition:(AVCaptureDevicePosition) position {
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    for (AVCaptureDevice *device in devices) {
+        if ([device position] == position) {
+            return device;
+        }
+    }
+    return nil;
+}
+
+- (void)settingWithConfig:(void(^)(AVCaptureDevice* device, NSError* error))config queue:(dispatch_queue_t)queue {
+    if (queue == NULL) {
+        queue = self.deviceQueue;
+    }
+    dispatch_async(queue, ^{
         NSError *error;
         if ([self lockForConfiguration:&error]) {
             config(self, nil);
