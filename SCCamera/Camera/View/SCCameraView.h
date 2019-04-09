@@ -16,13 +16,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - 相机操作
 /// 闪光灯
-- (void)flashLightAction:(SCCameraView *)cameraView handle:(void(^)(NSError *error))handle;
+- (void)flashLightAction:(SCCameraView *)cameraView isOn:(BOOL)isOn handle:(void(^)(NSError *error))handle;
 /// 补光
-- (void)torchLightAction:(SCCameraView *)cameraView handle:(void(^)(NSError *error))handle;
+- (void)torchLightAction:(SCCameraView *)cameraView isOn:(BOOL)isOn handle:(void(^)(NSError *error))handle;
 /// 转换摄像头
-- (void)switchCameraAction:(SCCameraView *)cameraView handle:(void(^)(NSError *error))handle;
-/// 自动聚焦曝光
-- (void)autoFocusAndExposureAction:(SCCameraView *)cameraView handle:(void(^)(NSError *error))handle;
+- (void)switchCameraAction:(SCCameraView *)cameraView isFront:(BOOL)isFront handle:(void(^)(NSError *error))handle;
 /// 聚焦&曝光
 - (void)focusAndExposeAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void(^)(NSError *error))handle;
 /// 缩放

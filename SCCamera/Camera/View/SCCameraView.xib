@@ -69,8 +69,7 @@
                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </state>
                     <connections>
-                        <action selector="flashLightClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="lwJ-no-ABT"/>
-                        <action selector="torchLightClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="dcN-jH-Rc4"/>
+                        <action selector="torchLightClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="Jna-sR-Yxr"/>
                     </connections>
                 </button>
             </subviews>

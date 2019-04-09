@@ -158,13 +158,26 @@
 }
 
 /// 转换镜头
-- (void)switchCameraAction:(SCCameraView *)cameraView handle:(void (^)(NSError * _Nonnull))handle {
-    
+- (void)switchCameraAction:(SCCameraView *)cameraView isFront:(BOOL)isFront handle:(void(^)(NSError *error))handle {
+    AVCaptureDeviceInput *old = isFront ? self.frontCameraInput : self.backCameraInput;
+    AVCaptureDeviceInput *new = isFront ? self.backCameraInput : self.frontCameraInput;
+    [self.cameraManager switchCamera:_session old:old new:new handle:handle];
 }
 
-/// 闪光灯设置
-- (void)flashLightAction:(SCCameraView *)cameraView handle:(void (^)(NSError * _Nonnull))handle {
-    
+/// 闪光灯
+- (void)flashLightAction:(SCCameraView *)cameraView isOn:(BOOL)isOn handle:(void(^)(NSError *error))handle {
+    dispatch_async(_sessionQueue, ^{
+        AVCaptureFlashMode mode = isOn?AVCaptureFlashModeOn:AVCaptureFlashModeOff;
+        [self.cameraManager changeFlash:self.currentCameraInput.device mode:mode handle:handle];
+    });
+}
+
+/// 补光
+- (void)torchLightAction:(SCCameraView *)cameraView isOn:(BOOL)isOn handle:(void(^)(NSError *error))handle {
+    dispatch_async(_sessionQueue, ^{
+        AVCaptureTorchMode mode = isOn?AVCaptureTorchModeOn:AVCaptureTorchModeOff;
+        [self.cameraManager changeTorch:self.currentCameraInput.device mode:mode handle:handle];
+    });
 }
 
 /// 取消

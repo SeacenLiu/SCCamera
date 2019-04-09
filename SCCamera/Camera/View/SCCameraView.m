@@ -40,35 +40,43 @@
         CGPoint point = [tap locationInView:self.previewView];
         [self runFocusAnimation:self.focusView point:point];
         [_delegate focusAndExposeAction:self point:[self.previewView captureDevicePointForPoint:point] handle:^(NSError * _Nonnull error) {
-            
+            // TODO: - handle error
         }];
     }
 }
 
-- (IBAction)flashLightClick:(id)sender {
-    if ([self.delegate respondsToSelector:@selector(flashLightAction:handle:)]) {
-        [self.delegate flashLightAction:self handle:^(NSError * _Nonnull error) {
-            
+- (IBAction)flashLightClick:(UIButton*)sender {
+    if ([self.delegate respondsToSelector:@selector(flashLightAction:isOn:handle:)]) {
+        [sender setSelected:!sender.isSelected];
+        [_delegate flashLightAction:self isOn:sender.isSelected handle:^(NSError * _Nonnull error) {
+            // TODO: - handle error
         }];
     }
 }
 
-- (IBAction)torchLightClick:(id)sender {
-    
+- (IBAction)torchLightClick:(UIButton*)sender {
+    if ([self.delegate respondsToSelector:@selector(torchLightAction:isOn:handle:)]) {
+        [sender setSelected:!sender.isSelected];
+        [_delegate torchLightAction:self isOn:sender.isSelected handle:^(NSError * _Nonnull error) {
+            // TODO: - handle error
+        }];
+    }
 }
 
-- (IBAction)switchCameraClick:(id)sender {
+- (IBAction)switchCameraClick:(UIButton*)sender {
     
 }
 
 - (IBAction)cancelClick:(id)sender {
-    if ([self.delegate respondsToSelector:@selector(cancelAction:)]) {
-        [self.delegate cancelAction:self];
+    if ([_delegate respondsToSelector:@selector(cancelAction:)]) {
+        [_delegate cancelAction:self];
     }
 }
 
 - (IBAction)takePhotoClick:(id)sender {
-    
+    if ([_delegate respondsToSelector:@selector(takePhotoAction:)]) {
+        [_delegate takePhotoAction:self];
+    }
 }
 
 #pragma mark - Animation
@@ -120,17 +128,6 @@
         _focusView.hidden = YES;
     }
     return _focusView;
-}
-
--(UIView *)exposureView{
-    if (_exposureView == nil) {
-        _exposureView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 150, 150.0f)];
-        _exposureView.backgroundColor = [UIColor clearColor];
-        _exposureView.layer.borderColor = [UIColor whiteColor].CGColor;
-        _exposureView.layer.borderWidth = 5.0f;
-        _exposureView.hidden = YES;
-    }
-    return _exposureView;
 }
 
 @end

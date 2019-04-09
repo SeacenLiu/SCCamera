@@ -27,17 +27,30 @@
 }
 
 - (void)dealloc {
-    // 感觉不太需要 stop
-    //    [self stop];
     NSLog(@"SCCameraManager dealloc");
 }
 
-#pragma mark - 缩放
+/// 转换摄像头
+- (void)switchCamera:(AVCaptureSession *)session
+                                   old:(AVCaptureDeviceInput *)oldInput
+                                   new:(AVCaptureDeviceInput *)newInput
+                                handle:(CameraHandleError)handle {
+    [session beginConfiguration];
+    [session removeInput:oldInput];
+    if ([session canAddInput:newInput]) {
+        [session addInput:newInput];
+    } else {
+        [session addInput:oldInput];
+    }
+    [session commitConfiguration];
+}
+
+/// 缩放
 - (void)zoom:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle {
     // TODO: - 缩放
 }
 
-#pragma mark - 聚焦&曝光
+/// 聚焦&曝光
 - (void)focusWithMode:(AVCaptureFocusMode)focusMode
        exposeWithMode:(AVCaptureExposureMode)exposureMode
                device:(AVCaptureDevice*)device
@@ -63,55 +76,46 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
     }];
 }
 
+/// 闪光灯
 - (void)changeFlash:(AVCaptureDevice *)device mode:(AVCaptureFlashMode)mode handle:(CameraHandleError)handle {
-    
+    [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+        if (error) {
+            handle(error);
+            return;
+        }
+        if ([device isFlashModeSupported:mode]) {
+            device.flashMode = mode;
+        } else {
+            // TODO: - 抛出错误 handle(error)
+        }
+    }];
 }
 
-- (void)changeTorch:(AVCaptureDevice *)device model:(AVCaptureTorchMode)mode handle:(CameraHandleError)handle {
-    
+/// 补光
+- (void)changeTorch:(AVCaptureDevice *)device mode:(AVCaptureTorchMode)mode handle:(CameraHandleError)handle {
+    [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+        if (error) {
+            handle(error);
+            return;
+        }
+        if ([device isTorchModeSupported:mode]) {
+            device.torchMode = mode;
+        } else {
+            // TODO: - 抛出错误 handle(error)
+        }
+    }];
 }
 
-- (AVCaptureFlashMode)flashMode:(AVCaptureDevice *)device handle:(CameraHandleError)handle {
-    
-    return NULL;
+/// 自动白平衡
+- (void)openAutoWhiteBalance:(AVCaptureDevice *)device {
+    [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+        if ([device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeAutoWhiteBalance]) {
+            [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeAutoWhiteBalance];
+        }
+    }];
 }
-
-- (AVCaptureTorchMode)torchMode:(AVCaptureDevice *)device handle:(CameraHandleError)handle {
-    
-    return NULL;
-}
-
-#pragma mark - 拍照操作
-
-
-#pragma mark - 自动白平衡
-- (void)openAutoWhiteBalance {
-    //    [self settingWithDevice:self.currentCameraInput.device config:^(AVCaptureDevice *device, NSError *error) {
-    //        if ([device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeAutoWhiteBalance]) {
-    //            [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeAutoWhiteBalance];
-    //        }
-    //    }];
-}
-
-#pragma mark - 闪光灯
-- (void)setFlashMode:(AVCaptureFlashMode)mode {
-    //    AVCaptureDevice *device = self.currentCameraInput.device;
-    //    if ([device isFlashModeSupported:mode]) {
-    //        [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
-    //            if (error) {
-    //                NSLog(@"%@", error);
-    //                return;
-    //            }
-    //            device.flashMode = mode;
-    //        }];
-    //    }
-}
-
-#pragma mark - getter/setter
-
 
 #pragma mark - Tool
-/** 在sessionQueue中设置Device */
 - (void)settingWithDevice:(AVCaptureDevice*)device config:(void(^)(AVCaptureDevice* device, NSError* error))config {
     NSError *error;
     if ([device lockForConfiguration:&error]) {

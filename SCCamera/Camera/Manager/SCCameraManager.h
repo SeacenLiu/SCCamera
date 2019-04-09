@@ -13,9 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void(^_Nullable CameraHandleError)(NSError * _Nullable error);
 
 @interface SCCameraManager : NSObject
-- (AVCaptureDeviceInput *)switchCamera:(AVCaptureSession *)session old:(AVCaptureDeviceInput *)oldinput new:(AVCaptureDeviceInput *)newinput handle:(CameraHandleError)handle;
-
-- (void)zoom:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle;
+- (void)switchCamera:(AVCaptureSession *)session
+                 old:(AVCaptureDeviceInput *)oldInput
+                 new:(AVCaptureDeviceInput *)newInput
+              handle:(CameraHandleError)handle;
 
 - (void)focusWithMode:(AVCaptureFocusMode)focusMode
        exposeWithMode:(AVCaptureExposureMode)exposureMode
@@ -24,16 +25,11 @@ typedef void(^_Nullable CameraHandleError)(NSError * _Nullable error);
 monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
                handle:(CameraHandleError)handle;
 
-- (void)changeFlash:(AVCaptureDevice *)device mode:(AVCaptureFlashMode)mode handle:(CameraHandleError)handle;
+- (void)changeFlash:(AVCaptureDevice*)device mode:(AVCaptureFlashMode)mode handle:(CameraHandleError)handle;
 
-- (void)changeTorch:(AVCaptureDevice *)device model:(AVCaptureTorchMode)mode handle:(CameraHandleError)handle;
+- (void)changeTorch:(AVCaptureDevice*)device mode:(AVCaptureTorchMode)mode handle:(CameraHandleError)handle;
 
-- (AVCaptureFlashMode)flashMode:(AVCaptureDevice *)device handle:(CameraHandleError)handle;
-
-- (AVCaptureTorchMode)torchMode:(AVCaptureDevice *)device handle:(CameraHandleError)handle;
-
-#pragma mark - 视频处理
-
+- (void)zoom:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle;
 @end
 
 NS_ASSUME_NONNULL_END
