@@ -23,10 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)switchCameraAction:(SCCameraView *)cameraView handle:(void(^)(NSError *error))handle;
 /// 自动聚焦曝光
 - (void)autoFocusAndExposureAction:(SCCameraView *)cameraView handle:(void(^)(NSError *error))handle;
-/// 聚焦
-- (void)focusAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void(^)(NSError *error))handle;
-/// 曝光
-- (void)exposAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void(^)(NSError *error))handle;
+/// 聚焦&曝光
+- (void)focusAndExposeAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void(^)(NSError *error))handle;
 /// 缩放
 - (void)zoomAction:(SCCameraView *)cameraView factor:(CGFloat)factor;
 

@@ -77,7 +77,6 @@
 /** 配置会话 */
 - (void)configureSession:(NSError**)error {
     self.session = [AVCaptureSession new];
-//    _session.usesApplicationAudioSession = NO;
     [self.session beginConfiguration];
     self.session.sessionPreset = AVCaptureSessionPresetPhoto;
     [self setupSessionInput:error];
@@ -146,14 +145,16 @@
 }
 
 #pragma mark - 相机操作
-/// 聚焦操作
-- (void)focusAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void (^)(NSError * _Nonnull))handle {
-    [self.cameraManager focus:self.currentCameraInput.device point:point handle:nil];
-}
-
-/// 曝光操作
-- (void)exposAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void (^)(NSError * _Nonnull))handle {
-    [self.cameraManager expose:self.currentCameraInput.device point:point handle:nil];
+/// 聚焦&曝光操作
+- (void)focusAndExposeAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void (^)(NSError * _Nonnull))handle {
+    dispatch_async(_sessionQueue, ^{
+        [self.cameraManager focusWithMode:AVCaptureFocusModeAutoFocus
+                           exposeWithMode:AVCaptureExposureModeAutoExpose
+                                   device:self.currentCameraInput.device
+                            atDevicePoint:point
+                 monitorSubjectAreaChange:YES
+                                   handle:handle];
+    });
 }
 
 /// 转换镜头

@@ -32,29 +32,14 @@
     // 单击 -> 聚焦
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(focusingTapClcik:)];
     [self.previewView addGestureRecognizer:tap];
-    // 双击 -> 曝光
-    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(exposeTabClick:)];
-    doubleTap.numberOfTapsRequired = 2;
-    [self.previewView addGestureRecognizer:doubleTap];
-    // 手势冲突
-    [tap requireGestureRecognizerToFail:doubleTap];
 }
 
 #pragma mark - 相机操作
 - (void)focusingTapClcik:(UITapGestureRecognizer *)tap {
-    if ([_delegate respondsToSelector:@selector(focusAction:point:handle:)]) {
+    if ([_delegate respondsToSelector:@selector(focusAndExposeAction:point:handle:)]) {
         CGPoint point = [tap locationInView:self.previewView];
         [self runFocusAnimation:self.focusView point:point];
-        [_delegate focusAction:self point:[self.previewView captureDevicePointForPoint:point] handle:^(NSError *error) {
-            
-        }];
-    }
-}
-
-- (void)exposeTabClick:(UITapGestureRecognizer *)tap {
-    CGPoint point = [tap locationInView:self.previewView];
-    if ([self.delegate respondsToSelector:@selector(exposAction:point:handle:)]) {
-        [self.delegate exposAction:self point:point handle:^(NSError * _Nonnull error) {
+        [_delegate focusAndExposeAction:self point:[self.previewView captureDevicePointForPoint:point] handle:^(NSError * _Nonnull error) {
             
         }];
     }
