@@ -7,15 +7,18 @@
 //
 
 #import "SCCameraController.h"
-#import "SCCameraManager.h"
 #import "SCVideoPreviewView.h"
 #import "SCCameraResultController.h"
 #import "SCCameraView.h"
 #import "AVCaptureDevice+SCCategory.h"
 
+#import "SCCameraManager.h"
+#import "SCPhotographManager.h"
+
 @interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate>
 @property (nonatomic, strong) SCCameraView *cameraView;
 @property (nonatomic, strong) SCCameraManager *cameraManager;
+@property (nonatomic, strong) SCPhotographManager *photographManager;
 
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) dispatch_queue_t metaQueue;
@@ -40,6 +43,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.cameraManager = [SCCameraManager new];
+    self.photographManager = [SCPhotographManager new];
     self.cameraView = [SCCameraView cameraView:self.view.frame];
     self.cameraView.delegate = self;
     [self.view addSubview:_cameraView];
@@ -167,10 +171,34 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+#pragma mark - 切换前后置摄像头
+// FIXME: - 待定，应该在 CameraManager
+- (void)changeCameraInputDeviceisFront:(BOOL)isFront {
+    dispatch_async(self.sessionQueue, ^{
+        [self.session beginConfiguration];
+        if (isFront) {
+            [self.session removeInput:self.backCameraInput];
+            if ([self.session canAddInput:self.frontCameraInput]) {
+                [self.session addInput:self.frontCameraInput];
+                self.currentCameraInput = self.frontCameraInput;
+            }
+        } else {
+            [self.session removeInput:self.frontCameraInput];
+            if ([self.session canAddInput:self.backCameraInput]) {
+                [self.session addInput:self.backCameraInput];
+                self.currentCameraInput = self.backCameraInput;
+            }
+        }
+        [self.session commitConfiguration];
+    });
+}
+
 #pragma mark - 拍照
 /// 拍照
 - (void)takePhotoAction:(SCCameraView *)cameraView {
-    
+    [self.photographManager takePhoto:self.cameraView.previewView.videoPreviewLayer stillImageOutput:self.stillImageOutput handle:^(UIImage * _Nonnull originImage, UIImage * _Nonnull scaledImage, UIImage * _Nonnull croppedImage) {
+        NSLog(@"take photo success.");
+    }];
 }
 
 #pragma mark - 录制视频

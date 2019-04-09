@@ -42,13 +42,6 @@
 
 #pragma mark - 相机操作
 - (void)focusingTapClcik:(UITapGestureRecognizer *)tap {
-//    CGPoint point = [tap locationInView:self.previewView];
-//    CGPoint devicePoint = [self.previewView.videoPreviewLayer captureDevicePointOfInterestForPoint:point];
-//    if ([self.delegate respondsToSelector:@selector(focusAction:point:handle:)]) {
-//        [self.delegate focusAction:self point:point handle:^(NSError * _Nonnull error) {
-//
-//        }];
-//    }    
     if ([_delegate respondsToSelector:@selector(focusAction:point:handle:)]) {
         CGPoint point = [tap locationInView:self.previewView];
         [self runFocusAnimation:self.focusView point:point];
