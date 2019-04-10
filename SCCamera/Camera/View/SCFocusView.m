@@ -15,6 +15,13 @@
 IB_DESIGNABLE
 @implementation SCFocusView
 
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        [self setupUI];
+    }
+    return self;
+}
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     [self setupUI];
@@ -40,6 +47,7 @@ IB_DESIGNABLE
 
 - (void)setupUI {
     _lineWidth = 1;
+    self.backgroundColor = [UIColor clearColor];
 }
 
 @end

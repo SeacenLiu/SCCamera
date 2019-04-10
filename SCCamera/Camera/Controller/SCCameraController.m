@@ -13,6 +13,7 @@
 #import "AVCaptureDevice+SCCategory.h"
 #import "UIView+CCHUD.h"
 #import <Photos/Photos.h>
+#import "SCFocusView.h"
 
 #import "SCCameraManager.h"
 #import "SCPhotographManager.h"
@@ -212,7 +213,41 @@
 
 #pragma mark - AVCaptureMetadataOutputObjectsDelegate
 - (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-    
+    for (AVMetadataObject *metadataObject in metadataObjects) {
+        if ([metadataObject isKindOfClass:[AVMetadataFaceObject class]]) {
+            AVMetadataFaceObject *faceObject = (AVMetadataFaceObject*)metadataObject;
+            NSLog(@"--------------- faceObject ---------------");
+            [self testLogCMTime:faceObject.time str:@"time"];
+            [self testLogCMTime:faceObject.duration str:@"duration"];
+            NSLog(@"bounds: %@", NSStringFromCGRect(faceObject.bounds));
+            NSLog(@"type: %@", faceObject.type);
+            NSLog(@"faceID: %ld", (long)faceObject.faceID);
+            NSLog(@"hasRollAngle: %d", faceObject.hasRollAngle);
+            NSLog(@"rollAngle: %f", faceObject.rollAngle);
+            NSLog(@"hasYawAngle: %d", faceObject.hasYawAngle);
+            NSLog(@"yawAngle: %f", faceObject.yawAngle);
+            NSLog(@"--------------- ---------- ---------------");
+            // 框人脸
+            AVMetadataObject *face = [self.cameraView.previewView.videoPreviewLayer transformedMetadataObjectForMetadataObject:faceObject];
+            static SCFocusView *focusView = nil;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                CGRect focusRect = face.bounds;
+                if (focusView == nil) {
+                    focusView = [[SCFocusView alloc] initWithFrame:focusRect];
+                }
+                focusView.frame = focusRect;
+                [self.cameraView.previewView addSubview:focusView];
+            });
+        }
+    }
+}
+
+- (void)testLogCMTime:(CMTime)time str:(NSString*)str {
+    NSLog(@"%@:", str);
+    NSLog(@"value: %lld", time.value);
+    NSLog(@"timescale: %d", time.timescale);
+    NSLog(@"flags: %u", time.flags);
+    NSLog(@"epoch: %lld", time.epoch);
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
