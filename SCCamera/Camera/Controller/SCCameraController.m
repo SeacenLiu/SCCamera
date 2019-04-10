@@ -47,7 +47,7 @@
 
 // 用于人脸检测显示
 /// 需要使用 NSCache
-@property (nonatomic, strong) NSMutableDictionary<NSNumber*, SCFaceModel*> *faceModels;
+@property (nonatomic, strong) NSCache<NSNumber*, SCFaceModel*> *faceModels;
 @property (nonatomic, strong) NSMutableDictionary<NSNumber*, SCFocusView*> *faceFocusViews;
 @end
 
@@ -222,66 +222,40 @@
     for (AVMetadataObject *metadataObject in metadataObjects) {
         if ([metadataObject isKindOfClass:[AVMetadataFaceObject class]]) {
             AVMetadataFaceObject *faceObject = (AVMetadataFaceObject*)metadataObject;
-            NSLog(@"--------------- faceObject ---------------");
-            [self testLogCMTime:faceObject.time str:@"time"];
-            [self testLogCMTime:faceObject.duration str:@"duration"];
-            NSLog(@"bounds: %@", NSStringFromCGRect(faceObject.bounds));
-            NSLog(@"type: %@", faceObject.type);
-            NSLog(@"faceID: %ld", (long)faceObject.faceID);
-            NSLog(@"hasRollAngle: %d", faceObject.hasRollAngle);
-            NSLog(@"rollAngle: %f", faceObject.rollAngle);
-            NSLog(@"hasYawAngle: %d", faceObject.hasYawAngle);
-            NSLog(@"yawAngle: %f", faceObject.yawAngle);
-            NSLog(@"--------------- ---------- ---------------");
-            // 框人脸
+            NSInteger faceId = faceObject.faceID;
+            NSNumber *faceIdNum = [NSNumber numberWithInteger:faceId];
+            SCFaceModel *model = [self.faceModels objectForKey:faceIdNum];
+            if (model == nil) {
+                model = [SCFaceModel faceModelWithFaceId:faceId];
+                [self.faceModels setObject:model forKey:faceIdNum];
+            } else if (model.count > 50) {
+                return;
+            }
+            model.count += 1;
+            NSInteger curCnt = model.count;
             dispatch_async(dispatch_get_main_queue(), ^{
                 AVMetadataObject *face = [self.cameraView.previewView.videoPreviewLayer transformedMetadataObjectForMetadataObject:faceObject];
-                NSInteger faceId = faceObject.faceID;
-                NSNumber *faceIdNum = [NSNumber numberWithInteger:faceId];
-                
-                SCFaceModel *model = self.faceModels[faceIdNum];
-                if (model == nil) {
-                    // 不存在的话 就创建对象立即退出
-                    model = [SCFaceModel faceModelWithFaceId:faceId];
-                    self.faceModels[faceIdNum] = model;
-                    return;
+                SCFocusView *focusView = self.faceFocusViews[faceIdNum];
+                if (focusView == nil) {
+                    focusView = [SCFocusView new];
+                    self.faceFocusViews[faceIdNum] = focusView;
+                    [self.cameraView.previewView addSubview:focusView];
                 }
-                model.count += 1;
-                if (model.count > 100) {
-                    // 已经显示够了 需要移除
-                    SCFocusView *focusView = self.faceFocusViews[faceIdNum];
+                if (model.count > 50) {
                     [focusView removeFromSuperview];
                     [self.faceFocusViews removeObjectForKey:faceIdNum];
                     return;
                 }
-                
-                CGRect focusRect = face.bounds;
-                SCFocusView *focusView = self.faceFocusViews[faceIdNum];
-                if (focusView == nil) {
-                    focusView = [[SCFocusView alloc] initWithFrame:focusRect];
-                    self.faceFocusViews[faceIdNum] = focusView;
-                    [self.cameraView.previewView addSubview:focusView];
-                } else {
-                    focusView.frame = focusRect;
-                    NSInteger cur = model.count;
-                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                        if (cur == model.count) {
-                            [focusView removeFromSuperview];
-                            [self.faceFocusViews removeObjectForKey:faceIdNum];
-                        }
-                    });
-                }
+                focusView.frame = face.bounds;
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    if (curCnt == model.count) {
+                        [focusView removeFromSuperview];
+                        [self.faceFocusViews removeObjectForKey:faceIdNum];
+                    }
+                });
             });
         }
     }
-}
-
-- (void)testLogCMTime:(CMTime)time str:(NSString*)str {
-    NSLog(@"%@:", str);
-    NSLog(@"value: %lld", time.value);
-    NSLog(@"timescale: %d", time.timescale);
-    NSLog(@"flags: %u", time.flags);
-    NSLog(@"epoch: %lld", time.epoch);
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
@@ -395,9 +369,10 @@
     return [AVCaptureDevice cameraWithPosition:AVCaptureDevicePositionBack];
 }
 
-- (NSMutableDictionary<NSNumber *,SCFaceModel *> *)faceModels {
+- (NSCache<NSNumber *,SCFaceModel *> *)faceModels {
     if (_faceModels == nil) {
-        _faceModels = [NSMutableDictionary dictionaryWithCapacity:2];
+        _faceModels = [[NSCache alloc] init];
+        [_faceModels setCountLimit:20];
     }
     return _faceModels;
 }
