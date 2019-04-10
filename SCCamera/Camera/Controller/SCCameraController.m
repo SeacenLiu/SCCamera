@@ -156,6 +156,13 @@
 }
 
 #pragma mark - 相机操作
+/// 缩放
+- (void)zoomAction:(SCCameraView *)cameraView factor:(CGFloat)factor handle:(void(^)(NSError *error))handle {
+    dispatch_async(_sessionQueue, ^{
+        [self.cameraManager zoom:self.currentCameraInput.device factor:factor handle:handle];
+    });
+}
+
 /// 聚焦&曝光操作
 - (void)focusAndExposeAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void (^)(NSError * _Nonnull))handle {
     // instestPoint 只能在主线程获取

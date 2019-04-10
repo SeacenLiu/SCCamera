@@ -47,7 +47,15 @@
 
 /// 缩放
 - (void)zoom:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle {
-    // TODO: - 缩放
+    [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+        if (error) {
+            handle(error);
+            return;
+        }
+        if (device.activeFormat.videoMaxZoomFactor > factor && factor >= 1.0) {
+            [device rampToVideoZoomFactor:factor withRate:4.0];
+        }
+    }];
 }
 
 /// 聚焦&曝光
@@ -62,11 +70,13 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
             handle(error);
             return;
         }
+        // 聚焦
         if (device.isFocusPointOfInterestSupported && [device isFocusModeSupported:focusMode]) {
             device.focusPointOfInterest = point;
             // 需要设置 focusMode 才应用 focusPointOfInterest
             device.focusMode = focusMode;
         }
+        // 曝光
         if (device.isExposurePointOfInterestSupported && [device isExposureModeSupported:exposureMode]) {
             device.exposurePointOfInterest = point;
             device.exposureMode = exposureMode;

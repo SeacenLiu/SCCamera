@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1412718E225DD4E6006873FC /* SCFocusView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1412718D225DD4E5006873FC /* SCFocusView.m */; };
 		1413CBB6225B7C590052E78A /* SCCameraView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBB5225B7C590052E78A /* SCCameraView.m */; };
 		1413CBB8225B7C860052E78A /* SCCameraView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1413CBB7225B7C860052E78A /* SCCameraView.xib */; };
 		1413CBBB225C946A0052E78A /* UIView+SCCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBBA225C946A0052E78A /* UIView+SCCategory.m */; };
@@ -31,6 +32,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1412718C225DD4E5006873FC /* SCFocusView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCFocusView.h; sourceTree = "<group>"; };
+		1412718D225DD4E5006873FC /* SCFocusView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCFocusView.m; sourceTree = "<group>"; };
 		1413CBB4225B7C590052E78A /* SCCameraView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCCameraView.h; sourceTree = "<group>"; };
 		1413CBB5225B7C590052E78A /* SCCameraView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCCameraView.m; sourceTree = "<group>"; };
 		1413CBB7225B7C860052E78A /* SCCameraView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SCCameraView.xib; sourceTree = "<group>"; };
@@ -178,6 +181,8 @@
 				1413CBB4225B7C590052E78A /* SCCameraView.h */,
 				1413CBB5225B7C590052E78A /* SCCameraView.m */,
 				1413CBB7225B7C860052E78A /* SCCameraView.xib */,
+				1412718C225DD4E5006873FC /* SCFocusView.h */,
+				1412718D225DD4E5006873FC /* SCFocusView.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -266,6 +271,7 @@
 				143B9A972255FA520038C15A /* UIViewController+SCCamera.m in Sources */,
 				142926922253B6F60056D569 /* AVCaptureDevice+SCCategory.m in Sources */,
 				1429266B2253B5AC0056D569 /* AppDelegate.m in Sources */,
+				1412718E225DD4E6006873FC /* SCFocusView.m in Sources */,
 				142926B82254A10A0056D569 /* UIImage+SCCamera.m in Sources */,
 				142926BC2254B1510056D569 /* SCVideoPreviewView.m in Sources */,
 				1413CBB6225B7C590052E78A /* SCCameraView.m in Sources */,

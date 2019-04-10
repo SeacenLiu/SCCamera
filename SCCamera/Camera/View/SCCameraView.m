@@ -16,12 +16,15 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
 };
 
 @interface SCCameraView ()
-/// 聚焦动画 view
-@property (nonatomic, strong) UIView *focusView;
 
+@property (nonatomic, assign) SCCameraType currentType;
 @property (weak, nonatomic) IBOutlet UIButton *photoBtn;
 @property (weak, nonatomic) IBOutlet UIButton *typeSelBtn;
-@property (nonatomic, assign) SCCameraType currentType;
+
+/// 聚焦动画 view
+@property (nonatomic, weak) IBOutlet UIView *focusView;
+/// 显示缩放比
+@property(nonatomic, weak) IBOutlet UISlider *slider;
 @end
 
 // TODO: - 聚焦，曝光，人脸检测动画
@@ -31,18 +34,59 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
     SCCameraView *view = (SCCameraView*)[[UINib nibWithNibName:@"SCCameraView" bundle:nil] instantiateWithOwner:self options:nil][0];
     view.frame = frame;
     [view addGestureRecognizers];
-    [view addSubview:view.focusView];
+    [view setupUI];
     return view;
+}
+
+- (void)setupUI {
+    [self addSubview:self.focusView];
+    [self addSubview:self.slider];
+    self.slider.transform = CGAffineTransformMakeRotation(-M_PI_2);
 }
 
 #pragma mark - 手势添加
 - (void)addGestureRecognizers {
-    // 单击 -> 聚焦
+    // 单击 -> 自动聚焦&曝光
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(focusingTapClcik:)];
     [self.previewView addGestureRecognizer:tap];
+    // 捏合 -> 缩放
+    UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action: @selector(pinchAction:)];
+    [self.previewView addGestureRecognizer:pinch];
 }
 
 #pragma mark - 相机操作
+- (IBAction)sliderAction:(UISlider*)sender {
+    if ([_delegate respondsToSelector:@selector(zoomAction:factor:handle:)]) {
+        [_delegate zoomAction:self factor: powf(5, sender.value) handle:^(NSError * _Nonnull error) {
+            // TODO: - handle error
+        }];
+    }
+}
+
+- (void)pinchAction:(UIPinchGestureRecognizer *)pinch {
+    if ([_delegate respondsToSelector:@selector(zoomAction:factor:handle:)]) {
+        switch (pinch.state) {
+            case UIGestureRecognizerStateBegan:
+                break;
+            case UIGestureRecognizerStateChanged:
+                // 根据捏合速度来做
+                if (pinch.velocity > 0) {
+                    _slider.value += pinch.velocity/500;
+                } else {
+                    _slider.value += pinch.velocity/200;
+                }
+                [_delegate zoomAction:self factor: powf(5, _slider.value) handle:^(NSError * _Nonnull error) {
+                    // TODO: - handle error
+                }];
+                break;
+            case UIGestureRecognizerStateEnded:
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 - (void)focusingTapClcik:(UITapGestureRecognizer *)tap {
     if ([_delegate respondsToSelector:@selector(focusAndExposeAction:point:handle:)]) {
         CGPoint point = [tap locationInView:self.previewView];
@@ -151,18 +195,6 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
             view.transform = CGAffineTransformIdentity;
         });
     }];
-}
-
-#pragma mark - lazy
--(UIView *)focusView{
-    if (_focusView == nil) {
-        _focusView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 150, 150.0f)];
-        _focusView.backgroundColor = [UIColor clearColor];
-        _focusView.layer.borderColor = [UIColor yellowColor].CGColor;
-        _focusView.layer.borderWidth = 5.0f;
-        _focusView.hidden = YES;
-    }
-    return _focusView;
 }
 
 @end

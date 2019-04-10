@@ -79,6 +79,28 @@
                         <action selector="cameraTypeClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="KJN-ZU-3wb"/>
                     </connections>
                 </button>
+                <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="g9F-zD-OwQ" customClass="SCFocusView">
+                    <rect key="frame" x="112" y="258" width="150" height="150"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="lineWidth">
+                            <real key="value" value="5"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="BXb-hu-Hjq">
+                    <rect key="frame" x="253" y="318.5" width="204" height="31"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="200" id="hfw-ff-Rg5"/>
+                        <constraint firstAttribute="height" constant="30" id="oIe-K2-Bv7"/>
+                    </constraints>
+                    <color key="minimumTrackTintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="maximumTrackTintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <connections>
+                        <action selector="sliderAction:" destination="H7S-Cs-rMa" eventType="valueChanged" id="hpd-4C-7BD"/>
+                    </connections>
+                </slider>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
@@ -88,12 +110,14 @@
                 <constraint firstItem="VoU-X9-41W" firstAttribute="centerX" secondItem="1DL-l0-VxH" secondAttribute="centerX" id="AOw-99-RG9"/>
                 <constraint firstItem="aP4-Rl-Ysu" firstAttribute="centerY" secondItem="VoU-X9-41W" secondAttribute="centerY" id="AyM-f3-qV1"/>
                 <constraint firstItem="YvZ-r1-EmH" firstAttribute="trailing" secondItem="XaX-uc-iLF" secondAttribute="trailing" constant="16" id="DHg-DW-tPi"/>
+                <constraint firstItem="YvZ-r1-EmH" firstAttribute="trailing" secondItem="BXb-hu-Hjq" secondAttribute="trailing" constant="-80" id="F5h-jj-KcU"/>
                 <constraint firstItem="1DL-l0-VxH" firstAttribute="bottom" secondItem="YvZ-r1-EmH" secondAttribute="bottom" id="FET-xo-TiU"/>
                 <constraint firstItem="YvZ-r1-EmH" firstAttribute="trailing" secondItem="aP4-Rl-Ysu" secondAttribute="trailing" constant="16" id="FhH-8Y-n3J"/>
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="top" secondItem="H7S-Cs-rMa" secondAttribute="top" id="Kps-Yy-KXC"/>
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="trailing" secondItem="YvZ-r1-EmH" secondAttribute="trailing" id="L2i-IK-pFV"/>
                 <constraint firstItem="KSL-QZ-4cf" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" constant="16" id="Obg-UN-Wua"/>
                 <constraint firstItem="XaX-uc-iLF" firstAttribute="top" secondItem="YvZ-r1-EmH" secondAttribute="top" constant="20" id="Pf4-Vw-ABC"/>
+                <constraint firstItem="BXb-hu-Hjq" firstAttribute="centerY" secondItem="1DL-l0-VxH" secondAttribute="centerY" id="VL3-FY-ae9"/>
                 <constraint firstItem="r9m-OU-hRX" firstAttribute="centerY" secondItem="KSL-QZ-4cf" secondAttribute="centerY" id="a6f-pd-hMS"/>
                 <constraint firstItem="KSL-QZ-4cf" firstAttribute="top" secondItem="YvZ-r1-EmH" secondAttribute="top" constant="20" id="feR-sz-jt3"/>
                 <constraint firstItem="YvZ-r1-EmH" firstAttribute="bottom" secondItem="VoU-X9-41W" secondAttribute="bottom" constant="30" id="fwN-Zl-owX"/>
@@ -105,11 +129,13 @@
             </constraints>
             <viewLayoutGuide key="safeArea" id="YvZ-r1-EmH"/>
             <connections>
+                <outlet property="focusView" destination="g9F-zD-OwQ" id="3n8-wH-UXR"/>
                 <outlet property="photoBtn" destination="VoU-X9-41W" id="Kdl-sF-U5I"/>
                 <outlet property="previewView" destination="a6Q-nO-Q96" id="3hR-v2-VdE"/>
+                <outlet property="slider" destination="BXb-hu-Hjq" id="9en-5P-SmI"/>
                 <outlet property="typeSelBtn" destination="aP4-Rl-Ysu" id="jpf-se-gWU"/>
             </connections>
-            <point key="canvasLocation" x="-625" y="63"/>
+            <point key="canvasLocation" x="-626.39999999999998" y="62.518740629685162"/>
         </view>
     </objects>
 </document>
