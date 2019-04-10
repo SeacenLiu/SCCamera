@@ -218,11 +218,23 @@
 #pragma mark - 拍照
 /// 拍照
 - (void)takePhotoAction:(SCCameraView *)cameraView {
-    [self.photographManager takePhoto:self.cameraView.previewView.videoPreviewLayer stillImageOutput:self.stillImageOutput handle:^(UIImage * _Nonnull originImage) {
+    [self.photographManager takePhoto:self.cameraView.previewView.videoPreviewLayer stillImageOutput:self.stillImageOutput handle:^(UIImage * _Nonnull originImage, UIImage * _Nonnull scaleImage, UIImage * _Nonnull cropImage) {
         NSLog(@"take photo success.");
+        // 测试用保存图片
+        [self saveImageToCameraRoll:cropImage];
+        
         SCCameraResultController *rc = [SCCameraResultController new];
-        rc.img = originImage;
+        rc.img = cropImage;
         [self presentViewController:rc animated:YES completion:nil];
+    }];
+}
+
+/// 保存图片
+- (void)saveImageToCameraRoll:(UIImage*)image {
+    [self.photographManager saveImageToCameraRoll:image authHandle:^(BOOL success, PHAuthorizationStatus status) {
+        
+    } completion:^(BOOL success, NSError * _Nullable error) {
+        
     }];
 }
 

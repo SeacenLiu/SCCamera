@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
+#import <Photos/Photos.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,7 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// 拍照
 - (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer
  stillImageOutput:(AVCaptureStillImageOutput*)stillImageOutput
-           handle:(void (^)(UIImage *image))handle;
+           handle:(void (^)(UIImage *originImage, UIImage *scaleImage, UIImage *cropImage))handle;
+
+/// 保存到相册
+- (void)saveImageToCameraRoll:(UIImage*)image
+                   authHandle:(void(^)(BOOL success, PHAuthorizationStatus status))authHandle
+                   completion:(void(^)(BOOL success, NSError * _Nullable error))completion;
 
 @end
 
