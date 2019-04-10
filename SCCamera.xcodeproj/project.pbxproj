@@ -29,6 +29,7 @@
 		142926C0225510280056D569 /* SCCameraResultController.m in Sources */ = {isa = PBXBuildFile; fileRef = 142926BE225510280056D569 /* SCCameraResultController.m */; };
 		142926C1225510280056D569 /* SCCameraResultController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 142926BF225510280056D569 /* SCCameraResultController.xib */; };
 		143B9A972255FA520038C15A /* UIViewController+SCCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 143B9A962255FA520038C15A /* UIViewController+SCCamera.m */; };
+		14E4E862225E29A900EC58E4 /* SCFaceModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 14E4E861225E29A900EC58E4 /* SCFaceModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,6 +73,8 @@
 		142926BF225510280056D569 /* SCCameraResultController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SCCameraResultController.xib; sourceTree = "<group>"; };
 		143B9A952255FA520038C15A /* UIViewController+SCCamera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+SCCamera.h"; sourceTree = "<group>"; };
 		143B9A962255FA520038C15A /* UIViewController+SCCamera.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+SCCamera.m"; sourceTree = "<group>"; };
+		14E4E860225E29A900EC58E4 /* SCFaceModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCFaceModel.h; sourceTree = "<group>"; };
+		14E4E861225E29A900EC58E4 /* SCFaceModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCFaceModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,6 +124,7 @@
 		142926802253B65F0056D569 /* Camera */ = {
 			isa = PBXGroup;
 			children = (
+				14E4E863225E29B100EC58E4 /* Model */,
 				142926B92254B11B0056D569 /* View */,
 				142926862253B6DD0056D569 /* Manager */,
 				142926992253B73A0056D569 /* Controller */,
@@ -185,6 +189,15 @@
 				1412718D225DD4E5006873FC /* SCFocusView.m */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		14E4E863225E29B100EC58E4 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				14E4E860225E29A900EC58E4 /* SCFaceModel.h */,
+				14E4E861225E29A900EC58E4 /* SCFaceModel.m */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -275,6 +288,7 @@
 				142926B82254A10A0056D569 /* UIImage+SCCamera.m in Sources */,
 				142926BC2254B1510056D569 /* SCVideoPreviewView.m in Sources */,
 				1413CBB6225B7C590052E78A /* SCCameraView.m in Sources */,
+				14E4E862225E29A900EC58E4 /* SCFaceModel.m in Sources */,
 				1413CBC1225C9B620052E78A /* SCPhotographManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

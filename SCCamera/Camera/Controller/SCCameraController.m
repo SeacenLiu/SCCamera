@@ -14,6 +14,7 @@
 #import "UIView+CCHUD.h"
 #import <Photos/Photos.h>
 #import "SCFocusView.h"
+#import "SCFaceModel.h"
 
 #import "SCCameraManager.h"
 #import "SCPhotographManager.h"
@@ -43,6 +44,11 @@
 @property (nonatomic, strong) SCMovieManager *movieManager;
 
 @property (nonatomic, assign) BOOL recording;
+
+// 用于人脸检测显示
+/// 需要使用 NSCache
+@property (nonatomic, strong) NSMutableDictionary<NSNumber*, SCFaceModel*> *faceModels;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber*, SCFocusView*> *faceFocusViews;
 @end
 
 @implementation SCCameraController
@@ -228,15 +234,43 @@
             NSLog(@"yawAngle: %f", faceObject.yawAngle);
             NSLog(@"--------------- ---------- ---------------");
             // 框人脸
-            AVMetadataObject *face = [self.cameraView.previewView.videoPreviewLayer transformedMetadataObjectForMetadataObject:faceObject];
-            static SCFocusView *focusView = nil;
             dispatch_async(dispatch_get_main_queue(), ^{
+                AVMetadataObject *face = [self.cameraView.previewView.videoPreviewLayer transformedMetadataObjectForMetadataObject:faceObject];
+                NSInteger faceId = faceObject.faceID;
+                NSNumber *faceIdNum = [NSNumber numberWithInteger:faceId];
+                
+                SCFaceModel *model = self.faceModels[faceIdNum];
+                if (model == nil) {
+                    // 不存在的话 就创建对象立即退出
+                    model = [SCFaceModel faceModelWithFaceId:faceId];
+                    self.faceModels[faceIdNum] = model;
+                    return;
+                }
+                model.count += 1;
+                if (model.count > 100) {
+                    // 已经显示够了 需要移除
+                    SCFocusView *focusView = self.faceFocusViews[faceIdNum];
+                    [focusView removeFromSuperview];
+                    [self.faceFocusViews removeObjectForKey:faceIdNum];
+                    return;
+                }
+                
                 CGRect focusRect = face.bounds;
+                SCFocusView *focusView = self.faceFocusViews[faceIdNum];
                 if (focusView == nil) {
                     focusView = [[SCFocusView alloc] initWithFrame:focusRect];
+                    self.faceFocusViews[faceIdNum] = focusView;
+                    [self.cameraView.previewView addSubview:focusView];
+                } else {
+                    focusView.frame = focusRect;
+                    NSInteger cur = model.count;
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        if (cur == model.count) {
+                            [focusView removeFromSuperview];
+                            [self.faceFocusViews removeObjectForKey:faceIdNum];
+                        }
+                    });
                 }
-                focusView.frame = focusRect;
-                [self.cameraView.previewView addSubview:focusView];
             });
         }
     }
@@ -359,6 +393,20 @@
 
 - (AVCaptureDevice *)backCamera {
     return [AVCaptureDevice cameraWithPosition:AVCaptureDevicePositionBack];
+}
+
+- (NSMutableDictionary<NSNumber *,SCFaceModel *> *)faceModels {
+    if (_faceModels == nil) {
+        _faceModels = [NSMutableDictionary dictionaryWithCapacity:2];
+    }
+    return _faceModels;
+}
+
+- (NSMutableDictionary<NSNumber *,SCFocusView *> *)faceFocusViews {
+    if (_faceFocusViews == nil) {
+        _faceFocusViews = [NSMutableDictionary dictionaryWithCapacity:2];
+    }
+    return _faceFocusViews;
 }
 
 @end
