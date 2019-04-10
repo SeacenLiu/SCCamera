@@ -89,6 +89,11 @@
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
+    dispatch_async(_sessionQueue, ^{
+        if (self.session.isRunning) {
+            [self.session stopRunning];
+        }
+    });
 }
 
 #pragma mark - 会话配置
@@ -100,10 +105,6 @@
     [self setupSessionInput:error];
     [self setupSessionOutput:error];
     [self.session commitConfiguration];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.cameraView.previewView.captureSession = self.session;
-        NSLog(@"session commit");
-    });
 }
 
 /** 配置输入 */
@@ -113,6 +114,11 @@
         [_session addInput:self.backCameraInput];
     }
     self.currentCameraInput = _backCameraInput;
+    
+    // AVCaptureVideoPreviewLayer.session 在添加视频输入后就应该设置
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.cameraView.previewView.captureSession = self.session;
+    });
     
     // 音频输入
     AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
@@ -129,7 +135,6 @@
     NSDictionary *rgbOutputSettings = [NSDictionary dictionaryWithObject:
                                        [NSNumber numberWithInt:kCMPixelFormat_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
     [_videoOutput setVideoSettings:rgbOutputSettings];
-    // TODO: - 监听视频流
     [_videoOutput setSampleBufferDelegate:self queue:_captureQueue];
     if ([_session canAddOutput:_videoOutput]) {
         [_session addOutput:_videoOutput];
@@ -138,7 +143,6 @@
     
     // 音频输出
     AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
-    // TODO: - 监听音频流
     [audioOut setSampleBufferDelegate:self queue:_captureQueue];
     if ([_session canAddOutput:audioOut]){
         [_session addOutput:audioOut];
@@ -147,7 +151,6 @@
     
     // 添加元素输出（识别）
     _metaOutput = [AVCaptureMetadataOutput new];
-    // TODO: - 监听识别流
     if ([_session canAddOutput:_metaOutput]) {
         [_session addOutput:_metaOutput];
         // 需要先 addOutput 后面在 setMetadataObjectTypes
