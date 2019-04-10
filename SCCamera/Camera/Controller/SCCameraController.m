@@ -12,7 +12,6 @@
 #import "SCCameraView.h"
 #import "AVCaptureDevice+SCCategory.h"
 #import "UIView+CCHUD.h"
-#import <AssetsLibrary/AssetsLibrary.h>
 #import <Photos/Photos.h>
 
 #import "SCCameraManager.h"
@@ -83,18 +82,6 @@
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-}
-
-#pragma mark - AVCaptureMetadataOutputObjectsDelegate
-- (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-    
-}
-
-#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
-    if (_recording) {
-        [_movieManager writeData:connection video:_videoConnection audio:_audioConnection buffer:sampleBuffer];
-    }
 }
 
 #pragma mark - 会话配置
@@ -216,6 +203,18 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+#pragma mark - AVCaptureMetadataOutputObjectsDelegate
+- (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
+    
+}
+
+#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
+    if (_recording) {
+        [_movieManager writeData:connection video:_videoConnection audio:_audioConnection buffer:sampleBuffer];
+    }
+}
+
 #pragma mark - 拍照
 /// 拍照
 - (void)takePhotoAction:(SCCameraView *)cameraView {
@@ -256,17 +255,11 @@
 // 保存视频
 - (void)saveMovieToCameraRoll:(NSURL *)url{
     [self.view showLoadHUD:@"保存中..."];
-    [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-        if (status != PHAuthorizationStatusAuthorized) return;
-        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-            PHAssetCreationRequest *videoRequest = [PHAssetCreationRequest creationRequestForAsset];
-            [videoRequest addResourceWithType:PHAssetResourceTypeVideo fileURL:url options:nil];
-        } completionHandler:^( BOOL success, NSError * _Nullable error ) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [self.view hideHUD];
-            });
-            success?:[self.view showError:error];
-        }];
+    [self.movieManager saveMovieToCameraRoll:url authHandle:^(BOOL success, PHAuthorizationStatus status) {
+        // TODO: - 权限弹框
+    } completion:^(BOOL success, NSError * _Nullable error) {
+        [self.view hideHUD];
+        success?:[self.view showError:error];
     }];
 }
 
