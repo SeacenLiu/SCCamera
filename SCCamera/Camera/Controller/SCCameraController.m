@@ -70,9 +70,17 @@
     self.photographManager = [SCPhotographManager new];
     self.movieManager = [SCMovieManager new];
     
+    // 初始化队列
     _sessionQueue = dispatch_queue_create("com.seacen.sessionQueue", DISPATCH_QUEUE_SERIAL);
     _metaQueue = dispatch_queue_create("com.seacen.metaQueue", DISPATCH_QUEUE_SERIAL);
     _captureQueue = dispatch_queue_create("com.seacen.captureQueue", DISPATCH_QUEUE_SERIAL);
+    
+    // 检查权限
+    if ([self checkPermissions] == false) {
+        return;
+    }
+    
+    // 配置session
     dispatch_async(_sessionQueue, ^{
         [self configureSession:nil];
     });
@@ -94,6 +102,29 @@
             [self.session stopRunning];
         }
     });
+}
+
+- (void)setupUI {
+    
+}
+
+#pragma mark - 权限检查
+- (BOOL)checkPermissions {
+    // 检查相机权限
+    AVAuthorizationStatus cameraStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if (cameraStatus == AVAuthorizationStatusDenied) {
+        
+        return NO;
+    }
+    
+    // 检查麦克风权限
+    AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+    if (audioStatus == AVAuthorizationStatusDenied) {
+        
+        return NO;
+    }
+    
+    return YES;
 }
 
 #pragma mark - 会话配置

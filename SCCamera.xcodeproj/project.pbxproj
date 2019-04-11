@@ -30,6 +30,7 @@
 		142926C1225510280056D569 /* SCCameraResultController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 142926BF225510280056D569 /* SCCameraResultController.xib */; };
 		143B9A972255FA520038C15A /* UIViewController+SCCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 143B9A962255FA520038C15A /* UIViewController+SCCamera.m */; };
 		14E4E862225E29A900EC58E4 /* SCFaceModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 14E4E861225E29A900EC58E4 /* SCFaceModel.m */; };
+		14E4E86B225F8D9100EC58E4 /* SCPermissionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 14E4E86A225F8D9100EC58E4 /* SCPermissionsView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -75,6 +76,8 @@
 		143B9A962255FA520038C15A /* UIViewController+SCCamera.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+SCCamera.m"; sourceTree = "<group>"; };
 		14E4E860225E29A900EC58E4 /* SCFaceModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCFaceModel.h; sourceTree = "<group>"; };
 		14E4E861225E29A900EC58E4 /* SCFaceModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCFaceModel.m; sourceTree = "<group>"; };
+		14E4E869225F8D9100EC58E4 /* SCPermissionsView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCPermissionsView.h; sourceTree = "<group>"; };
+		14E4E86A225F8D9100EC58E4 /* SCPermissionsView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCPermissionsView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +190,8 @@
 				1413CBB7225B7C860052E78A /* SCCameraView.xib */,
 				1412718C225DD4E5006873FC /* SCFocusView.h */,
 				1412718D225DD4E5006873FC /* SCFocusView.m */,
+				14E4E869225F8D9100EC58E4 /* SCPermissionsView.h */,
+				14E4E86A225F8D9100EC58E4 /* SCPermissionsView.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -288,6 +293,7 @@
 				142926B82254A10A0056D569 /* UIImage+SCCamera.m in Sources */,
 				142926BC2254B1510056D569 /* SCVideoPreviewView.m in Sources */,
 				1413CBB6225B7C590052E78A /* SCCameraView.m in Sources */,
+				14E4E86B225F8D9100EC58E4 /* SCPermissionsView.m in Sources */,
 				14E4E862225E29A900EC58E4 /* SCFaceModel.m in Sources */,
 				1413CBC1225C9B620052E78A /* SCPhotographManager.m in Sources */,
 			);
