@@ -15,12 +15,13 @@
 #import <Photos/Photos.h>
 #import "SCFocusView.h"
 #import "SCFaceModel.h"
+#import "SCPermissionsView.h"
 
 #import "SCCameraManager.h"
 #import "SCPhotographManager.h"
 #import "SCMovieManager.h"
 
-@interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>
+@interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate,SCPermissionsViewDelegate>
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) dispatch_queue_t metaQueue;
 @property (nonatomic) dispatch_queue_t captureQueue;
@@ -39,9 +40,14 @@
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
 
 @property (nonatomic, strong) SCCameraView *cameraView;
+@property (nonatomic, strong) SCPermissionsView *permissionsView;
+
 @property (nonatomic, strong) SCCameraManager *cameraManager;
 @property (nonatomic, strong) SCPhotographManager *photographManager;
 @property (nonatomic, strong) SCMovieManager *movieManager;
+
+/// 有相机和麦克风的权限(必须调用getter方法)
+@property (nonatomic, assign, readonly) BOOL hasAllPermissions;
 
 @property (nonatomic, assign) BOOL recording;
 
@@ -56,40 +62,35 @@
 #pragma mark - view life cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.cameraView = [SCCameraView cameraView:self.view.frame];
-    self.cameraView.delegate = self;
-    
-    [self.view addSubview:_cameraView];
-    [self.cameraView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cameraView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cameraView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cameraView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cameraView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
-    
-    self.cameraManager = [SCCameraManager new];
-    self.photographManager = [SCPhotographManager new];
-    self.movieManager = [SCMovieManager new];
-    
-    // 初始化队列
-    _sessionQueue = dispatch_queue_create("com.seacen.sessionQueue", DISPATCH_QUEUE_SERIAL);
-    _metaQueue = dispatch_queue_create("com.seacen.metaQueue", DISPATCH_QUEUE_SERIAL);
-    _captureQueue = dispatch_queue_create("com.seacen.captureQueue", DISPATCH_QUEUE_SERIAL);
-    
-    // 检查权限
-    if ([self checkPermissions] == false) {
-        return;
+    [self setupUI];
+    if (!self.hasAllPermissions) { // 没有权限
+        [self setupPermissionsView];
+    } else { // 有权限
+        dispatch_async(self.sessionQueue, ^{
+            [self configureSession:nil];
+        });
     }
-    
-    // 配置session
-    dispatch_async(_sessionQueue, ^{
+}
+
+- (void)permissionsViewDidHasAllPermissions:(SCPermissionsView *)pv {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [UIView animateWithDuration:0.25 animations:^{
+            pv.alpha = 0;
+        } completion:^(BOOL finished) {
+            [self.permissionsView removeFromSuperview];
+            self.permissionsView = nil;
+        }];
+    });
+    dispatch_async(self.sessionQueue, ^{
         [self configureSession:nil];
+        [self.session startRunning];
     });
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    dispatch_async(_sessionQueue, ^{
-        if (!self.session.isRunning) {
+    dispatch_async(self.sessionQueue, ^{
+        if (self.hasAllPermissions && !self.session.isRunning) {
             [self.session startRunning];
         }
     });
@@ -97,40 +98,34 @@
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    dispatch_async(_sessionQueue, ^{
+    dispatch_async(self.sessionQueue, ^{
         if (self.session.isRunning) {
             [self.session stopRunning];
         }
     });
 }
 
-- (void)setupUI {
-    
+- (void)setupPermissionsView {
+    [self.view addSubview:self.permissionsView];
+    [self.permissionsView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.permissionsView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.permissionsView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.permissionsView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.permissionsView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
 }
 
-#pragma mark - 权限检查
-- (BOOL)checkPermissions {
-    // 检查相机权限
-    AVAuthorizationStatus cameraStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if (cameraStatus == AVAuthorizationStatusDenied) {
-        
-        return NO;
-    }
-    
-    // 检查麦克风权限
-    AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
-    if (audioStatus == AVAuthorizationStatusDenied) {
-        
-        return NO;
-    }
-    
-    return YES;
+- (void)setupUI {
+    [self.view addSubview:self.cameraView];
+    [self.cameraView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cameraView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cameraView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cameraView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.cameraView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
 }
 
 #pragma mark - 会话配置
 /** 配置会话 */
 - (void)configureSession:(NSError**)error {
-    self.session = [AVCaptureSession new];
     [self.session beginConfiguration];
     self.session.sessionPreset = AVCaptureSessionPresetPhoto;
     [self setupSessionInput:error];
@@ -166,7 +161,7 @@
     NSDictionary *rgbOutputSettings = [NSDictionary dictionaryWithObject:
                                        [NSNumber numberWithInt:kCMPixelFormat_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
     [_videoOutput setVideoSettings:rgbOutputSettings];
-    [_videoOutput setSampleBufferDelegate:self queue:_captureQueue];
+    [_videoOutput setSampleBufferDelegate:self queue:self.captureQueue];
     if ([_session canAddOutput:_videoOutput]) {
         [_session addOutput:_videoOutput];
     }
@@ -174,7 +169,7 @@
     
     // 音频输出
     AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
-    [audioOut setSampleBufferDelegate:self queue:_captureQueue];
+    [audioOut setSampleBufferDelegate:self queue:self.captureQueue];
     if ([_session canAddOutput:audioOut]){
         [_session addOutput:audioOut];
     }
@@ -185,7 +180,7 @@
     if ([_session canAddOutput:_metaOutput]) {
         [_session addOutput:_metaOutput];
         // 需要先 addOutput 后面在 setMetadataObjectTypes
-        [_metaOutput setMetadataObjectsDelegate:self queue:_metaQueue];
+        [_metaOutput setMetadataObjectsDelegate:self queue:self.metaQueue];
         [_metaOutput setMetadataObjectTypes:@[AVMetadataObjectTypeFace]];
     }
     
@@ -199,7 +194,7 @@
 #pragma mark - 相机操作
 /// 缩放
 - (void)zoomAction:(SCCameraView *)cameraView factor:(CGFloat)factor handle:(void(^)(NSError *error))handle {
-    dispatch_async(_sessionQueue, ^{
+    dispatch_async(self.sessionQueue, ^{
         [self.cameraManager zoom:self.currentCameraInput.device factor:factor handle:handle];
     });
 }
@@ -208,7 +203,7 @@
 - (void)focusAndExposeAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void (^)(NSError * _Nonnull))handle {
     // instestPoint 只能在主线程获取
     CGPoint instestPoint = [cameraView.previewView captureDevicePointForPoint:point];
-    dispatch_async(_sessionQueue, ^{
+    dispatch_async(self.sessionQueue, ^{
         dispatch_async(dispatch_get_main_queue(), ^{
             [cameraView runFocusAnimation:point];
         });
@@ -223,7 +218,7 @@
 
 /// 转换镜头
 - (void)switchCameraAction:(SCCameraView *)cameraView isFront:(BOOL)isFront handle:(void(^)(NSError *error))handle {
-    dispatch_async(_sessionQueue, ^{
+    dispatch_async(self.sessionQueue, ^{
         AVCaptureDeviceInput *old = isFront ? self.backCameraInput : self.frontCameraInput;
         AVCaptureDeviceInput *new = isFront ? self.frontCameraInput : self.backCameraInput;
         [self.cameraManager switchCamera:self.session old:old new:new handle:handle];
@@ -232,7 +227,7 @@
 
 /// 闪光灯
 - (void)flashLightAction:(SCCameraView *)cameraView isOn:(BOOL)isOn handle:(void(^)(NSError *error))handle {
-    dispatch_async(_sessionQueue, ^{
+    dispatch_async(self.sessionQueue, ^{
         AVCaptureFlashMode mode = isOn?AVCaptureFlashModeOn:AVCaptureFlashModeOff;
         [self.cameraManager changeFlash:self.currentCameraInput.device mode:mode handle:handle];
     });
@@ -240,7 +235,7 @@
 
 /// 补光
 - (void)torchLightAction:(SCCameraView *)cameraView isOn:(BOOL)isOn handle:(void(^)(NSError *error))handle {
-    dispatch_async(_sessionQueue, ^{
+    dispatch_async(self.sessionQueue, ^{
         AVCaptureTorchMode mode = isOn?AVCaptureTorchModeOn:AVCaptureTorchModeOff;
         [self.cameraManager changeTorch:self.currentCameraInput.device mode:mode handle:handle];
     });
@@ -373,6 +368,59 @@
 }
 
 #pragma mark - getter/setter
+- (BOOL)hasAllPermissions {
+    return [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized
+    && [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized;
+}
+
+#pragma mark - lazy
+// Views
+- (SCCameraView *)cameraView {
+    if (_cameraView == nil) {
+        _cameraView = [SCCameraView cameraView:self.view.frame];
+        _cameraView.delegate = self;
+    }
+    return _cameraView;
+}
+
+- (SCPermissionsView *)permissionsView {
+    if (_permissionsView == nil) {
+        _permissionsView = [[SCPermissionsView alloc] initWithFrame:self.view.bounds];
+        _permissionsView.delegate = self;
+    }
+    return _permissionsView;
+}
+
+// Managers
+- (SCCameraManager *)cameraManager {
+    if (_cameraManager == nil) {
+        _cameraManager = [SCCameraManager new];
+    }
+    return _cameraManager;
+}
+
+- (SCPhotographManager *)photographManager {
+    if (_photographManager == nil) {
+        _photographManager = [SCPhotographManager new];
+    }
+    return _photographManager;
+}
+
+- (SCMovieManager *)movieManager {
+    if (_movieManager == nil) {
+        _movieManager = [SCMovieManager new];
+    }
+    return _movieManager;
+}
+
+// AVFoundation
+- (AVCaptureSession *)session {
+    if (_session == nil) {
+        _session = [AVCaptureSession new];
+    }
+    return _session;
+}
+
 - (AVCaptureDeviceInput *)backCameraInput {
     if (_backCameraInput == nil) {
         NSError *error;
@@ -403,6 +451,7 @@
     return [AVCaptureDevice cameraWithPosition:AVCaptureDevicePositionBack];
 }
 
+// 用于人脸识别
 - (NSCache<NSNumber *,SCFaceModel *> *)faceModels {
     if (_faceModels == nil) {
         _faceModels = [[NSCache alloc] init];
@@ -416,6 +465,28 @@
         _faceFocusViews = [NSMutableDictionary dictionaryWithCapacity:2];
     }
     return _faceFocusViews;
+}
+
+// 队列懒加载
+- (dispatch_queue_t)sessionQueue {
+    if (_sessionQueue == NULL) {
+        _sessionQueue = dispatch_queue_create("com.seacen.sessionQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    return _sessionQueue;
+}
+
+- (dispatch_queue_t)metaQueue {
+    if (_metaQueue == NULL) {
+        _metaQueue = dispatch_queue_create("com.seacen.metaQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    return _metaQueue;
+}
+
+- (dispatch_queue_t)captureQueue {
+    if (_captureQueue == NULL) {
+        _captureQueue = dispatch_queue_create("com.seacen.captureQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    return _captureQueue;
 }
 
 @end

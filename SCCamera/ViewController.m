@@ -8,7 +8,6 @@
 
 #import "ViewController.h"
 #import "SCCameraController.h"
-#import "SCPermissionsView.h"
 
 @interface ViewController ()
 
@@ -23,9 +22,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    SCPermissionsView *v = [[SCPermissionsView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    [self.view addSubview:v];
 }
 
 

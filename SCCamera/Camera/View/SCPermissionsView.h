@@ -8,10 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+@class SCPermissionsView;
+@protocol SCPermissionsViewDelegate <NSObject>
+- (void)permissionsViewDidHasAllPermissions:(SCPermissionsView*)pv;
+@end
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SCPermissionsView : UIView
-
+@property (nonatomic, weak) id<SCPermissionsViewDelegate> delegate;
 @end
 
 NS_ASSUME_NONNULL_END
