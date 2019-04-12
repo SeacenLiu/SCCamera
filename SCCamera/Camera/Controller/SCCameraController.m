@@ -38,6 +38,7 @@
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metaOutput;
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
+@property (nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
 
 @property (nonatomic, strong) SCCameraView *cameraView;
 @property (nonatomic, strong) SCPermissionsView *permissionsView;
@@ -189,6 +190,12 @@
     _stillImageOutput = [AVCaptureStillImageOutput new];
     if ([_session canAddOutput:_stillImageOutput]) {
         [_session addOutput:_stillImageOutput];
+    }
+    
+    // 视频文件输出
+    _movieFileOutput = [AVCaptureMovieFileOutput new];
+    if ([_session canAddOutput:_movieFileOutput]) {
+        [_session addOutput:_movieFileOutput];
     }
 }
 
