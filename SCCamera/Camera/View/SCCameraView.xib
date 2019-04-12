@@ -129,6 +129,7 @@
             </constraints>
             <viewLayoutGuide key="safeArea" id="YvZ-r1-EmH"/>
             <connections>
+                <outlet property="cancelBtn" destination="6IL-g0-sEJ" id="cTq-6r-UfF"/>
                 <outlet property="focusView" destination="g9F-zD-OwQ" id="3n8-wH-UXR"/>
                 <outlet property="photoBtn" destination="VoU-X9-41W" id="Kdl-sF-U5I"/>
                 <outlet property="previewView" destination="a6Q-nO-Q96" id="3hR-v2-VdE"/>

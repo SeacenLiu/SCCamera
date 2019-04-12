@@ -106,7 +106,8 @@
 }
 
 - (void)setupPermissionsView {
-    [self.view addSubview:self.permissionsView];
+    [self.cameraView addSubview:self.permissionsView];
+    [self.cameraView bringSubviewToFront:self.cameraView.cancelBtn];
     [self.permissionsView setTranslatesAutoresizingMaskIntoConstraints:NO];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.permissionsView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.permissionsView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];

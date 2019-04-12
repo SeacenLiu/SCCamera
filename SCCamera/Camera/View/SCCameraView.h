@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak) id<SCCameraViewDelegate> delegate;
 @property (weak, nonatomic) IBOutlet SCVideoPreviewView *previewView;
+@property (weak, nonatomic) IBOutlet UIButton *cancelBtn;
 
 /// 指定构造函数
 + (instancetype)cameraView:(CGRect)frame;

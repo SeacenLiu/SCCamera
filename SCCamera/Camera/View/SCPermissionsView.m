@@ -7,7 +7,8 @@
 //
 
 #import "SCPermissionsView.h"
-#import <AVFoundation/AVFoundation.h>
+#import <AVFoundation/AVCaptureDevice.h>
+#import "UIView+SCCategory.h"
 
 @interface SCPermissionsView ()
 @property (nonatomic, strong) UIButton *cameraBtn;
@@ -56,7 +57,7 @@
 - (void)getCameraPermission:(UIButton*)sender {
     if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusDenied) {
         // 引导用户到设置修改权限
-        NSLog(@"AVMediaTypeVideo");
+        [self openSetting];
         return;
     }
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
@@ -67,7 +68,7 @@
 - (void)getMicrophonePermission:(UIButton*)sender {
     if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusDenied) {
         // 引导用户到设置修改权限
-        NSLog(@"AVMediaTypeAudio");
+        [self openSetting];
         return;
     }
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
@@ -75,8 +76,15 @@
     }];
 }
 
+- (void)openSetting {
+    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    if ([[UIApplication sharedApplication] canOpenURL:url]) {
+        [[UIApplication sharedApplication] openURL:url];
+    }
+}
+
 - (void)setupUI {
-    self.backgroundColor = [UIColor whiteColor];
+    self.backgroundColor = [UIColor blackColor];
     [self addSubview:self.cameraBtn];
     [self addSubview:self.microphoneBtn];
     [_cameraBtn setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -92,9 +100,9 @@
     if (_cameraBtn == nil) {
         _cameraBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [_cameraBtn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        [_cameraBtn setTitle:@"获取相机权限" forState:UIControlStateNormal];
-        [_cameraBtn setTitleColor:[UIColor blackColor] forState:UIControlStateDisabled];
-        [_cameraBtn setTitle:@"已获取相机权限" forState:UIControlStateDisabled];
+        [_cameraBtn setTitle:@"允许访问相机" forState:UIControlStateNormal];
+        [_cameraBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateDisabled];
+        [_cameraBtn setTitle:@"相机访问权限已启用" forState:UIControlStateDisabled];
         [_cameraBtn addTarget:self action:@selector(getCameraPermission:) forControlEvents:UIControlEventTouchUpInside];
         [_cameraBtn sizeToFit];
     }
@@ -105,9 +113,9 @@
     if (_microphoneBtn == nil) {
         _microphoneBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [_microphoneBtn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        [_microphoneBtn setTitle:@"获取麦克风权限" forState:UIControlStateNormal];
-        [_microphoneBtn setTitleColor:[UIColor blackColor] forState:UIControlStateDisabled];
-        [_microphoneBtn setTitle:@"已获取麦克风权限" forState:UIControlStateDisabled];
+        [_microphoneBtn setTitle:@"允许访问麦克风" forState:UIControlStateNormal];
+        [_microphoneBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateDisabled];
+        [_microphoneBtn setTitle:@"麦克风权限已启用" forState:UIControlStateDisabled];
         [_microphoneBtn addTarget:self action:@selector(getMicrophonePermission:) forControlEvents:UIControlEventTouchUpInside];
         [_microphoneBtn sizeToFit];
     }
