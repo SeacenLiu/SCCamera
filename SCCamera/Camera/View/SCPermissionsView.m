@@ -33,47 +33,44 @@
      AVAuthorizationStatusAuthorized    = 3,
      */
     AVAuthorizationStatus cameraStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    NSLog(@"%ld", (long)cameraStatus);
     BOOL cameraGranted = cameraStatus == AVAuthorizationStatusAuthorized;
     [self btnChange:self.cameraBtn granted:cameraGranted];
     AVAuthorizationStatus microphoneStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
-    NSLog(@"%ld", (long)microphoneStatus);
     BOOL microphoneGranted = microphoneStatus == AVAuthorizationStatusAuthorized;
     [self btnChange:self.microphoneBtn granted:microphoneGranted];
 }
 
 - (void)btnChange:(UIButton*)btn granted:(BOOL)granted {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [btn setEnabled:!granted];
-        // 判断权限都获取了的状态
-        if (!self.cameraBtn.enabled && !self.microphoneBtn.enabled) {
-            if ([self.delegate respondsToSelector:@selector(permissionsViewDidHasAllPermissions:)]) {
-                [self.delegate permissionsViewDidHasAllPermissions:self];
-            }
+    [btn setEnabled:!granted];
+    // 判断权限都获取了的状态
+    if (!self.cameraBtn.enabled && !self.microphoneBtn.enabled) {
+        if ([self.delegate respondsToSelector:@selector(permissionsViewDidHasAllPermissions:)]) {
+            [self.delegate permissionsViewDidHasAllPermissions:self];
         }
-    });
+    }
 }
 
-- (void)getCameraPermission:(UIButton*)sender {
-    if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusDenied) {
-        // 引导用户到设置修改权限
-        [self openSetting];
-        return;
+- (void)obtainPermission:(UIButton*)sender {
+    AVMediaType type = AVMediaTypeVideo;
+    if (sender == self.microphoneBtn)
+        type = AVMediaTypeAudio;
+    switch ([AVCaptureDevice authorizationStatusForMediaType:type]) {
+        case AVAuthorizationStatusNotDetermined: {
+            // 手动询问
+            [AVCaptureDevice requestAccessForMediaType:type completionHandler:^(BOOL granted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self btnChange:sender granted:granted];
+                });
+            }];
+            break;
+        }
+        case AVAuthorizationStatusDenied:
+            // 跳转设置界面
+            [self openSetting];
+            break;
+        default:
+            break;
     }
-    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-        [self btnChange:sender granted:granted];
-    }];
-}
-
-- (void)getMicrophonePermission:(UIButton*)sender {
-    if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusDenied) {
-        // 引导用户到设置修改权限
-        [self openSetting];
-        return;
-    }
-    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
-        [self btnChange:sender granted:granted];
-    }];
 }
 
 - (void)openSetting {
@@ -103,7 +100,7 @@
         [_cameraBtn setTitle:@"允许访问相机" forState:UIControlStateNormal];
         [_cameraBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateDisabled];
         [_cameraBtn setTitle:@"相机访问权限已启用" forState:UIControlStateDisabled];
-        [_cameraBtn addTarget:self action:@selector(getCameraPermission:) forControlEvents:UIControlEventTouchUpInside];
+        [_cameraBtn addTarget:self action:@selector(obtainPermission:) forControlEvents:UIControlEventTouchUpInside];
         [_cameraBtn sizeToFit];
     }
     return _cameraBtn;
@@ -116,7 +113,7 @@
         [_microphoneBtn setTitle:@"允许访问麦克风" forState:UIControlStateNormal];
         [_microphoneBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateDisabled];
         [_microphoneBtn setTitle:@"麦克风权限已启用" forState:UIControlStateDisabled];
-        [_microphoneBtn addTarget:self action:@selector(getMicrophonePermission:) forControlEvents:UIControlEventTouchUpInside];
+        [_microphoneBtn addTarget:self action:@selector(obtainPermission:) forControlEvents:UIControlEventTouchUpInside];
         [_microphoneBtn sizeToFit];
     }
     return _microphoneBtn;
