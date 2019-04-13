@@ -10,7 +10,6 @@
 
 @interface SCMovieFileOutManager () <AVCaptureFileOutputRecordingDelegate>
 @property (nonatomic, strong) NSURL *movieURL;
-@property (nonatomic, copy) void(^finishHandle)(NSURL *videoURL, NSError *error);
 @end
 
 @implementation SCMovieFileOutManager
@@ -31,7 +30,7 @@
 
 
 /// 开始录制
-- (void)start:(AVCaptureVideoOrientation)orientation handle:(void(^)(NSError *error))handle {
+- (void)start:(AVCaptureVideoOrientation)orientation {
     NSAssert(self.movieFileOutput, @"必须给movieFileOutput赋值");
     if (!self.isRecording) {
         AVCaptureConnection *videoConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -46,16 +45,23 @@
 }
 
 /// 停止录制
-- (void)stop:(void(^)(NSURL *url, NSError *error))handle {
+- (void)stop{
     if (self.isRecording) {
-        self.finishHandle = handle;
         [self.movieFileOutput stopRecording];
     }
 }
 
 #pragma mark - AVCaptureFileOutputRecordingDelegate
 - (void)captureOutput:(nonnull AVCaptureFileOutput *)output didFinishRecordingToOutputFileAtURL:(nonnull NSURL *)outputFileURL fromConnections:(nonnull NSArray<AVCaptureConnection *> *)connections error:(nullable NSError *)error {
-    self.finishHandle(outputFileURL, error);
+    if (error) {
+        if ([_delegate respondsToSelector:@selector(movieFileOutManagerHandleError:error:)]) {
+            [_delegate movieFileOutManagerHandleError:self error:error];
+        }
+    } else {
+        if ([_delegate respondsToSelector:@selector(movieFileOutManagerDidFinishRecord:outputFileURL:)]) {
+            [_delegate movieFileOutManagerDidFinishRecord:self outputFileURL:outputFileURL];
+        }
+    }
 }
 
 /// 保存到相册
