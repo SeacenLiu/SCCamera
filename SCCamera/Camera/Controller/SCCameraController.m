@@ -19,11 +19,11 @@
 
 #import "SCCameraManager.h"
 #import "SCPhotographManager.h"
-#import "SCMovieManager.h"
+#import "SCMovieFileOutManager.h"
 
 #import <Photos/Photos.h>
 
-@interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate,SCPermissionsViewDelegate>
+@interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate,SCPermissionsViewDelegate,SCMovieFileOutManagerDelegate>
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) dispatch_queue_t metaQueue;
 @property (nonatomic) dispatch_queue_t captureQueue;
@@ -37,17 +37,18 @@
 @property (nonatomic, strong) AVCaptureConnection *videoConnection;
 @property (nonatomic, strong) AVCaptureConnection *audioConnection;
 // 输出
-@property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
+/// 与 AVCaptureMovieFileOutput 水火不相容
+//@property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metaOutput;
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
-//@property (nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
+@property (nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
 
 @property (nonatomic, strong) SCCameraView *cameraView;
 @property (nonatomic, strong) SCPermissionsView *permissionsView;
 
 @property (nonatomic, strong) SCCameraManager *cameraManager;
 @property (nonatomic, strong) SCPhotographManager *photographManager;
-@property (nonatomic, strong) SCMovieManager *movieManager;
+@property (nonatomic, strong) SCMovieFileOutManager *movieFileManager;
 
 /// 有相机和麦克风的权限(必须调用getter方法)
 @property (nonatomic, assign, readonly) BOOL hasAllPermissions;
@@ -158,25 +159,6 @@
 
 /** 配置输出 */
 - (void)setupSessionOutput:(NSError**)error {
-    // 添加视频输出
-    _videoOutput = [AVCaptureVideoDataOutput new];
-    NSDictionary *rgbOutputSettings = [NSDictionary dictionaryWithObject:
-                                       [NSNumber numberWithInt:kCMPixelFormat_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
-    [_videoOutput setVideoSettings:rgbOutputSettings];
-    [_videoOutput setSampleBufferDelegate:self queue:self.captureQueue];
-    if ([_session canAddOutput:_videoOutput]) {
-        [_session addOutput:_videoOutput];
-    }
-    _videoConnection = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
-    
-    // 音频输出
-    AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
-    [audioOut setSampleBufferDelegate:self queue:self.captureQueue];
-    if ([_session canAddOutput:audioOut]){
-        [_session addOutput:audioOut];
-    }
-    _audioConnection = [audioOut connectionWithMediaType:AVMediaTypeAudio];
-    
     // 添加元素输出（识别）
     _metaOutput = [AVCaptureMetadataOutput new];
     if ([_session canAddOutput:_metaOutput]) {
@@ -195,10 +177,10 @@
     }
     
     // 视频文件输出
-//    _movieFileOutput = [AVCaptureMovieFileOutput new];
-//    if ([_session canAddOutput:_movieFileOutput]) {
-//        [_session addOutput:_movieFileOutput];
-//    }
+    _movieFileOutput = [AVCaptureMovieFileOutput new];
+    if ([_session canAddOutput:_movieFileOutput]) {
+        [_session addOutput:_movieFileOutput];
+    }
 }
 
 #pragma mark - 相机操作
@@ -297,14 +279,6 @@
     }
 }
 
-#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
-    // SCMovieManager 的使用
-    if (self.movieManager.isRecording) {
-        [self.movieManager writeData:connection video:_videoConnection audio:_audioConnection buffer:sampleBuffer];
-    }
-}
-
 #pragma mark - 拍照
 /// 拍照
 - (void)takePhotoAction:(SCCameraView *)cameraView {
@@ -331,35 +305,25 @@
 #pragma mark - 录制视频
 /// 开始录像视频
 - (void)startRecordVideoAction:(SCCameraView *)cameraView {
-    // SCMovieManager 的使用
-    self.movieManager.currentDevice = self.currentCameraInput.device;
-    self.movieManager.currentOrientation = cameraView.previewView.videoOrientation;
-    [self.movieManager start:^(NSError * _Nonnull error) {
-        if (error)
-            [self.view showError:error];
-    }];
+    [self.movieFileManager start:self.cameraView.previewView.videoOrientation];
 }
 
 /// 停止录像视频
 - (void)stopRecordVideoAction:(SCCameraView *)cameraView {
-    // SCMovieManager 的使用
-    [self.movieManager stop:^(NSURL * _Nonnull url, NSError * _Nonnull error) {
-        if (error) {
-            [self.view showError:error];
-        } else {
-            [self.view showAlertView:@"是否保存到相册" ok:^(UIAlertAction *act) {
-                [self saveMovieToCameraRoll: url];
-            } cancel:nil];
-        }
-    }];
+    [self.movieFileManager stop];
 }
 
-// 保存视频
-- (void)saveMovieToCameraRoll:(NSURL *)url {
-    // SCMovieManager 的使用
+/// movieFileOut 错误处理
+- (void)movieFileOutManagerHandleError:(SCMovieFileOutManager *)manager error:(NSError *)error {
+    [self.view showError:error];
+}
+
+// movieFileOut 录制完成处理
+- (void)movieFileOutManagerDidFinishRecord:(SCMovieFileOutManager *)manager outputFileURL:(NSURL *)outputFileURL {
+    // 保存视频
     [self.view showLoadHUD:@"保存中..."];
-    [self.movieManager saveMovieToCameraRoll:url authHandle:^(BOOL success, PHAuthorizationStatus status) {
-        // TODO: - 权限弹框
+    [self.movieFileManager saveMovieToCameraRoll:outputFileURL authHandle:^(BOOL success, PHAuthorizationStatus status) {
+        // TODO: - 权限处理问题
     } completion:^(BOOL success, NSError * _Nullable error) {
         [self.view hideHUD];
         success?:[self.view showError:error];
@@ -418,11 +382,13 @@
     return _photographManager;
 }
 
-- (SCMovieManager *)movieManager {
-    if (_movieManager == nil) {
-        _movieManager = [SCMovieManager new];
+- (SCMovieFileOutManager *)movieFileManager {
+    if (_movieFileManager == nil) {
+        _movieFileManager = [SCMovieFileOutManager new];
+        _movieFileManager.movieFileOutput = self.movieFileOutput;
+        _movieFileManager.delegate = self;
     }
-    return _movieManager;
+    return _movieFileManager;
 }
 
 // AVFoundation
