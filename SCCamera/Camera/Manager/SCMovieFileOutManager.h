@@ -11,12 +11,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SCMovieFileOutManagerDelegate <NSObject>
-
-
-
-@end
-
 @interface SCMovieFileOutManager : NSObject
 
 @property (nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;

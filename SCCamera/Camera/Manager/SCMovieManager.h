@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
  @class SCMovieManager
  @abstract
     配合 视频连接 和 音频连接 进行音视频录制 的工具类
+    本类基于 AVCaptureVideoDataOutPut 因此与 AVCaptureMovieFileOutput 不可共存
+    [Simultaneous AVCaptureVideoDataOutput and AVCaptureMovieFileOutput](https://stackoverflow.com/questions/3968879/simultaneous-avcapturevideodataoutput-and-avcapturemoviefileoutput)
  @discussion
     1. 设置 currentDevice 和 currentOrientation
         self.movieManager.currentDevice = self.currentCameraInput.device;
