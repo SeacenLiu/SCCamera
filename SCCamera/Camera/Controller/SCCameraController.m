@@ -21,6 +21,8 @@
 #import "SCPhotographManager.h"
 #import "SCMovieManager.h"
 
+#import <Photos/Photos.h>
+
 @interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate,SCPermissionsViewDelegate>
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) dispatch_queue_t metaQueue;
@@ -38,7 +40,7 @@
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metaOutput;
 @property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
-@property (nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
+//@property (nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
 
 @property (nonatomic, strong) SCCameraView *cameraView;
 @property (nonatomic, strong) SCPermissionsView *permissionsView;
@@ -49,8 +51,6 @@
 
 /// 有相机和麦克风的权限(必须调用getter方法)
 @property (nonatomic, assign, readonly) BOOL hasAllPermissions;
-
-@property (nonatomic, assign) BOOL recording;
 
 // 用于人脸检测显示
 /// 需要使用 NSCache
@@ -188,15 +188,17 @@
     
     // 静态图片输出
     _stillImageOutput = [AVCaptureStillImageOutput new];
+    // 设置编解码
+    _stillImageOutput.outputSettings = @{AVVideoCodecKey: AVVideoCodecJPEG};
     if ([_session canAddOutput:_stillImageOutput]) {
         [_session addOutput:_stillImageOutput];
     }
     
     // 视频文件输出
-    _movieFileOutput = [AVCaptureMovieFileOutput new];
-    if ([_session canAddOutput:_movieFileOutput]) {
-        [_session addOutput:_movieFileOutput];
-    }
+//    _movieFileOutput = [AVCaptureMovieFileOutput new];
+//    if ([_session canAddOutput:_movieFileOutput]) {
+//        [_session addOutput:_movieFileOutput];
+//    }
 }
 
 #pragma mark - 相机操作
@@ -297,8 +299,9 @@
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
-    if (_recording) {
-        [_movieManager writeData:connection video:_videoConnection audio:_audioConnection buffer:sampleBuffer];
+    // SCMovieManager 的使用
+    if (self.movieManager.isRecording) {
+        [self.movieManager writeData:connection video:_videoConnection audio:_audioConnection buffer:sampleBuffer];
     }
 }
 
@@ -327,20 +330,20 @@
 
 #pragma mark - 录制视频
 /// 开始录像视频
-- (void)startRecordVideoAction:(SCCameraView *)cameraView{
-    _recording = YES;
-    _movieManager.currentDevice = self.currentCameraInput.device;
-    _movieManager.currentOrientation = cameraView.previewView.videoOrientation;
-    [_movieManager start:^(NSError * _Nonnull error) {
+- (void)startRecordVideoAction:(SCCameraView *)cameraView {
+    // SCMovieManager 的使用
+    self.movieManager.currentDevice = self.currentCameraInput.device;
+    self.movieManager.currentOrientation = cameraView.previewView.videoOrientation;
+    [self.movieManager start:^(NSError * _Nonnull error) {
         if (error)
             [self.view showError:error];
     }];
 }
 
 /// 停止录像视频
-- (void)stopRecordVideoAction:(SCCameraView *)cameraView{
-    _recording = NO;
-    [_movieManager stop:^(NSURL * _Nonnull url, NSError * _Nonnull error) {
+- (void)stopRecordVideoAction:(SCCameraView *)cameraView {
+    // SCMovieManager 的使用
+    [self.movieManager stop:^(NSURL * _Nonnull url, NSError * _Nonnull error) {
         if (error) {
             [self.view showError:error];
         } else {
@@ -352,7 +355,8 @@
 }
 
 // 保存视频
-- (void)saveMovieToCameraRoll:(NSURL *)url{
+- (void)saveMovieToCameraRoll:(NSURL *)url {
+    // SCMovieManager 的使用
     [self.view showLoadHUD:@"保存中..."];
     [self.movieManager saveMovieToCameraRoll:url authHandle:^(BOOL success, PHAuthorizationStatus status) {
         // TODO: - 权限弹框
