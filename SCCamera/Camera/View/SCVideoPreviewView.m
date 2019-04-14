@@ -14,6 +14,10 @@
     return [AVCaptureVideoPreviewLayer class];
 }
 
+- (AVCaptureVideoPreviewLayer*)videoPreviewLayer {
+    return (AVCaptureVideoPreviewLayer *)self.layer;
+}
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     [self prepare];
@@ -35,16 +39,13 @@
     return [layer captureDevicePointOfInterestForPoint:point];
 }
 
-- (AVCaptureVideoPreviewLayer*) videoPreviewLayer {
-    return (AVCaptureVideoPreviewLayer *)self.layer;
-}
-
 - (AVCaptureSession*)captureSession {
     return self.videoPreviewLayer.session;
 }
 
 - (void)setCaptureSession:(AVCaptureSession*)captureSession {
     self.videoPreviewLayer.session = captureSession;
+    // 根据状态栏位置设置视频方向
     UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
     AVCaptureVideoOrientation initialVideoOrientation = AVCaptureVideoOrientationPortrait;
     if (statusBarOrientation != UIInterfaceOrientationUnknown) {

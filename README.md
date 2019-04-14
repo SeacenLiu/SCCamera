@@ -3,9 +3,12 @@ Custom camera by AVFoundation.
 
 - session queue problem
 
-## SCMovieFileOutManager
-> 本分支重要功能点就是`SCMovieFileOutManager`对`AVCaptureMovieFileOutput`的使用
+## Architecture
+> MVC
 
+![architecture](https://raw.githubusercontent.com/SeacenLiu/SCCamera/master/architecture.png)
+
+## SCMovieFileOutManager 使用
 ```
 // 创建 SCMovieFileOutManager
 - (SCMovieFileOutManager *)movieFileManager {
@@ -50,7 +53,3 @@ PS: `AVCaptureMovieFileOutput`不能与`AVCaptureVideoDataOutput`或`AVCaptureAu
 
 [Simultaneous AVCaptureVideoDataOutput and AVCaptureMovieFileOutput](https://stackoverflow.com/questions/3968879/simultaneous-avcapturevideodataoutput-and-avcapturemoviefileoutput)
 
-## Architecture
-> MVC
-
-![architecture](https://raw.githubusercontent.com/SeacenLiu/SCCamera/master/architecture.png)
