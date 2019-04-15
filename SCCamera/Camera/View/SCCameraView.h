@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)switchCameraAction:(SCCameraView *)cameraView isFront:(BOOL)isFront handle:(void(^)(NSError *error))handle;
 /// 聚焦&曝光
 - (void)focusAndExposeAction:(SCCameraView *)cameraView point:(CGPoint)point handle:(void(^)(NSError *error))handle;
+/// 调整感光度
+- (void)isoAction:(SCCameraView *)cameraView factor:(CGFloat)factor handle:(void(^)(NSError *error))handle;
 /// 缩放
 - (void)zoomAction:(SCCameraView *)cameraView factor:(CGFloat)factor handle:(void(^)(NSError *error))handle;
 

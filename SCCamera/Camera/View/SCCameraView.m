@@ -24,7 +24,9 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
 /// 聚焦动画 view
 @property (nonatomic, weak) IBOutlet UIView *focusView;
 /// 显示缩放比
-@property(nonatomic, weak) IBOutlet UISlider *slider;
+@property(nonatomic, weak) IBOutlet UISlider *zoomSlider;
+/// 亮度调节
+@property (weak, nonatomic) IBOutlet UISlider *isoSlider;
 @end
 
 // TODO: - 聚焦，曝光，人脸检测动画
@@ -40,8 +42,9 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
 
 - (void)setupUI {
     [self addSubview:self.focusView];
-    [self addSubview:self.slider];
-    self.slider.transform = CGAffineTransformMakeRotation(-M_PI_2);
+    [self addSubview:self.zoomSlider];
+    self.zoomSlider.transform = CGAffineTransformMakeRotation(-M_PI_2);
+    self.isoSlider.transform = CGAffineTransformMakeRotation(-M_PI_2);
 }
 
 #pragma mark - 手势添加
@@ -55,7 +58,15 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
 }
 
 #pragma mark - 相机操作
-- (IBAction)sliderAction:(UISlider*)sender {
+- (IBAction)isoSliderAction:(UISlider*)sender {
+    if ([_delegate respondsToSelector:@selector(isoAction:factor:handle:)]) {
+        [_delegate isoAction:self factor:sender.value handle:^(NSError * _Nonnull error) {
+            // TODO: - handle error
+        }];
+    }
+}
+
+- (IBAction)zoomSliderAction:(UISlider*)sender {
     if ([_delegate respondsToSelector:@selector(zoomAction:factor:handle:)]) {
         [_delegate zoomAction:self factor: powf(5, sender.value) handle:^(NSError * _Nonnull error) {
             // TODO: - handle error
@@ -71,11 +82,11 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
             case UIGestureRecognizerStateChanged:
                 // 根据捏合速度来做
                 if (pinch.velocity > 0) {
-                    _slider.value += pinch.velocity/500;
+                    _zoomSlider.value += pinch.velocity/500;
                 } else {
-                    _slider.value += pinch.velocity/200;
+                    _zoomSlider.value += pinch.velocity/200;
                 }
-                [_delegate zoomAction:self factor: powf(5, _slider.value) handle:^(NSError * _Nonnull error) {
+                [_delegate zoomAction:self factor: powf(5, _zoomSlider.value) handle:^(NSError * _Nonnull error) {
                     // TODO: - handle error
                 }];
                 break;
@@ -93,6 +104,7 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
         [_delegate focusAndExposeAction:self point:point handle:^(NSError * _Nonnull error) {
             // TODO: - handle error
         }];
+        self.isoSlider.value = 0.5;
     }
 }
 

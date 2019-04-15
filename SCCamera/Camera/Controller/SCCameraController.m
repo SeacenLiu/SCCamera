@@ -228,6 +228,13 @@
     });
 }
 
+/// 调整ISO
+- (void)isoAction:(SCCameraView *)cameraView factor:(CGFloat)factor handle:(void(^)(NSError *error))handle {
+    dispatch_async(self.sessionQueue, ^{
+        [self.cameraManager iso:self.currentCameraInput.device factor:factor handle:handle];
+    });
+}
+
 /// 转换镜头
 - (void)switchCameraAction:(SCCameraView *)cameraView isFront:(BOOL)isFront handle:(void(^)(NSError *error))handle {
     dispatch_async(self.sessionQueue, ^{

@@ -98,7 +98,19 @@
                     <color key="minimumTrackTintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <color key="maximumTrackTintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <connections>
-                        <action selector="sliderAction:" destination="H7S-Cs-rMa" eventType="valueChanged" id="hpd-4C-7BD"/>
+                        <action selector="zoomSliderAction:" destination="H7S-Cs-rMa" eventType="valueChanged" id="qer-2E-q3q"/>
+                    </connections>
+                </slider>
+                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="v6g-aK-siY">
+                    <rect key="frame" x="-82" y="318.5" width="204" height="31"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="200" id="asF-92-U0d"/>
+                        <constraint firstAttribute="height" constant="30" id="vbh-2E-loB"/>
+                    </constraints>
+                    <color key="minimumTrackTintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="maximumTrackTintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <connections>
+                        <action selector="isoSliderAction:" destination="H7S-Cs-rMa" eventType="valueChanged" id="zBf-T9-iSm"/>
                     </connections>
                 </slider>
             </subviews>
@@ -106,6 +118,7 @@
             <constraints>
                 <constraint firstItem="6IL-g0-sEJ" firstAttribute="centerY" secondItem="VoU-X9-41W" secondAttribute="centerY" id="1aB-yv-kye"/>
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" id="2S1-8Z-L0B"/>
+                <constraint firstItem="v6g-aK-siY" firstAttribute="leading" secondItem="H7S-Cs-rMa" secondAttribute="leading" constant="-80" id="35Q-fa-AHR"/>
                 <constraint firstItem="1DL-l0-VxH" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" id="9Ve-j5-BTN"/>
                 <constraint firstItem="VoU-X9-41W" firstAttribute="centerX" secondItem="1DL-l0-VxH" secondAttribute="centerX" id="AOw-99-RG9"/>
                 <constraint firstItem="aP4-Rl-Ysu" firstAttribute="centerY" secondItem="VoU-X9-41W" secondAttribute="centerY" id="AyM-f3-qV1"/>
@@ -126,15 +139,17 @@
                 <constraint firstItem="1DL-l0-VxH" firstAttribute="trailing" secondItem="YvZ-r1-EmH" secondAttribute="trailing" id="tUZ-2S-sil"/>
                 <constraint firstItem="r9m-OU-hRX" firstAttribute="centerX" secondItem="1DL-l0-VxH" secondAttribute="centerX" id="vYo-Kx-G0e"/>
                 <constraint firstItem="6IL-g0-sEJ" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" constant="16" id="yGq-9l-z2S"/>
+                <constraint firstItem="v6g-aK-siY" firstAttribute="centerY" secondItem="1DL-l0-VxH" secondAttribute="centerY" id="yfV-Dw-NCa"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="YvZ-r1-EmH"/>
             <connections>
                 <outlet property="cancelBtn" destination="6IL-g0-sEJ" id="cTq-6r-UfF"/>
                 <outlet property="focusView" destination="g9F-zD-OwQ" id="3n8-wH-UXR"/>
+                <outlet property="isoSlider" destination="v6g-aK-siY" id="NS7-Bo-k27"/>
                 <outlet property="photoBtn" destination="VoU-X9-41W" id="Kdl-sF-U5I"/>
                 <outlet property="previewView" destination="a6Q-nO-Q96" id="3hR-v2-VdE"/>
-                <outlet property="slider" destination="BXb-hu-Hjq" id="9en-5P-SmI"/>
                 <outlet property="typeSelBtn" destination="aP4-Rl-Ysu" id="jpf-se-gWU"/>
+                <outlet property="zoomSlider" destination="BXb-hu-Hjq" id="zpk-hv-DSd"/>
             </connections>
             <point key="canvasLocation" x="-626.39999999999998" y="62.518740629685162"/>
         </view>

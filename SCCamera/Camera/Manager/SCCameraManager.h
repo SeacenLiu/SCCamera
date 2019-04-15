@@ -25,6 +25,8 @@ typedef void(^_Nullable CameraHandleError)(NSError * _Nullable error);
 monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
                handle:(CameraHandleError)handle;
 
+- (void)iso:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle;
+
 - (void)changeFlash:(AVCaptureDevice*)device mode:(AVCaptureFlashMode)mode handle:(CameraHandleError)handle;
 
 - (void)changeTorch:(AVCaptureDevice*)device mode:(AVCaptureTorchMode)mode handle:(CameraHandleError)handle;

@@ -13,7 +13,7 @@
 
 // TODO: - 判断权限
 @interface SCCameraManager ()
-
+@property (nonatomic, assign) float autoISO;
 @end
 
 @implementation SCCameraManager
@@ -82,6 +82,29 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
             device.exposureMode = exposureMode;
         }
         device.subjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange;
+        NSLog(@"min: %f max: %f cur: %f", device.activeFormat.minISO, device.activeFormat.maxISO, device.ISO);
+        self.autoISO = device.ISO;
+    }];
+}
+
+/// 曝光ISO设置
+- (void)iso:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle {
+    // 0.5 对应的是 self.autoISO
+    float margin = MIN(self.autoISO-device.activeFormat.minISO, device.activeFormat.maxISO-self.autoISO);
+    float min = self.autoISO - margin;
+    float max = self.autoISO + margin;
+    float val = min + (max-min) * factor;
+    [device settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
+        if (error) {
+            handle(error);
+            return;
+        }
+        __weak typeof(device) weakDevice = device;
+        [device setExposureModeCustomWithDuration:device.exposureDuration ISO:val completionHandler:^(CMTime syncTime) {
+            [weakDevice settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
+                [device setExposureMode:AVCaptureExposureModeCustom];
+            }];
+        }];
     }];
 }
 
