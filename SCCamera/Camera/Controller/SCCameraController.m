@@ -245,6 +245,13 @@
     });
 }
 
+/// 重置聚焦&曝光
+- (void)resetFocusAndExposeAction:(SCCameraView *)cameraView handle:(void(^)(NSError *error))handle {
+    dispatch_async(self.sessionQueue, ^{
+        [self.cameraManager resetFocusAndExpose:self.currentCameraInput.device handle:handle];
+    });
+}
+
 /// 闪光灯
 - (void)flashLightAction:(SCCameraView *)cameraView isOn:(BOOL)isOn handle:(void(^)(NSError *error))handle {
     dispatch_async(self.sessionQueue, ^{

@@ -28,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 缩放
 - (void)zoomAction:(SCCameraView *)cameraView factor:(CGFloat)factor handle:(void(^)(NSError *error))handle;
 
+/// 重置聚焦&曝光
+- (void)resetFocusAndExposeAction:(SCCameraView *)cameraView handle:(void(^)(NSError *error))handle;
+
 #pragma mark - 拍照
 /// 拍照
 - (void)takePhotoAction:(SCCameraView *)cameraView;

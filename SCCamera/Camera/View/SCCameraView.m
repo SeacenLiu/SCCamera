@@ -29,7 +29,6 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
 @property (weak, nonatomic) IBOutlet UISlider *isoSlider;
 @end
 
-// TODO: - 聚焦，曝光，人脸检测动画
 @implementation SCCameraView
 
 + (instancetype)cameraView:(CGRect)frame {
@@ -55,6 +54,10 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
     // 捏合 -> 缩放
     UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action: @selector(pinchAction:)];
     [self.previewView addGestureRecognizer:pinch];
+    // 双指单击 -> 重置聚焦&曝光
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(resetTapClcik:)];
+    tap2.numberOfTouchesRequired = 2;
+    [self.previewView addGestureRecognizer:tap2];
 }
 
 #pragma mark - 相机操作
@@ -102,6 +105,16 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
     if ([_delegate respondsToSelector:@selector(focusAndExposeAction:point:handle:)]) {
         CGPoint point = [tap locationInView:self.previewView];
         [_delegate focusAndExposeAction:self point:point handle:^(NSError * _Nonnull error) {
+            // TODO: - handle error
+        }];
+        self.isoSlider.value = 0.5;
+    }
+}
+
+- (void)resetTapClcik:(UITapGestureRecognizer *)tap  {
+    if ([_delegate respondsToSelector:@selector(resetFocusAndExposeAction:handle:)]) {
+        [self runFocusAnimation:self.previewView.center];
+        [_delegate resetFocusAndExposeAction:self handle:^(NSError * _Nonnull error) {
             // TODO: - handle error
         }];
         self.isoSlider.value = 0.5;
@@ -185,7 +198,6 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
             }
             break;
     }
-    
 }
 
 #pragma mark - Animation

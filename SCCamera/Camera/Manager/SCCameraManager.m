@@ -82,7 +82,7 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
             device.exposureMode = exposureMode;
         }
         device.subjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange;
-        NSLog(@"min: %f max: %f cur: %f", device.activeFormat.minISO, device.activeFormat.maxISO, device.ISO);
+//        NSLog(@"min: %f max: %f cur: %f", device.activeFormat.minISO, device.activeFormat.maxISO, device.ISO);
         self.autoISO = device.ISO;
     }];
 }
@@ -141,11 +141,41 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
 /// 自动白平衡
 - (void)whiteBalance:(AVCaptureDevice*)device mode:(AVCaptureWhiteBalanceMode)mode handle:(CameraHandleError)handle {
     [device settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
+        if (error) {
+            handle(error);
+            return;
+        }
         if ([device isWhiteBalanceModeSupported:mode]) {
             [device setWhiteBalanceMode:mode];
         } else {
             // TODO: - 抛出错误 handle(error)
         }
+    }];
+}
+
+/// 重置聚焦&曝光
+- (void)resetFocusAndExpose:(AVCaptureDevice*)device handle:(CameraHandleError)handle {
+    AVCaptureFocusMode focusMode = AVCaptureFocusModeContinuousAutoFocus;
+    AVCaptureExposureMode exposureMode = AVCaptureExposureModeContinuousAutoExposure;
+    BOOL canResetFocus = [device isFocusPointOfInterestSupported] &&
+    [device isFocusModeSupported:focusMode];
+    BOOL canResetExposure = [device isExposurePointOfInterestSupported] &&
+    [device isExposureModeSupported:exposureMode];
+    CGPoint centerPoint = CGPointMake(0.5f, 0.5f);
+    [device settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
+        if (error) {
+            handle(error);
+            return;
+        }
+        if (canResetFocus) {
+            device.focusPointOfInterest = centerPoint;
+            device.focusMode = focusMode;
+        }
+        if (canResetExposure) {
+            device.exposurePointOfInterest = centerPoint;
+            device.exposureMode = exposureMode;
+        }
+        self.autoISO = device.ISO;
     }];
 }
 
