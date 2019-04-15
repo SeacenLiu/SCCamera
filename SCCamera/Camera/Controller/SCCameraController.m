@@ -204,6 +204,16 @@
 }
 
 #pragma mark - 相机操作
+/// 转换镜头
+- (void)switchCameraAction:(SCCameraView *)cameraView isFront:(BOOL)isFront handle:(void(^)(NSError *error))handle {
+    dispatch_async(self.sessionQueue, ^{
+        AVCaptureDeviceInput *old = isFront ? self.backCameraInput : self.frontCameraInput;
+        AVCaptureDeviceInput *new = isFront ? self.frontCameraInput : self.backCameraInput;
+        [self.cameraManager switchCamera:self.session old:old new:new handle:handle];
+        self.currentCameraInput = new;
+    });
+}
+
 /// 缩放
 - (void)zoomAction:(SCCameraView *)cameraView factor:(CGFloat)factor handle:(void(^)(NSError *error))handle {
     dispatch_async(self.sessionQueue, ^{
@@ -232,15 +242,6 @@
 - (void)isoAction:(SCCameraView *)cameraView factor:(CGFloat)factor handle:(void(^)(NSError *error))handle {
     dispatch_async(self.sessionQueue, ^{
         [self.cameraManager iso:self.currentCameraInput.device factor:factor handle:handle];
-    });
-}
-
-/// 转换镜头
-- (void)switchCameraAction:(SCCameraView *)cameraView isFront:(BOOL)isFront handle:(void(^)(NSError *error))handle {
-    dispatch_async(self.sessionQueue, ^{
-        AVCaptureDeviceInput *old = isFront ? self.backCameraInput : self.frontCameraInput;
-        AVCaptureDeviceInput *new = isFront ? self.frontCameraInput : self.backCameraInput;
-        [self.cameraManager switchCamera:self.session old:old new:new handle:handle];
     });
 }
 
@@ -392,6 +393,11 @@
 - (BOOL)hasAllPermissions {
     return [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized
     && [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized;
+}
+
+- (void)setCurrentCameraInput:(AVCaptureDeviceInput *)currentCameraInput {
+    _currentCameraInput = currentCameraInput;
+    [self.cameraManager whiteBalance:currentCameraInput.device mode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance handle:nil];
 }
 
 #pragma mark - lazy

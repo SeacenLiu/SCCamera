@@ -139,10 +139,12 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
 }
 
 /// 自动白平衡
-- (void)openAutoWhiteBalance:(AVCaptureDevice *)device {
+- (void)whiteBalance:(AVCaptureDevice*)device mode:(AVCaptureWhiteBalanceMode)mode handle:(CameraHandleError)handle {
     [device settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
-        if ([device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeAutoWhiteBalance]) {
-            [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeAutoWhiteBalance];
+        if ([device isWhiteBalanceModeSupported:mode]) {
+            [device setWhiteBalanceMode:mode];
+        } else {
+            // TODO: - 抛出错误 handle(error)
         }
     }];
 }

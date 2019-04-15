@@ -31,7 +31,9 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
 
 - (void)changeTorch:(AVCaptureDevice*)device mode:(AVCaptureTorchMode)mode handle:(CameraHandleError)handle;
 
-- (void)zoom:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle;
+- (void)zoom:(AVCaptureDevice*)device factor:(CGFloat)factor handle:(CameraHandleError)handle;
+
+- (void)whiteBalance:(AVCaptureDevice*)device mode:(AVCaptureWhiteBalanceMode)mode handle:(CameraHandleError)handle;
 @end
 
 NS_ASSUME_NONNULL_END
