@@ -49,20 +49,15 @@
     return nil;
 }
 
-- (void)settingWithConfig:(void(^)(AVCaptureDevice* device, NSError* error))config queue:(dispatch_queue_t)queue {
-    if (queue == NULL) {
-        queue = self.deviceQueue;
+- (void)settingWithConfig:(void(^)(AVCaptureDevice* device, NSError* error))config {
+    NSError *error;
+    if ([self lockForConfiguration:&error]) {
+        config(self, nil);
+        [self unlockForConfiguration];
     }
-    dispatch_async(queue, ^{
-        NSError *error;
-        if ([self lockForConfiguration:&error]) {
-            config(self, nil);
-            [self unlockForConfiguration];
-        }
-        if (error) {
-            config(nil, error);
-        }
-    });
+    if (error) {
+        config(nil, error);
+    }
 }
 
 - (BOOL)supportsHighFrameRateCapture {

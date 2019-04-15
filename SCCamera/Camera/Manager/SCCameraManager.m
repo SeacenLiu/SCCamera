@@ -47,7 +47,7 @@
 
 /// 缩放
 - (void)zoom:(AVCaptureDevice *)device factor:(CGFloat)factor handle:(CameraHandleError)handle {
-    [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+    [device settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
         if (error) {
             handle(error);
             return;
@@ -65,7 +65,7 @@
         atDevicePoint:(CGPoint)point
 monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
                handle:(CameraHandleError)handle {
-    [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+    [device settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
         if (error) {
             handle(error);
             return;
@@ -82,13 +82,12 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
             device.exposureMode = exposureMode;
         }
         device.subjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange;
-        [device unlockForConfiguration];
     }];
 }
 
 /// 闪光灯
 - (void)changeFlash:(AVCaptureDevice *)device mode:(AVCaptureFlashMode)mode handle:(CameraHandleError)handle {
-    [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+    [device settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
         if (error) {
             handle(error);
             return;
@@ -103,7 +102,7 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
 
 /// 补光
 - (void)changeTorch:(AVCaptureDevice *)device mode:(AVCaptureTorchMode)mode handle:(CameraHandleError)handle {
-    [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+    [device settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
         if (error) {
             handle(error);
             return;
@@ -118,23 +117,11 @@ monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
 
 /// 自动白平衡
 - (void)openAutoWhiteBalance:(AVCaptureDevice *)device {
-    [self settingWithDevice:device config:^(AVCaptureDevice *device, NSError *error) {
+    [device settingWithConfig:^(AVCaptureDevice *device, NSError *error) {
         if ([device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeAutoWhiteBalance]) {
             [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeAutoWhiteBalance];
         }
     }];
-}
-
-#pragma mark - Tool
-- (void)settingWithDevice:(AVCaptureDevice*)device config:(void(^)(AVCaptureDevice* device, NSError* error))config {
-    NSError *error;
-    if ([device lockForConfiguration:&error]) {
-        config(device, nil);
-        [device unlockForConfiguration];
-    }
-    if (error) {
-        config(nil, error);
-    }
 }
 
 @end

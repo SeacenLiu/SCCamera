@@ -68,7 +68,9 @@
         [self setupPermissionsView];
     } else { // 有权限
         dispatch_async(self.sessionQueue, ^{
-            [self configureSession:nil];
+            NSError *error;
+            [self configureSession:&error];
+            // TODO: - 处理配置会话错误情况
         });
     }
 }
@@ -131,6 +133,10 @@
     [self.session beginConfiguration];
     self.session.sessionPreset = AVCaptureSessionPresetPhoto;
     [self setupSessionInput:error];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // 在添加视频输入后就可以设置
+        self.cameraView.previewView.captureSession = self.session;
+    });
     [self setupSessionOutput:error];
     [self.session commitConfiguration];
 }
@@ -138,21 +144,17 @@
 /** 配置输入 */
 - (void)setupSessionInput:(NSError**)error {
     // 视频输入(默认是后置摄像头)
+    // 创建Input时候可能会有错误
     if ([_session canAddInput:self.backCameraInput]) {
         [_session addInput:self.backCameraInput];
     }
     self.currentCameraInput = _backCameraInput;
     
-    // AVCaptureVideoPreviewLayer.session 在添加视频输入后就应该设置
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.cameraView.previewView.captureSession = self.session;
-    });
-    
     // 音频输入
     AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    AVCaptureDeviceInput *audioIn = [[AVCaptureDeviceInput alloc] initWithDevice:audioDevice error:error];
-    if ([_session canAddInput:audioIn]){
-        [_session addInput:audioIn];
+    AVCaptureDeviceInput *audioInput = [[AVCaptureDeviceInput alloc] initWithDevice:audioDevice error:error];
+    if ([_session canAddInput:audioInput]){
+        [_session addInput:audioInput];
     }
 }
 
