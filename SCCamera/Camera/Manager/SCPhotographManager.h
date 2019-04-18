@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 拍照
 - (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer
  stillImageOutput:(AVCaptureStillImageOutput*)stillImageOutput
-           handle:(void (^)(UIImage *originImage, UIImage *scaleImage, UIImage *cropImage))handle;
+           handle:(void (^)(UIImage *originImage, UIImage *scaledImage, UIImage *croppedImage))handle;
 
 /// 保存到相册
 - (void)saveImageToCameraRoll:(UIImage*)image

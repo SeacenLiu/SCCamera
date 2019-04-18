@@ -328,6 +328,8 @@
     [self.photographManager takePhoto:self.cameraView.previewView.videoPreviewLayer stillImageOutput:self.stillImageOutput handle:^(UIImage * _Nonnull originImage, UIImage * _Nonnull scaleImage, UIImage * _Nonnull cropImage) {
         NSLog(@"take photo success.");
         // 测试用保存图片
+        [self saveImageToCameraRoll:originImage];
+        [self saveImageToCameraRoll:scaleImage];
         [self saveImageToCameraRoll:cropImage];
         
         SCCameraResultController *rc = [SCCameraResultController new];

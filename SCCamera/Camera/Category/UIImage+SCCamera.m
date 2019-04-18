@@ -64,28 +64,10 @@
 // The image will be scaled disproportionately if necessary to fit the bounds specified by the parameter
 - (UIImage *)resizedImage:(CGSize)newSize interpolationQuality:(CGInterpolationQuality)quality
 {
-    BOOL drawTransposed;
+    // 不需要 drawTransposed
     CGAffineTransform transform = CGAffineTransformIdentity;
-    
-    if([[[UIDevice currentDevice]systemVersion]floatValue] >= 5.0) {
-        drawTransposed = YES;
-    }
-    else {
-        switch(self.imageOrientation) {
-            case UIImageOrientationLeft:
-            case UIImageOrientationLeftMirrored:
-            case UIImageOrientationRight:
-            case UIImageOrientationRightMirrored:
-                drawTransposed = YES;
-                break;
-            default:
-                drawTransposed = NO;
-        }
-        
-        transform = [self transformForOrientation:newSize];
-    }
     transform = [self transformForOrientation:newSize];
-    return [self resizedImage:newSize transform:transform drawTransposed:drawTransposed interpolationQuality:quality];
+    return [self resizedImage:newSize transform:transform interpolationQuality:quality];
 }
 
 // Resizes the image according to the given content mode, taking into account the image's orientation
@@ -234,11 +216,11 @@ static inline CGFloat DegreesToRadians(CGFloat degrees)
 // If the new size is not integral, it will be rounded up
 - (UIImage *)resizedImage:(CGSize)newSize
                 transform:(CGAffineTransform)transform
-           drawTransposed:(BOOL)transpose
      interpolationQuality:(CGInterpolationQuality)quality
 {
     CGRect newRect = CGRectIntegral(CGRectMake(0, 0, newSize.width, newSize.height));
-    CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
+    // Delete
+    // CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
     CGImageRef imageRef = self.CGImage;
     
     // Fix for a colorspace / transparency issue that affects some types of
@@ -259,7 +241,9 @@ static inline CGFloat DegreesToRadians(CGFloat degrees)
     CGContextSetInterpolationQuality(bitmap, quality);
     
     // Draw into the context; this scales the image
-    CGContextDrawImage(bitmap, transpose ? transposedRect : newRect, imageRef);
+    // Delete
+    // CGContextDrawImage(bitmap, transpose ? transposedRect : newRect, imageRef);
+    CGContextDrawImage(bitmap, newRect, imageRef);
     
     // Get the resized image from the context and a UIImage
     CGImageRef newImageRef = CGBitmapContextCreateImage(bitmap);
