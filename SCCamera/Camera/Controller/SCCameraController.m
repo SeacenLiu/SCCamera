@@ -73,6 +73,7 @@
             // TODO: - 处理配置会话错误情况
         });
     }
+    self.faceDetectionDelegate = self.cameraView.previewView;
 }
 
 - (void)permissionsViewDidHasAllPermissions:(SCPermissionsView *)pv {
@@ -184,8 +185,9 @@
     if ([_session canAddOutput:_metaOutput]) {
         [_session addOutput:_metaOutput];
         // 需要先 addOutput 后面在 setMetadataObjectTypes
-        [_metaOutput setMetadataObjectsDelegate:self queue:self.metaQueue];
         [_metaOutput setMetadataObjectTypes:@[AVMetadataObjectTypeFace]];
+//        [_metaOutput setMetadataObjectsDelegate:self queue:self.metaQueue];
+        [_metaOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
     }
     
     // 静态图片输出
@@ -275,43 +277,47 @@
 
 #pragma mark - AVCaptureMetadataOutputObjectsDelegate
 - (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-    for (AVMetadataObject *metadataObject in metadataObjects) {
-        if ([metadataObject isKindOfClass:[AVMetadataFaceObject class]]) {
-            AVMetadataFaceObject *faceObject = (AVMetadataFaceObject*)metadataObject;
-            NSInteger faceId = faceObject.faceID;
-            NSNumber *faceIdNum = [NSNumber numberWithInteger:faceId];
-            SCFaceModel *model = [self.faceModels objectForKey:faceIdNum];
-            if (model == nil) {
-                model = [SCFaceModel faceModelWithFaceId:faceId];
-                [self.faceModels setObject:model forKey:faceIdNum];
-            } else if (model.count > 50) {
-                return;
-            }
-            model.count += 1;
-            NSInteger curCnt = model.count;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                AVMetadataObject *face = [self.cameraView.previewView.videoPreviewLayer transformedMetadataObjectForMetadataObject:faceObject];
-                SCFocusView *focusView = self.faceFocusViews[faceIdNum];
-                if (focusView == nil) {
-                    focusView = [SCFocusView new];
-                    self.faceFocusViews[faceIdNum] = focusView;
-                    [self.cameraView.previewView addSubview:focusView];
-                }
-                if (model.count > 50) {
-                    [focusView removeFromSuperview];
-                    [self.faceFocusViews removeObjectForKey:faceIdNum];
-                    return;
-                }
-                focusView.frame = face.bounds;
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    if (curCnt == model.count) {
-                        [focusView removeFromSuperview];
-                        [self.faceFocusViews removeObjectForKey:faceIdNum];
-                    }
-                });
-            });
-        }
+    // 强转 AVMetadataFaceObject 
+    if ([self.faceDetectionDelegate respondsToSelector:@selector(faceDetectionDidDetectFaces:connection:)]) {
+        [self.faceDetectionDelegate faceDetectionDidDetectFaces:metadataObjects connection:connection];
     }
+//    for (AVMetadataObject *metadataObject in metadataObjects) {
+//        if ([metadataObject isKindOfClass:[AVMetadataFaceObject class]]) {
+//            AVMetadataFaceObject *faceObject = (AVMetadataFaceObject*)metadataObject;
+//            NSInteger faceId = faceObject.faceID;
+//            NSNumber *faceIdNum = [NSNumber numberWithInteger:faceId];
+//            SCFaceModel *model = [self.faceModels objectForKey:faceIdNum];
+//            if (model == nil) {
+//                model = [SCFaceModel faceModelWithFaceId:faceId];
+//                [self.faceModels setObject:model forKey:faceIdNum];
+//            } else if (model.count > 50) {
+//                return;
+//            }
+//            model.count += 1;
+//            NSInteger curCnt = model.count;
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                AVMetadataObject *face = [self.cameraView.previewView.videoPreviewLayer transformedMetadataObjectForMetadataObject:faceObject];
+//                SCFocusView *focusView = self.faceFocusViews[faceIdNum];
+//                if (focusView == nil) {
+//                    focusView = [SCFocusView new];
+//                    self.faceFocusViews[faceIdNum] = focusView;
+//                    [self.cameraView.previewView addSubview:focusView];
+//                }
+//                if (model.count > 50) {
+//                    [focusView removeFromSuperview];
+//                    [self.faceFocusViews removeObjectForKey:faceIdNum];
+//                    return;
+//                }
+//                focusView.frame = face.bounds;
+//                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//                    if (curCnt == model.count) {
+//                        [focusView removeFromSuperview];
+//                        [self.faceFocusViews removeObjectForKey:faceIdNum];
+//                    }
+//                });
+//            });
+//        }
+//    }
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate

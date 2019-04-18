@@ -7,18 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SCCameraControllerDelegate <NSObject>
-
-
-
+@protocol SCFaceDetectionDelegate <NSObject>
+- (void)faceDetectionDidDetectFaces:(NSArray<AVMetadataFaceObject*>*)faces connection:(AVCaptureConnection*)connection;
 @end
 
 @interface SCCameraController : UIViewController
 
-@property (nonatomic, weak) id<SCCameraControllerDelegate> delegate;
+@property (nonatomic, weak) id<SCFaceDetectionDelegate> faceDetectionDelegate;
 
 @end
 

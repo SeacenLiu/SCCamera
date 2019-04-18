@@ -8,6 +8,11 @@
 
 #import "SCVideoPreviewView.h"
 
+@interface SCVideoPreviewView ()
+@property (nonatomic, strong) CALayer *overlayLayer;
+@property (nonatomic, strong) NSMutableDictionary *faceLayers;
+@end
+
 @implementation SCVideoPreviewView
 
 + (Class)layerClass {
@@ -23,8 +28,8 @@
     [self prepare];
 }
 
-- (instancetype)init {
-    if (self = [super init]) {
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         [self prepare];
     }
     return self;
@@ -32,6 +37,7 @@
 
 - (void)prepare {
     [self.videoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+    [self setupFaceDetect];
 }
 
 - (CGPoint)captureDevicePointForPoint:(CGPoint)point {
@@ -57,6 +63,56 @@
 
 - (AVCaptureVideoOrientation)videoOrientation {
     return self.videoPreviewLayer.connection.videoOrientation;
+}
+
+#pragma mark - face detect
+- (void)setupFaceDetect {
+    self.faceLayers = [NSMutableDictionary dictionaryWithCapacity:2];
+    self.overlayLayer = [CALayer layer];
+    self.overlayLayer.frame = self.bounds;
+//    CATransform3D transform = CATransform3DIdentity;
+//    transform.m34 = -1.0 / 1000;
+//    self.overlayLayer.sublayerTransform = transform;
+    [self.videoPreviewLayer addSublayer:self.overlayLayer];
+}
+
+- (void)faceDetectionDidDetectFaces:(NSArray<AVMetadataFaceObject *> *)faces connection:(AVCaptureConnection *)connection {
+    NSArray *transformedFaces = [self transformedFaces:faces];
+    NSMutableArray *lostFaces = [self.faceLayers.allKeys mutableCopy];
+    for (AVMetadataFaceObject *face in transformedFaces) {
+        NSNumber *faceID = @(face.faceID);
+        [lostFaces removeObject:faceID];
+        
+        CALayer *layer = self.faceLayers[faceID];
+        if (!layer) {
+            layer = [self makeFaceLayer];
+            [self.overlayLayer addSublayer:layer];
+            self.faceLayers[faceID] = layer;
+        }
+        layer.transform = CATransform3DIdentity;
+        layer.frame = face.bounds;
+    }
+    for (NSNumber *faceID in lostFaces) {
+        CALayer *layer = self.faceLayers[faceID];
+        [layer removeFromSuperlayer];
+        [self.faceLayers removeObjectForKey:faceID];
+    }
+}
+
+- (CALayer*)makeFaceLayer {
+    CALayer *layer = [CALayer layer];
+    layer.borderWidth = 5.0f;
+    layer.borderColor = [UIColor yellowColor].CGColor;
+    return layer;
+}
+
+- (NSArray*)transformedFaces:(NSArray<AVMetadataFaceObject*>*)faces {
+    NSMutableArray *mArr = [NSMutableArray arrayWithCapacity:faces.count];
+    for (AVMetadataFaceObject* face in faces) {
+        AVMetadataObject *transfromedFace = [self.videoPreviewLayer transformedMetadataObjectForMetadataObject:face];
+        [mArr addObject:transfromedFace];
+    }
+    return [mArr copy];
 }
 
 @end

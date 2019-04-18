@@ -8,10 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
+#import "SCCameraController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SCVideoPreviewView : UIView
+@interface SCVideoPreviewView : UIView <SCFaceDetectionDelegate>
 
 @property (nonatomic, readonly) AVCaptureVideoPreviewLayer *videoPreviewLayer;
 @property (nonatomic, strong) AVCaptureSession *captureSession;
