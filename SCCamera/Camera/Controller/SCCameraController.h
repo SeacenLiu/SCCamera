@@ -7,13 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <AVFoundation/AVFoundation.h>
+#import "SCFaceDetectionDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@protocol SCFaceDetectionDelegate <NSObject>
-- (void)faceDetectionDidDetectFaces:(NSArray<AVMetadataFaceObject*>*)faces connection:(AVCaptureConnection*)connection;
-@end
 
 @interface SCCameraController : UIViewController
 

@@ -75,6 +75,7 @@
 		142926BF225510280056D569 /* SCCameraResultController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SCCameraResultController.xib; sourceTree = "<group>"; };
 		143B9A952255FA520038C15A /* UIViewController+SCCamera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+SCCamera.h"; sourceTree = "<group>"; };
 		143B9A962255FA520038C15A /* UIViewController+SCCamera.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+SCCamera.m"; sourceTree = "<group>"; };
+		14A1722E2268E539009BF03D /* SCFaceDetectionDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCFaceDetectionDelegate.h; sourceTree = "<group>"; };
 		14C940C52260C485005B0AF7 /* SCMovieFileOutManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCMovieFileOutManager.h; sourceTree = "<group>"; };
 		14C940C62260C485005B0AF7 /* SCMovieFileOutManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCMovieFileOutManager.m; sourceTree = "<group>"; };
 		14E4E860225E29A900EC58E4 /* SCFaceModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCFaceModel.h; sourceTree = "<group>"; };
@@ -181,6 +182,7 @@
 				142926BD225510270056D569 /* SCCameraResultController.h */,
 				142926BE225510280056D569 /* SCCameraResultController.m */,
 				142926BF225510280056D569 /* SCCameraResultController.xib */,
+				14A1722E2268E539009BF03D /* SCFaceDetectionDelegate.h */,
 			);
 			path = Controller;
 			sourceTree = "<group>";

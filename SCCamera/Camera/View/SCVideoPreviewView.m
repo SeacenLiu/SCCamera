@@ -91,7 +91,18 @@
         }
         layer.transform = CATransform3DIdentity;
         layer.frame = face.bounds;
+        
+        if (face.hasRollAngle) {
+            CATransform3D t = [self transformForRollAngle:face.rollAngle];
+            layer.transform = CATransform3DConcat(layer.transform, t);
+        }
+        
+        if (face.hasYawAngle) {
+            CATransform3D t = [self transformForYawAngle:face.yawAngle];
+            layer.transform = CATransform3DConcat(layer.transform, t);
+        }
     }
+    
     for (NSNumber *faceID in lostFaces) {
         CALayer *layer = self.faceLayers[faceID];
         [layer removeFromSuperlayer];
@@ -113,6 +124,51 @@
         [mArr addObject:transfromedFace];
     }
     return [mArr copy];
+}
+
+// Rotate around Z-axis
+- (CATransform3D)transformForRollAngle:(CGFloat)rollAngleInDegrees {
+    CGFloat rollAngleInRadians = THDegreesToRadians(rollAngleInDegrees);
+    return CATransform3DMakeRotation(rollAngleInRadians, 0.0f, 0.0f, 1.0f);
+}
+
+// Rotate around Y-axis
+- (CATransform3D)transformForYawAngle:(CGFloat)yawAngleInDegrees {
+    CGFloat yawAngleInRadians = THDegreesToRadians(yawAngleInDegrees);
+    
+    CATransform3D yawTransform =
+    CATransform3DMakeRotation(yawAngleInRadians, 0.0f, -1.0f, 0.0f);
+    
+    return CATransform3DConcat(yawTransform, [self orientationTransform]);
+}
+
+- (CATransform3D)orientationTransform {
+    CGFloat angle = 0.0;
+    switch ([UIDevice currentDevice].orientation) {
+        case UIDeviceOrientationPortraitUpsideDown:
+            angle = M_PI;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            angle = -M_PI / 2.0f;
+            break;
+        case UIDeviceOrientationLandscapeLeft:
+            angle = M_PI / 2.0f;
+            break;
+        default: // as UIDeviceOrientationPortrait
+            angle = 0.0;
+            break;
+    }
+    return CATransform3DMakeRotation(angle, 0.0f, 0.0f, 1.0f);
+}
+
+static CGFloat THDegreesToRadians(CGFloat degrees) {
+    return degrees * M_PI / 180;
+}
+
+static CATransform3D CATransform3DMakePerspective(CGFloat eyePosition) {
+    CATransform3D transform = CATransform3DIdentity;
+    transform.m34 = -1.0 / eyePosition;
+    return transform;
 }
 
 @end
