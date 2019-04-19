@@ -51,11 +51,6 @@
 
 /// 有相机和麦克风的权限(必须调用getter方法)
 @property (nonatomic, assign, readonly) BOOL hasAllPermissions;
-
-// 用于人脸检测显示
-/// 需要使用 NSCache
-@property (nonatomic, strong) NSCache<NSNumber*, SCFaceModel*> *faceModels;
-@property (nonatomic, strong) NSMutableDictionary<NSNumber*, SCFocusView*> *faceFocusViews;
 @end
 
 @implementation SCCameraController
@@ -281,43 +276,6 @@
     if ([self.faceDetectionDelegate respondsToSelector:@selector(faceDetectionDidDetectFaces:connection:)]) {
         [self.faceDetectionDelegate faceDetectionDidDetectFaces:metadataObjects connection:connection];
     }
-//    for (AVMetadataObject *metadataObject in metadataObjects) {
-//        if ([metadataObject isKindOfClass:[AVMetadataFaceObject class]]) {
-//            AVMetadataFaceObject *faceObject = (AVMetadataFaceObject*)metadataObject;
-//            NSInteger faceId = faceObject.faceID;
-//            NSNumber *faceIdNum = [NSNumber numberWithInteger:faceId];
-//            SCFaceModel *model = [self.faceModels objectForKey:faceIdNum];
-//            if (model == nil) {
-//                model = [SCFaceModel faceModelWithFaceId:faceId];
-//                [self.faceModels setObject:model forKey:faceIdNum];
-//            } else if (model.count > 50) {
-//                return;
-//            }
-//            model.count += 1;
-//            NSInteger curCnt = model.count;
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                AVMetadataObject *face = [self.cameraView.previewView.videoPreviewLayer transformedMetadataObjectForMetadataObject:faceObject];
-//                SCFocusView *focusView = self.faceFocusViews[faceIdNum];
-//                if (focusView == nil) {
-//                    focusView = [SCFocusView new];
-//                    self.faceFocusViews[faceIdNum] = focusView;
-//                    [self.cameraView.previewView addSubview:focusView];
-//                }
-//                if (model.count > 50) {
-//                    [focusView removeFromSuperview];
-//                    [self.faceFocusViews removeObjectForKey:faceIdNum];
-//                    return;
-//                }
-//                focusView.frame = face.bounds;
-//                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//                    if (curCnt == model.count) {
-//                        [focusView removeFromSuperview];
-//                        [self.faceFocusViews removeObjectForKey:faceIdNum];
-//                    }
-//                });
-//            });
-//        }
-//    }
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
@@ -491,22 +449,6 @@
 
 - (AVCaptureDevice *)backCamera {
     return [AVCaptureDevice cameraWithPosition:AVCaptureDevicePositionBack];
-}
-
-// 用于人脸识别
-- (NSCache<NSNumber *,SCFaceModel *> *)faceModels {
-    if (_faceModels == nil) {
-        _faceModels = [[NSCache alloc] init];
-        [_faceModels setCountLimit:20];
-    }
-    return _faceModels;
-}
-
-- (NSMutableDictionary<NSNumber *,SCFocusView *> *)faceFocusViews {
-    if (_faceFocusViews == nil) {
-        _faceFocusViews = [NSMutableDictionary dictionaryWithCapacity:2];
-    }
-    return _faceFocusViews;
 }
 
 // 队列懒加载

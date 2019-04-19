@@ -7,10 +7,12 @@
 //
 
 #import "SCVideoPreviewView.h"
+#import "AVMetadataFaceObject+Transform.h"
 
 @interface SCVideoPreviewView ()
 @property (nonatomic, strong) CALayer *overlayLayer;
-@property (nonatomic, strong) NSMutableDictionary *faceLayers;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber*,CALayer*> *faceLayers;
+@property (nonatomic, strong) NSMutableDictionary *faceShowes;
 @end
 
 @implementation SCVideoPreviewView
@@ -66,18 +68,32 @@
 }
 
 #pragma mark - face detect
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    // 界面旋转后需要重新设置
+    self.overlayLayer.frame = self.layer.frame;
+    self.overlayLayer.sublayerTransform = CATransform3DMakePerspective(1000);
+}
+
 - (void)setupFaceDetect {
     self.faceLayers = [NSMutableDictionary dictionaryWithCapacity:2];
     self.overlayLayer = [CALayer layer];
-    self.overlayLayer.frame = self.bounds;
-//    CATransform3D transform = CATransform3DIdentity;
-//    transform.m34 = -1.0 / 1000;
-//    self.overlayLayer.sublayerTransform = transform;
+    self.overlayLayer.frame = self.videoPreviewLayer.frame;
+    self.overlayLayer.sublayerTransform = CATransform3DMakePerspective(1000);
     [self.videoPreviewLayer addSublayer:self.overlayLayer];
 }
 
 - (void)faceDetectionDidDetectFaces:(NSArray<AVMetadataFaceObject *> *)faces connection:(AVCaptureConnection *)connection {
+    /*
+     AVCaptureVideoOrientationPortrait           = 1,
+     AVCaptureVideoOrientationPortraitUpsideDown = 2,
+     AVCaptureVideoOrientationLandscapeRight     = 3,
+     AVCaptureVideoOrientationLandscapeLeft      = 4,
+     */
+    NSLog(@"videoOrientation: %ld", (long)connection.videoOrientation);
+    
     NSArray *transformedFaces = [self transformedFaces:faces];
+    
     NSMutableArray *lostFaces = [self.faceLayers.allKeys mutableCopy];
     for (AVMetadataFaceObject *face in transformedFaces) {
         NSNumber *faceID = @(face.faceID);
@@ -89,16 +105,20 @@
             [self.overlayLayer addSublayer:layer];
             self.faceLayers[faceID] = layer;
         }
+        
+        // 重置 transform
         layer.transform = CATransform3DIdentity;
         layer.frame = face.bounds;
         
+        // 显示倾斜角
         if (face.hasRollAngle) {
-            CATransform3D t = [self transformForRollAngle:face.rollAngle];
+            CATransform3D t = [face transformFromRollAngle];
             layer.transform = CATransform3DConcat(layer.transform, t);
         }
         
+        // 显示偏转角
         if (face.hasYawAngle) {
-            CATransform3D t = [self transformForYawAngle:face.yawAngle];
+            CATransform3D t = [face transformFromYawAngle];
             layer.transform = CATransform3DConcat(layer.transform, t);
         }
     }
@@ -124,45 +144,6 @@
         [mArr addObject:transfromedFace];
     }
     return [mArr copy];
-}
-
-// Rotate around Z-axis
-- (CATransform3D)transformForRollAngle:(CGFloat)rollAngleInDegrees {
-    CGFloat rollAngleInRadians = THDegreesToRadians(rollAngleInDegrees);
-    return CATransform3DMakeRotation(rollAngleInRadians, 0.0f, 0.0f, 1.0f);
-}
-
-// Rotate around Y-axis
-- (CATransform3D)transformForYawAngle:(CGFloat)yawAngleInDegrees {
-    CGFloat yawAngleInRadians = THDegreesToRadians(yawAngleInDegrees);
-    
-    CATransform3D yawTransform =
-    CATransform3DMakeRotation(yawAngleInRadians, 0.0f, -1.0f, 0.0f);
-    
-    return CATransform3DConcat(yawTransform, [self orientationTransform]);
-}
-
-- (CATransform3D)orientationTransform {
-    CGFloat angle = 0.0;
-    switch ([UIDevice currentDevice].orientation) {
-        case UIDeviceOrientationPortraitUpsideDown:
-            angle = M_PI;
-            break;
-        case UIDeviceOrientationLandscapeRight:
-            angle = -M_PI / 2.0f;
-            break;
-        case UIDeviceOrientationLandscapeLeft:
-            angle = M_PI / 2.0f;
-            break;
-        default: // as UIDeviceOrientationPortrait
-            angle = 0.0;
-            break;
-    }
-    return CATransform3DMakeRotation(angle, 0.0f, 0.0f, 1.0f);
-}
-
-static CGFloat THDegreesToRadians(CGFloat degrees) {
-    return degrees * M_PI / 180;
 }
 
 static CATransform3D CATransform3DMakePerspective(CGFloat eyePosition) {
