@@ -84,14 +84,6 @@
 }
 
 - (void)faceDetectionDidDetectFaces:(NSArray<AVMetadataFaceObject *> *)faces connection:(AVCaptureConnection *)connection {
-    /*
-     AVCaptureVideoOrientationPortrait           = 1,
-     AVCaptureVideoOrientationPortraitUpsideDown = 2,
-     AVCaptureVideoOrientationLandscapeRight     = 3,
-     AVCaptureVideoOrientationLandscapeLeft      = 4,
-     */
-    NSLog(@"videoOrientation: %ld", (long)connection.videoOrientation);
-    
     NSArray *transformedFaces = [self transformedFaces:faces];
     
     NSMutableArray *lostFaces = [self.faceLayers.allKeys mutableCopy];
