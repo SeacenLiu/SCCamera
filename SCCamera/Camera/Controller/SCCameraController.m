@@ -18,9 +18,11 @@
 #import "SCCameraManager.h"
 #import "SCStillPhotoManager.h"
 #import "SCMovieManager.h"
+#import "SCPhotoManager.h"
 
 #import <Photos/Photos.h>
 
+API_AVAILABLE(ios(10.0))
 @interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate,SCPermissionsViewDelegate>
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) dispatch_queue_t metaQueue;
@@ -37,7 +39,8 @@
 // 输出
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metaOutput;
-@property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
+@property (nonatomic, strong) AVCapturePhotoOutput *photoOutput;
+//@property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
 //@property (nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
 
 @property (nonatomic, strong) SCCameraView *cameraView;
@@ -46,6 +49,7 @@
 @property (nonatomic, strong) SCCameraManager *cameraManager;
 @property (nonatomic, strong) SCStillPhotoManager *stillPhotoManager;
 @property (nonatomic, strong) SCMovieManager *movieManager;
+@property (nonatomic, strong) SCPhotoManager *photoManager;
 
 /// 有相机和麦克风的权限(必须调用getter方法)
 @property (nonatomic, assign, readonly) BOOL hasAllPermissions;
@@ -182,14 +186,26 @@
 //        [_metaOutput setMetadataObjectsDelegate:self queue:self.metaQueue];
         [_metaOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
     }
-    
-    // 静态图片输出
-    _stillImageOutput = [AVCaptureStillImageOutput new];
-    // 设置编解码
-    _stillImageOutput.outputSettings = @{AVVideoCodecKey: AVVideoCodecJPEG};
-    if ([_session canAddOutput:_stillImageOutput]) {
-        [_session addOutput:_stillImageOutput];
+
+    // 照片输出
+    _photoOutput = [AVCapturePhotoOutput new];
+    if ([_session canAddOutput:_photoOutput]) {
+        [_session addOutput:_photoOutput];
+        _photoOutput.highResolutionCaptureEnabled = YES;
+        if (_photoOutput.livePhotoCaptureSupported) {
+            _photoOutput.livePhotoCaptureEnabled = YES;
+        } else {
+            NSLog(@"不支持 livePhotoCaptureEnabled");
+        }
     }
+    
+//    // 静态图片输出
+//    _stillImageOutput = [AVCaptureStillImageOutput new];
+//    // 设置编解码
+//    _stillImageOutput.outputSettings = @{AVVideoCodecKey: AVVideoCodecJPEG};
+//    if ([_session canAddOutput:_stillImageOutput]) {
+//        [_session addOutput:_stillImageOutput];
+//    }
     
     // 视频文件输出
 //    _movieFileOutput = [AVCaptureMovieFileOutput new];
@@ -285,20 +301,59 @@
 }
 
 #pragma mark - 拍照
-/// 拍照
-- (void)takePhotoAction:(SCCameraView *)cameraView {
+/// 静态拍照
+- (void)takeStillPhotoAction:(SCCameraView *)cameraView {
+    // photoManager 使用
+    [self.photoManager takeStillPhoto:self.cameraView.previewView.videoPreviewLayer completion:^(UIImage *originImage, UIImage *scaledImage, UIImage *croppedImage, NSError * _Nullable error) {
+        SCCameraResultController *rc = [SCCameraResultController new];
+        rc.img = croppedImage;
+        [self saveImageToCameraRoll:croppedImage];
+        [self presentViewController:rc animated:YES completion:nil];
+    }];
+    
+    /** stillPhotoManager 使用
     [self.stillPhotoManager takePhoto:self.cameraView.previewView.videoPreviewLayer stillImageOutput:self.stillImageOutput handle:^(UIImage * _Nonnull originImage, UIImage * _Nonnull scaleImage, UIImage * _Nonnull cropImage) {
         NSLog(@"take photo success.");
         // 测试用保存图片
         [self saveImageToCameraRoll:originImage];
         [self saveImageToCameraRoll:scaleImage];
         [self saveImageToCameraRoll:cropImage];
-        
+
         SCCameraResultController *rc = [SCCameraResultController new];
         rc.img = cropImage;
         [self presentViewController:rc animated:YES completion:nil];
     }];
+     */
 }
+
+/// 动态拍照
+- (void)takeLivePhotoAction:(SCCameraView *)cameraView {
+    // photoManager 使用
+    [self.photoManager takeLivePhoto:self.cameraView.previewView.videoPreviewLayer completion:^(NSURL *liveURL, NSData *liveData, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"%@", error);
+            return;
+        }
+        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+//            PHAssetResourceCreationOptions* options = [[PHAssetResourceCreationOptions alloc] init];
+//            options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType;
+//            NSLog(@"%@",liveData);
+            PHAssetCreationRequest* creationRequest = [PHAssetCreationRequest creationRequestForAsset];
+            [creationRequest addResourceWithType:PHAssetResourceTypePhoto data:liveData options:nil];
+            
+            PHAssetResourceCreationOptions* livePhotoCompanionMovieResourceOptions = [[PHAssetResourceCreationOptions alloc] init];
+            livePhotoCompanionMovieResourceOptions.shouldMoveFile = YES;
+            [creationRequest addResourceWithType:PHAssetResourceTypePairedVideo fileURL:liveURL options:livePhotoCompanionMovieResourceOptions];
+        } completionHandler:^( BOOL success, NSError * _Nullable error ) {
+            if (error) {
+                NSLog(@"%@", error);
+                return;
+            }
+            NSLog(@"保存完毕");
+        }];
+    }];
+}
+
 
 /// 保存图片
 - (void)saveImageToCameraRoll:(UIImage*)image {
@@ -409,6 +464,13 @@
         _movieManager = [SCMovieManager new];
     }
     return _movieManager;
+}
+
+- (SCPhotoManager *)photoManager  API_AVAILABLE(ios(10.0)){
+    if (_photoManager == nil) {
+        _photoManager = [[SCPhotoManager alloc] initWithPhotoOutput:self.photoOutput];
+    }
+    return _photoManager;
 }
 
 // AVFoundation

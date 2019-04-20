@@ -33,7 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - 拍照
 /// 拍照
-- (void)takePhotoAction:(SCCameraView *)cameraView;
+- (void)takeStillPhotoAction:(SCCameraView *)cameraView;
+
+/// 拍摄 Live Photo
+- (void)takeLivePhotoAction:(SCCameraView *)cameraView;
 
 #pragma mark - 录制视频
 /// 开始录制视频

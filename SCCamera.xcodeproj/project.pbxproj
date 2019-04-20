@@ -30,6 +30,7 @@
 		142926C1225510280056D569 /* SCCameraResultController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 142926BF225510280056D569 /* SCCameraResultController.xib */; };
 		143B9A972255FA520038C15A /* UIViewController+SCCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 143B9A962255FA520038C15A /* UIViewController+SCCamera.m */; };
 		14A1723422696BCC009BF03D /* AVMetadataFaceObject+Transform.m in Sources */ = {isa = PBXBuildFile; fileRef = 14A1723322696BCC009BF03D /* AVMetadataFaceObject+Transform.m */; };
+		14A17237226AAD86009BF03D /* SCPhotoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 14A17236226AAD86009BF03D /* SCPhotoManager.m */; };
 		14C940C72260C485005B0AF7 /* SCMovieFileOutManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 14C940C62260C485005B0AF7 /* SCMovieFileOutManager.m */; };
 		14E4E862225E29A900EC58E4 /* SCFaceModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 14E4E861225E29A900EC58E4 /* SCFaceModel.m */; };
 		14E4E86B225F8D9100EC58E4 /* SCPermissionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 14E4E86A225F8D9100EC58E4 /* SCPermissionsView.m */; };
@@ -79,6 +80,8 @@
 		14A1722E2268E539009BF03D /* SCFaceDetectionDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCFaceDetectionDelegate.h; sourceTree = "<group>"; };
 		14A1723222696BCC009BF03D /* AVMetadataFaceObject+Transform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AVMetadataFaceObject+Transform.h"; sourceTree = "<group>"; };
 		14A1723322696BCC009BF03D /* AVMetadataFaceObject+Transform.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "AVMetadataFaceObject+Transform.m"; sourceTree = "<group>"; };
+		14A17235226AAD86009BF03D /* SCPhotoManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCPhotoManager.h; sourceTree = "<group>"; };
+		14A17236226AAD86009BF03D /* SCPhotoManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCPhotoManager.m; sourceTree = "<group>"; };
 		14C940C52260C485005B0AF7 /* SCMovieFileOutManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCMovieFileOutManager.h; sourceTree = "<group>"; };
 		14C940C62260C485005B0AF7 /* SCMovieFileOutManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCMovieFileOutManager.m; sourceTree = "<group>"; };
 		14E4E860225E29A900EC58E4 /* SCFaceModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCFaceModel.h; sourceTree = "<group>"; };
@@ -150,10 +153,12 @@
 				1429268A2253B6F50056D569 /* SCStableCheckTool.m */,
 				142926882253B6F50056D569 /* SCCameraManager.h */,
 				1429268E2253B6F60056D569 /* SCCameraManager.m */,
-				1413CBBF225C9B620052E78A /* SCStillPhotoManager.h */,
-				1413CBC0225C9B620052E78A /* SCStillPhotoManager.m */,
+				14A17235226AAD86009BF03D /* SCPhotoManager.h */,
+				14A17236226AAD86009BF03D /* SCPhotoManager.m */,
 				1413CBCD225CDE760052E78A /* SCMovieManager.h */,
 				1413CBCE225CDE760052E78A /* SCMovieManager.m */,
+				1413CBBF225C9B620052E78A /* SCStillPhotoManager.h */,
+				1413CBC0225C9B620052E78A /* SCStillPhotoManager.m */,
 				14C940C52260C485005B0AF7 /* SCMovieFileOutManager.h */,
 				14C940C62260C485005B0AF7 /* SCMovieFileOutManager.m */,
 			);
@@ -309,6 +314,7 @@
 				1413CBB6225B7C590052E78A /* SCCameraView.m in Sources */,
 				14E4E86B225F8D9100EC58E4 /* SCPermissionsView.m in Sources */,
 				14E4E862225E29A900EC58E4 /* SCFaceModel.m in Sources */,
+				14A17237226AAD86009BF03D /* SCPhotoManager.m in Sources */,
 				1413CBC1225C9B620052E78A /* SCStillPhotoManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -454,7 +460,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6426K9AWKV;
 				INFOPLIST_FILE = SCCamera/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -472,7 +478,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6426K9AWKV;
 				INFOPLIST_FILE = SCCamera/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

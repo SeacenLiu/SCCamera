@@ -63,7 +63,7 @@
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r9m-OU-hRX">
-                    <rect key="frame" x="159.5" y="40" width="56" height="34"/>
+                    <rect key="frame" x="112.5" y="40" width="56" height="34"/>
                     <state key="normal" title="补光关"/>
                     <state key="selected" title="补光开">
                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -113,9 +113,20 @@
                         <action selector="isoSliderAction:" destination="H7S-Cs-rMa" eventType="valueChanged" id="zBf-T9-iSm"/>
                     </connections>
                 </slider>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ku7-bh-ghT">
+                    <rect key="frame" x="203" y="40" width="63" height="34"/>
+                    <state key="normal" title="Live Off"/>
+                    <state key="selected" title="Live On">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <connections>
+                        <action selector="liveBtnClick:" destination="H7S-Cs-rMa" eventType="touchUpInside" id="ClF-lb-Luy"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
+                <constraint firstItem="ku7-bh-ghT" firstAttribute="centerX" secondItem="1DL-l0-VxH" secondAttribute="centerX" multiplier="1.25" id="0gj-gK-0ta"/>
                 <constraint firstItem="6IL-g0-sEJ" firstAttribute="centerY" secondItem="VoU-X9-41W" secondAttribute="centerY" id="1aB-yv-kye"/>
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" id="2S1-8Z-L0B"/>
                 <constraint firstItem="v6g-aK-siY" firstAttribute="leading" secondItem="H7S-Cs-rMa" secondAttribute="leading" constant="-80" id="35Q-fa-AHR"/>
@@ -135,9 +146,10 @@
                 <constraint firstItem="KSL-QZ-4cf" firstAttribute="top" secondItem="YvZ-r1-EmH" secondAttribute="top" constant="20" id="feR-sz-jt3"/>
                 <constraint firstItem="YvZ-r1-EmH" firstAttribute="bottom" secondItem="VoU-X9-41W" secondAttribute="bottom" constant="30" id="fwN-Zl-owX"/>
                 <constraint firstItem="a6Q-nO-Q96" firstAttribute="bottom" secondItem="YvZ-r1-EmH" secondAttribute="bottom" id="gaz-In-9cv"/>
+                <constraint firstItem="r9m-OU-hRX" firstAttribute="centerX" secondItem="1DL-l0-VxH" secondAttribute="centerX" multiplier="0.75" id="hdb-ZF-oP0"/>
                 <constraint firstItem="1DL-l0-VxH" firstAttribute="top" secondItem="H7S-Cs-rMa" secondAttribute="top" id="ruw-bR-cNm"/>
                 <constraint firstItem="1DL-l0-VxH" firstAttribute="trailing" secondItem="YvZ-r1-EmH" secondAttribute="trailing" id="tUZ-2S-sil"/>
-                <constraint firstItem="r9m-OU-hRX" firstAttribute="centerX" secondItem="1DL-l0-VxH" secondAttribute="centerX" id="vYo-Kx-G0e"/>
+                <constraint firstItem="ku7-bh-ghT" firstAttribute="centerY" secondItem="XaX-uc-iLF" secondAttribute="centerY" id="uSm-5k-7WE"/>
                 <constraint firstItem="6IL-g0-sEJ" firstAttribute="leading" secondItem="YvZ-r1-EmH" secondAttribute="leading" constant="16" id="yGq-9l-z2S"/>
                 <constraint firstItem="v6g-aK-siY" firstAttribute="centerY" secondItem="1DL-l0-VxH" secondAttribute="centerY" id="yfV-Dw-NCa"/>
             </constraints>
@@ -146,6 +158,7 @@
                 <outlet property="cancelBtn" destination="6IL-g0-sEJ" id="cTq-6r-UfF"/>
                 <outlet property="focusView" destination="g9F-zD-OwQ" id="3n8-wH-UXR"/>
                 <outlet property="isoSlider" destination="v6g-aK-siY" id="NS7-Bo-k27"/>
+                <outlet property="liveBtn" destination="ku7-bh-ghT" id="Gur-v6-Szu"/>
                 <outlet property="photoBtn" destination="VoU-X9-41W" id="Kdl-sF-U5I"/>
                 <outlet property="previewView" destination="a6Q-nO-Q96" id="3hR-v2-VdE"/>
                 <outlet property="typeSelBtn" destination="aP4-Rl-Ysu" id="jpf-se-gWU"/>

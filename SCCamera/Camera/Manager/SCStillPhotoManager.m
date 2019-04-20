@@ -54,7 +54,7 @@
         }
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
             PHAssetCreationRequest *imageRequest = [PHAssetCreationRequest creationRequestForAsset];
-            [imageRequest addResourceWithType:PHAssetResourceTypePhoto data:UIImagePNGRepresentation(image) options:nil];
+            [imageRequest addResourceWithType:PHAssetResourceTypePhoto data:UIImageJPEGRepresentation(image, 1) options:nil];
         } completionHandler:^( BOOL success, NSError * _Nullable error ) {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 completion(success, error);

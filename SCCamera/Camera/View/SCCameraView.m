@@ -20,6 +20,7 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
 @property (nonatomic, assign) SCCameraType currentType;
 @property (weak, nonatomic) IBOutlet UIButton *photoBtn;
 @property (weak, nonatomic) IBOutlet UIButton *typeSelBtn;
+@property (weak, nonatomic) IBOutlet UIButton *liveBtn;
 
 /// 聚焦动画 view
 @property (nonatomic, weak) IBOutlet UIView *focusView;
@@ -176,11 +177,23 @@ typedef NS_ENUM(NSInteger, SCCameraType) {
     }
 }
 
+- (IBAction)liveBtnClick:(UIButton*)sender {
+    [sender setSelected:!sender.isSelected];
+}
+
 - (IBAction)photoClick:(UIButton*)sender {
     switch (self.currentType) {
         case SCCameraTypePhoto:
-            if ([_delegate respondsToSelector:@selector(takePhotoAction:)]) {
-                [_delegate takePhotoAction:self];
+            if (self.liveBtn.selected) {
+                // Live Photo
+                if ([_delegate respondsToSelector:@selector(takeLivePhotoAction:)]) {
+                    [_delegate takeLivePhotoAction:self];
+                }
+            } else {
+                // Still Photo
+                if ([_delegate respondsToSelector:@selector(takeStillPhotoAction:)]) {
+                    [_delegate takeStillPhotoAction:self];
+                }
             }
             break;
         case SCCameraTypeMovie:
