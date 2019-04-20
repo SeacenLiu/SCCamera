@@ -1,15 +1,15 @@
 //
-//  SCPhotographManager.m
+//  SCStillPhotoManager.m
 //  SCCamera
 //
 //  Created by SeacenLiu on 2019/4/9.
 //  Copyright © 2019 SeacenLiu. All rights reserved.
 //
 
-#import "SCPhotographManager.h"
+#import "SCStillPhotoManager.h"
 #import "UIImage+SCCamera.h"
 
-@implementation SCPhotographManager
+@implementation SCStillPhotoManager
 
 - (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer
  stillImageOutput:(AVCaptureStillImageOutput*)stillImageOutput

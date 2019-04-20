@@ -1,5 +1,5 @@
 //
-//  SCPhotographManager.h
+//  SCStillPhotoManager.h
 //  SCCamera
 //
 //  Created by SeacenLiu on 2019/4/9.
@@ -12,7 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SCPhotographManager : NSObject
+@interface SCStillPhotoManager : NSObject
 
 /// 拍照
 - (void)takePhoto:(AVCaptureVideoPreviewLayer*)previewLayer

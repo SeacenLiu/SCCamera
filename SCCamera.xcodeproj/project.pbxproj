@@ -11,7 +11,7 @@
 		1413CBB6225B7C590052E78A /* SCCameraView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBB5225B7C590052E78A /* SCCameraView.m */; };
 		1413CBB8225B7C860052E78A /* SCCameraView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1413CBB7225B7C860052E78A /* SCCameraView.xib */; };
 		1413CBBB225C946A0052E78A /* UIView+SCCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBBA225C946A0052E78A /* UIView+SCCategory.m */; };
-		1413CBC1225C9B620052E78A /* SCPhotographManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBC0225C9B620052E78A /* SCPhotographManager.m */; };
+		1413CBC1225C9B620052E78A /* SCStillPhotoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBC0225C9B620052E78A /* SCStillPhotoManager.m */; };
 		1413CBCF225CDE760052E78A /* SCMovieManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBCE225CDE760052E78A /* SCMovieManager.m */; };
 		1413CBD2225CE28B0052E78A /* UIView+CCHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413CBD0225CE28A0052E78A /* UIView+CCHUD.m */; };
 		1429266B2253B5AC0056D569 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1429266A2253B5AC0056D569 /* AppDelegate.m */; };
@@ -43,8 +43,8 @@
 		1413CBB7225B7C860052E78A /* SCCameraView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SCCameraView.xib; sourceTree = "<group>"; };
 		1413CBB9225C946A0052E78A /* UIView+SCCategory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+SCCategory.h"; sourceTree = "<group>"; };
 		1413CBBA225C946A0052E78A /* UIView+SCCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+SCCategory.m"; sourceTree = "<group>"; };
-		1413CBBF225C9B620052E78A /* SCPhotographManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCPhotographManager.h; sourceTree = "<group>"; };
-		1413CBC0225C9B620052E78A /* SCPhotographManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCPhotographManager.m; sourceTree = "<group>"; };
+		1413CBBF225C9B620052E78A /* SCStillPhotoManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCStillPhotoManager.h; sourceTree = "<group>"; };
+		1413CBC0225C9B620052E78A /* SCStillPhotoManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCStillPhotoManager.m; sourceTree = "<group>"; };
 		1413CBCD225CDE760052E78A /* SCMovieManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SCMovieManager.h; sourceTree = "<group>"; };
 		1413CBCE225CDE760052E78A /* SCMovieManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SCMovieManager.m; sourceTree = "<group>"; };
 		1413CBD0225CE28A0052E78A /* UIView+CCHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+CCHUD.m"; sourceTree = "<group>"; };
@@ -150,8 +150,8 @@
 				1429268A2253B6F50056D569 /* SCStableCheckTool.m */,
 				142926882253B6F50056D569 /* SCCameraManager.h */,
 				1429268E2253B6F60056D569 /* SCCameraManager.m */,
-				1413CBBF225C9B620052E78A /* SCPhotographManager.h */,
-				1413CBC0225C9B620052E78A /* SCPhotographManager.m */,
+				1413CBBF225C9B620052E78A /* SCStillPhotoManager.h */,
+				1413CBC0225C9B620052E78A /* SCStillPhotoManager.m */,
 				1413CBCD225CDE760052E78A /* SCMovieManager.h */,
 				1413CBCE225CDE760052E78A /* SCMovieManager.m */,
 				14C940C52260C485005B0AF7 /* SCMovieFileOutManager.h */,
@@ -309,7 +309,7 @@
 				1413CBB6225B7C590052E78A /* SCCameraView.m in Sources */,
 				14E4E86B225F8D9100EC58E4 /* SCPermissionsView.m in Sources */,
 				14E4E862225E29A900EC58E4 /* SCFaceModel.m in Sources */,
-				1413CBC1225C9B620052E78A /* SCPhotographManager.m in Sources */,
+				1413CBC1225C9B620052E78A /* SCStillPhotoManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

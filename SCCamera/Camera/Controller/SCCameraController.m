@@ -13,12 +13,10 @@
 #import "AVCaptureDevice+SCCategory.h"
 #import "UIView+CCHUD.h"
 #import <Photos/Photos.h>
-#import "SCFocusView.h"
-#import "SCFaceModel.h"
 #import "SCPermissionsView.h"
 
 #import "SCCameraManager.h"
-#import "SCPhotographManager.h"
+#import "SCStillPhotoManager.h"
 #import "SCMovieManager.h"
 
 #import <Photos/Photos.h>
@@ -46,7 +44,7 @@
 @property (nonatomic, strong) SCPermissionsView *permissionsView;
 
 @property (nonatomic, strong) SCCameraManager *cameraManager;
-@property (nonatomic, strong) SCPhotographManager *photographManager;
+@property (nonatomic, strong) SCStillPhotoManager *stillPhotoManager;
 @property (nonatomic, strong) SCMovieManager *movieManager;
 
 /// 有相机和麦克风的权限(必须调用getter方法)
@@ -289,7 +287,7 @@
 #pragma mark - 拍照
 /// 拍照
 - (void)takePhotoAction:(SCCameraView *)cameraView {
-    [self.photographManager takePhoto:self.cameraView.previewView.videoPreviewLayer stillImageOutput:self.stillImageOutput handle:^(UIImage * _Nonnull originImage, UIImage * _Nonnull scaleImage, UIImage * _Nonnull cropImage) {
+    [self.stillPhotoManager takePhoto:self.cameraView.previewView.videoPreviewLayer stillImageOutput:self.stillImageOutput handle:^(UIImage * _Nonnull originImage, UIImage * _Nonnull scaleImage, UIImage * _Nonnull cropImage) {
         NSLog(@"take photo success.");
         // 测试用保存图片
         [self saveImageToCameraRoll:originImage];
@@ -304,7 +302,7 @@
 
 /// 保存图片
 - (void)saveImageToCameraRoll:(UIImage*)image {
-    [self.photographManager saveImageToCameraRoll:image authHandle:^(BOOL success, PHAuthorizationStatus status) {
+    [self.stillPhotoManager saveImageToCameraRoll:image authHandle:^(BOOL success, PHAuthorizationStatus status) {
         
     } completion:^(BOOL success, NSError * _Nullable error) {
         
@@ -399,11 +397,11 @@
     return _cameraManager;
 }
 
-- (SCPhotographManager *)photographManager {
-    if (_photographManager == nil) {
-        _photographManager = [SCPhotographManager new];
+- (SCStillPhotoManager *)stillPhotoManager {
+    if (_stillPhotoManager == nil) {
+        _stillPhotoManager = [SCStillPhotoManager new];
     }
-    return _photographManager;
+    return _stillPhotoManager;
 }
 
 - (SCMovieManager *)movieManager {
