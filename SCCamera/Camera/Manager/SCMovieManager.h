@@ -48,34 +48,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SCMovieManager : NSObject
 
-/// 视频播放方向
-@property (nonatomic, assign) AVCaptureVideoOrientation referenceOrientation;
+@property (nonatomic, assign, getter=isRecording) BOOL recording;
 
-/// 当前视频方向
-@property (nonatomic, assign) AVCaptureVideoOrientation currentOrientation;
+- (instancetype)initWithVideoSettings:(NSDictionary*)videoSettings
+                        audioSettings:(NSDictionary*)audioSettings
+                        dispatchQueue:(dispatch_queue_t)dispatchQueue;
 
-/// 当前设备
-@property (nonatomic, strong) AVCaptureDevice *currentDevice;
+- (void)startWriting;
 
-/// 录制状态
-@property (nonatomic, assign, readonly, getter=isRecording) BOOL recording;
+- (void)stopWriting;
 
-/// 开始录制
-- (void)start:(void(^)(NSError *error))handle;
-
-/// 停止录制
-- (void)stop:(void(^)(NSURL *url, NSError *error))handle;
-
-/// 写入音视频数据
-- (void)writeData:(AVCaptureConnection *)connection
-            video:(AVCaptureConnection*)video
-            audio:(AVCaptureConnection *)audio
-           buffer:(CMSampleBufferRef)buffer;
-
-/// 保存到相册
-- (void)saveMovieToCameraRoll:(NSURL *)url
-                   authHandle:(void(^)(BOOL success, PHAuthorizationStatus status))authHandle
-                   completion:(void(^)(BOOL success, NSError * _Nullable error))completion;
+- (void)processSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end
 

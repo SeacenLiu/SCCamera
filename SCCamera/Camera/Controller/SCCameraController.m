@@ -38,6 +38,7 @@ API_AVAILABLE(ios(10.0))
 @property (nonatomic, strong) AVCaptureConnection *audioConnection;
 // 输出
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
+@property (nonatomic, strong) AVCaptureAudioDataOutput *audioOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metaOutput;
 @property (nonatomic, strong) AVCapturePhotoOutput *photoOutput;
 //@property (nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput; // iOS10 AVCapturePhotoOutput
@@ -170,12 +171,12 @@ API_AVAILABLE(ios(10.0))
     _videoConnection = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
     
     // 音频输出
-    AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
-    [audioOut setSampleBufferDelegate:self queue:self.captureQueue];
-    if ([_session canAddOutput:audioOut]){
-        [_session addOutput:audioOut];
+    _audioOutput = [[AVCaptureAudioDataOutput alloc] init];
+    [_audioOutput setSampleBufferDelegate:self queue:self.captureQueue];
+    if ([_session canAddOutput:_audioOutput]){
+        [_session addOutput:_audioOutput];
     }
-    _audioConnection = [audioOut connectionWithMediaType:AVMediaTypeAudio];
+    _audioConnection = [_audioOutput connectionWithMediaType:AVMediaTypeAudio];
     
     // 添加元素输出（识别）
     _metaOutput = [AVCaptureMetadataOutput new];
@@ -295,8 +296,11 @@ API_AVAILABLE(ios(10.0))
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
     // SCMovieManager 的使用
+//    if (self.movieManager.isRecording) {
+//        [self.movieManager writeData:connection video:_videoConnection audio:_audioConnection buffer:sampleBuffer];
+//    }
     if (self.movieManager.isRecording) {
-        [self.movieManager writeData:connection video:_videoConnection audio:_audioConnection buffer:sampleBuffer];
+        [self.movieManager processSampleBuffer:sampleBuffer];
     }
 }
 
@@ -368,38 +372,40 @@ API_AVAILABLE(ios(10.0))
 /// 开始录像视频
 - (void)startRecordVideoAction:(SCCameraView *)cameraView {
     // SCMovieManager 的使用
-    self.movieManager.currentDevice = self.currentCameraInput.device;
-    self.movieManager.currentOrientation = cameraView.previewView.videoOrientation;
-    [self.movieManager start:^(NSError * _Nonnull error) {
-        if (error)
-            [self.view showError:error];
-    }];
+//    self.movieManager.currentDevice = self.currentCameraInput.device;
+//    self.movieManager.currentOrientation = cameraView.previewView.videoOrientation;
+//    [self.movieManager start:^(NSError * _Nonnull error) {
+//        if (error)
+//            [self.view showError:error];
+//    }];
+    [self.movieManager startWriting];
 }
 
 /// 停止录像视频
 - (void)stopRecordVideoAction:(SCCameraView *)cameraView {
+    [self.movieManager stopWriting];
     // SCMovieManager 的使用
-    [self.movieManager stop:^(NSURL * _Nonnull url, NSError * _Nonnull error) {
-        if (error) {
-            [self.view showError:error];
-        } else {
-            [self.view showAlertView:@"是否保存到相册" ok:^(UIAlertAction *act) {
-                [self saveMovieToCameraRoll: url];
-            } cancel:nil];
-        }
-    }];
+//    [self.movieManager stop:^(NSURL * _Nonnull url, NSError * _Nonnull error) {
+//        if (error) {
+//            [self.view showError:error];
+//        } else {
+//            [self.view showAlertView:@"是否保存到相册" ok:^(UIAlertAction *act) {
+//                [self saveMovieToCameraRoll: url];
+//            } cancel:nil];
+//        }
+//    }];
 }
 
 // 保存视频
 - (void)saveMovieToCameraRoll:(NSURL *)url {
     // SCMovieManager 的使用
     [self.view showLoadHUD:@"保存中..."];
-    [self.movieManager saveMovieToCameraRoll:url authHandle:^(BOOL success, PHAuthorizationStatus status) {
-        // TODO: - 权限弹框
-    } completion:^(BOOL success, NSError * _Nullable error) {
-        [self.view hideHUD];
-        success?:[self.view showError:error];
-    }];
+//    [self.movieManager saveMovieToCameraRoll:url authHandle:^(BOOL success, PHAuthorizationStatus status) {
+//        // TODO: - 权限弹框
+//    } completion:^(BOOL success, NSError * _Nullable error) {
+//        [self.view hideHUD];
+//        success?:[self.view showError:error];
+//    }];
 }
 
 #pragma mark - 方向变化处理
@@ -461,7 +467,11 @@ API_AVAILABLE(ios(10.0))
 
 - (SCMovieManager *)movieManager {
     if (_movieManager == nil) {
-        _movieManager = [SCMovieManager new];
+//        _movieManager = [SCMovieManager new];
+        NSString *fileType = AVFileTypeQuickTimeMovie;
+        NSDictionary *videoSettings = [self.videoOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:fileType];
+        NSDictionary *audioSettings = [self.audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:fileType];
+        _movieManager = [[SCMovieManager alloc] initWithVideoSettings:videoSettings audioSettings:audioSettings dispatchQueue:self.captureQueue];
     }
     return _movieManager;
 }
