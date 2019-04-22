@@ -130,7 +130,7 @@ API_AVAILABLE(ios(10.0))
 /** 配置会话 */
 - (void)configureSession:(NSError**)error {
     [self.session beginConfiguration];
-    self.session.sessionPreset = AVCaptureSessionPresetPhoto;
+    self.session.sessionPreset = AVCaptureSessionPresetHigh;//AVCaptureSessionPresetPhoto;
     [self setupSessionInput:error];
     dispatch_async(dispatch_get_main_queue(), ^{
         // 在添加视频输入后就可以设置
@@ -378,6 +378,12 @@ API_AVAILABLE(ios(10.0))
 //        if (error)
 //            [self.view showError:error];
 //    }];
+    self.videoConnection.videoOrientation = self.cameraView.previewView.videoOrientation;
+    NSString *fileType = AVFileTypeQuickTimeMovie;
+    NSDictionary *videoSettings = [self.videoOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:fileType];
+    NSDictionary *audioSettings = [self.audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:fileType];
+    self.movieManager.videoSettings = videoSettings;
+    self.movieManager.audioSettings = audioSettings;
     [self.movieManager startWriting];
 }
 
@@ -409,6 +415,11 @@ API_AVAILABLE(ios(10.0))
 }
 
 #pragma mark - 方向变化处理
+/// 禁用自动旋转
+- (BOOL) shouldAutorotate {
+    return !self.movieManager.isRecording;
+}
+
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAll;
 }
@@ -418,6 +429,7 @@ API_AVAILABLE(ios(10.0))
     UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
     if (UIDeviceOrientationIsPortrait(deviceOrientation) || UIDeviceOrientationIsLandscape(deviceOrientation)) {
         self.cameraView.previewView.videoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
+        self.videoConnection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
     }
 }
 

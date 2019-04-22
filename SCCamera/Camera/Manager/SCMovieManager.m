@@ -16,8 +16,6 @@ static NSString *const SCMovieFileName = @"movie.mov";
 @property (nonatomic, strong) AVAssetWriterInput *movieVideoInput;
 @property (nonatomic, strong) AVAssetWriterInput *movieAudioInput;
 @property (nonatomic, strong) AVAssetWriterInputPixelBufferAdaptor *inputPixelBufferAdaptor;
-@property (nonatomic, strong) NSDictionary *videoSettings;
-@property (nonatomic, strong) NSDictionary *audioSettings;
 @property (nonatomic, assign) dispatch_queue_t movieQueue;
 
 @property (nonatomic, assign, getter=isFirstSample) BOOL firstSample;

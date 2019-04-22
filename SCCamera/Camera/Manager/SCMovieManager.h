@@ -48,6 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SCMovieManager : NSObject
 
+@property (nonatomic, strong) NSDictionary *videoSettings;
+@property (nonatomic, strong) NSDictionary *audioSettings;
 @property (nonatomic, assign, getter=isRecording) BOOL recording;
 
 - (instancetype)initWithVideoSettings:(NSDictionary*)videoSettings
