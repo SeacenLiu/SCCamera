@@ -11,12 +11,11 @@
 static NSString *const SCMovieFileName = @"movie.mov";
 
 @interface SCMovieManager ()
+@property (nonatomic, assign) dispatch_queue_t movieQueue;
 @property (nonatomic, strong) NSURL *movieURL;
 @property (nonatomic, strong) AVAssetWriter *movieWriter;
 @property (nonatomic, strong) AVAssetWriterInput *movieVideoInput;
 @property (nonatomic, strong) AVAssetWriterInput *movieAudioInput;
-@property (nonatomic, strong) AVAssetWriterInputPixelBufferAdaptor *inputPixelBufferAdaptor;
-@property (nonatomic, assign) dispatch_queue_t movieQueue;
 
 @property (nonatomic, assign, getter=isFirstSample) BOOL firstSample;
 @end
@@ -24,41 +23,32 @@ static NSString *const SCMovieFileName = @"movie.mov";
 @implementation SCMovieManager
 
 #pragma mark - public method
-- (instancetype)initWithVideoSettings:(NSDictionary *)videoSettings
-                        audioSettings:(NSDictionary *)audioSettings
-                        dispatchQueue:(dispatch_queue_t)dispatchQueue {
+- (instancetype)initWithDispatchQueue:(dispatch_queue_t)dispatchQueue {
     if (self = [super init]) {
-        _videoSettings = videoSettings;
-        _audioSettings = audioSettings;
         _movieQueue = dispatchQueue;
         _movieURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%@", NSTemporaryDirectory(), @"movie.mov"]];
     }
     return self;
 }
 
-- (void)startWriting {
+- (void)startRecordWithVideoSettings:(NSDictionary *)videoSettings
+                       audioSettings:(NSDictionary *)audioSettings
+                              handle:(void (^ _Nullable)(NSError * _Nonnull))handle {
     dispatch_async(self.movieQueue, ^{
         NSError *error;
         self.movieWriter = [AVAssetWriter assetWriterWithURL:self.movieURL fileType:AVFileTypeQuickTimeMovie error:&error];
         if (!self.movieWriter || error) {
             NSLog(@"movieWriter error.");
+            if (handle) handle(error);
             return;
         }
         // 创建视频输入
-        self.movieVideoInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:self.videoSettings];
+        self.movieVideoInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
         // 针对实时性进行优化
         self.movieVideoInput.expectsMediaDataInRealTime = YES;
         
-        // TODO: - 可能需要的图像旋转
-        // ...
-        
-        NSDictionary *attributes = @{
-            (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
-            (id)kCVPixelBufferWidthKey: self.videoSettings[AVVideoWidthKey],
-            (id)kCVPixelBufferHeightKey: self.videoSettings[AVVideoHeightKey],
-            (id)kCVPixelFormatOpenGLESCompatibility: (id)kCFBooleanTrue
-        };
-        self.inputPixelBufferAdaptor = [[AVAssetWriterInputPixelBufferAdaptor alloc] initWithAssetWriterInput:self.movieVideoInput sourcePixelBufferAttributes:attributes];
+        // TODO: - 如果应用程序只支持一个方向就需要做图像旋转转换
+        // self.movieVideoInput.transform =
         
         if ([self.movieWriter canAddInput:self.movieVideoInput]) {
             [self.movieWriter addInput:self.movieVideoInput];
@@ -67,7 +57,7 @@ static NSString *const SCMovieFileName = @"movie.mov";
         }
         
         // 创建音频输入
-        self.movieAudioInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:self.audioSettings];
+        self.movieAudioInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:audioSettings];
         // 针对实时性进行优化
         self.movieAudioInput.expectsMediaDataInRealTime = YES;
         if ([self.movieWriter canAddInput:self.movieAudioInput]) {
@@ -81,7 +71,7 @@ static NSString *const SCMovieFileName = @"movie.mov";
     });
 }
 
-- (void)processSampleBuffer:(CMSampleBufferRef)sampleBuffer {
+- (void)recordSampleBuffer:(CMSampleBufferRef)sampleBuffer {
     if (!self.isRecording) {
         return;
     }
@@ -100,9 +90,8 @@ static NSString *const SCMovieFileName = @"movie.mov";
             self.firstSample = NO;
         }
         if (self.movieVideoInput.readyForMoreMediaData) {
-            CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-            if (![self.inputPixelBufferAdaptor appendPixelBuffer:imageBuffer withPresentationTime:timestamp]) {
-                NSLog(@"Error appending pixel buffer.");
+            if (![self.movieVideoInput appendSampleBuffer:sampleBuffer]) {
+                NSLog(@"Error appending video sample buffer.");
             }
         }
     } else if (!self.firstSample && mediaType == kCMMediaType_Audio) {
@@ -112,18 +101,20 @@ static NSString *const SCMovieFileName = @"movie.mov";
                 NSLog(@"Error appending audio sample buffer.");
             }
         }
-    } else {
-        NSLog(@"unknowed mediaType.");
     }
 }
 
-- (void)stopWriting {
+- (void)stopRecordWithCompletion:(void (^)(BOOL, NSURL * _Nullable))completion {
     self.recording = NO;
     dispatch_async(self.movieQueue, ^{
         [self.movieWriter finishWritingWithCompletionHandler:^{
             switch (self.movieWriter.status) {
                 case AVAssetWriterStatusCompleted:{
+                    self.firstSample = YES;
                     NSURL *fileURL = [self.movieWriter outputURL];
+                    completion(YES, fileURL);
+                    
+                    // FIXME: - 测试用保存
                     [self saveMovieToCameraRoll:fileURL authHandle:^(BOOL success, PHAuthorizationStatus status) {
                         NSLog(@"相册添加权限：%d, %ld", success, (long)status);
                     } completion:^(BOOL success, NSError * _Nullable error) {
@@ -137,15 +128,6 @@ static NSString *const SCMovieFileName = @"movie.mov";
             }
         }];
     });
-}
-
-#pragma mark - private method
-- (void)sc_setupVideoInput {
-    
-}
-
-- (void)sc_setupAudioInput {
-    
 }
 
 #pragma mark - setter/getter

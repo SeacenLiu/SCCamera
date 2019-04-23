@@ -33,9 +33,6 @@ API_AVAILABLE(ios(10.0))
 @property (nonatomic, strong) AVCaptureDeviceInput *backCameraInput;
 @property (nonatomic, strong) AVCaptureDeviceInput *frontCameraInput;
 @property (nonatomic, strong) AVCaptureDeviceInput *currentCameraInput;
-// Connection
-@property (nonatomic, strong) AVCaptureConnection *videoConnection;
-@property (nonatomic, strong) AVCaptureConnection *audioConnection;
 // 输出
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
 @property (nonatomic, strong) AVCaptureAudioDataOutput *audioOutput;
@@ -146,6 +143,8 @@ API_AVAILABLE(ios(10.0))
     // 创建Input时候可能会有错误
     if ([_session canAddInput:self.backCameraInput]) {
         [_session addInput:self.backCameraInput];
+    } else {
+        NSLog(@"Failed backCameraInput");
     }
     self.currentCameraInput = _backCameraInput;
     
@@ -168,7 +167,6 @@ API_AVAILABLE(ios(10.0))
     if ([_session canAddOutput:_videoOutput]) {
         [_session addOutput:_videoOutput];
     }
-    _videoConnection = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
     
     // 音频输出
     _audioOutput = [[AVCaptureAudioDataOutput alloc] init];
@@ -176,7 +174,6 @@ API_AVAILABLE(ios(10.0))
     if ([_session canAddOutput:_audioOutput]){
         [_session addOutput:_audioOutput];
     }
-    _audioConnection = [_audioOutput connectionWithMediaType:AVMediaTypeAudio];
     
     // 添加元素输出（识别）
     _metaOutput = [AVCaptureMetadataOutput new];
@@ -184,7 +181,6 @@ API_AVAILABLE(ios(10.0))
         [_session addOutput:_metaOutput];
         // 需要先 addOutput 后面在 setMetadataObjectTypes
         [_metaOutput setMetadataObjectTypes:@[AVMetadataObjectTypeFace]];
-//        [_metaOutput setMetadataObjectsDelegate:self queue:self.metaQueue];
         [_metaOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
     }
 
@@ -219,10 +215,13 @@ API_AVAILABLE(ios(10.0))
 /// 转换镜头
 - (void)switchCameraAction:(SCCameraView *)cameraView isFront:(BOOL)isFront handle:(void(^)(NSError *error))handle {
     dispatch_async(self.sessionQueue, ^{
+        // 重新正确修正 connection orientation
+        AVCaptureVideoOrientation orientation = [self.videoOutput connectionWithMediaType:AVMediaTypeVideo].videoOrientation;
         AVCaptureDeviceInput *old = isFront ? self.backCameraInput : self.frontCameraInput;
         AVCaptureDeviceInput *new = isFront ? self.frontCameraInput : self.backCameraInput;
         [self.cameraManager switchCamera:self.session old:old new:new handle:handle];
         self.currentCameraInput = new;
+        [self.videoOutput connectionWithMediaType:AVMediaTypeVideo].videoOrientation = orientation;
     });
 }
 
@@ -295,12 +294,8 @@ API_AVAILABLE(ios(10.0))
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
-    // SCMovieManager 的使用
-//    if (self.movieManager.isRecording) {
-//        [self.movieManager writeData:connection video:_videoConnection audio:_audioConnection buffer:sampleBuffer];
-//    }
     if (self.movieManager.isRecording) {
-        [self.movieManager processSampleBuffer:sampleBuffer];
+        [self.movieManager recordSampleBuffer:sampleBuffer];
     }
 }
 
@@ -371,47 +366,26 @@ API_AVAILABLE(ios(10.0))
 #pragma mark - 录制视频
 /// 开始录像视频
 - (void)startRecordVideoAction:(SCCameraView *)cameraView {
-    // SCMovieManager 的使用
-//    self.movieManager.currentDevice = self.currentCameraInput.device;
-//    self.movieManager.currentOrientation = cameraView.previewView.videoOrientation;
-//    [self.movieManager start:^(NSError * _Nonnull error) {
-//        if (error)
-//            [self.view showError:error];
-//    }];
-    self.videoConnection.videoOrientation = self.cameraView.previewView.videoOrientation;
+    // 注意 input --> connection --> output
+    // 转换镜头的时候 connection 会变！！！！！
+    AVCaptureConnection *currentConnection = [self.videoOutput connectionWithMediaType:AVMediaTypeVideo];
+    currentConnection.videoOrientation = self.cameraView.previewView.videoOrientation;
+    NSLog(@"videoOrientation:%ld", (long)[self.videoOutput connectionWithMediaType:AVMediaTypeVideo].videoOrientation);
     NSString *fileType = AVFileTypeQuickTimeMovie;
     NSDictionary *videoSettings = [self.videoOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:fileType];
     NSDictionary *audioSettings = [self.audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:fileType];
-    self.movieManager.videoSettings = videoSettings;
-    self.movieManager.audioSettings = audioSettings;
-    [self.movieManager startWriting];
+    [self.movieManager startRecordWithVideoSettings:videoSettings
+                                      audioSettings:audioSettings
+                                             handle:nil];
 }
 
 /// 停止录像视频
 - (void)stopRecordVideoAction:(SCCameraView *)cameraView {
-    [self.movieManager stopWriting];
-    // SCMovieManager 的使用
-//    [self.movieManager stop:^(NSURL * _Nonnull url, NSError * _Nonnull error) {
-//        if (error) {
-//            [self.view showError:error];
-//        } else {
-//            [self.view showAlertView:@"是否保存到相册" ok:^(UIAlertAction *act) {
-//                [self saveMovieToCameraRoll: url];
-//            } cancel:nil];
-//        }
-//    }];
-}
-
-// 保存视频
-- (void)saveMovieToCameraRoll:(NSURL *)url {
-    // SCMovieManager 的使用
-    [self.view showLoadHUD:@"保存中..."];
-//    [self.movieManager saveMovieToCameraRoll:url authHandle:^(BOOL success, PHAuthorizationStatus status) {
-//        // TODO: - 权限弹框
-//    } completion:^(BOOL success, NSError * _Nullable error) {
-//        [self.view hideHUD];
-//        success?:[self.view showError:error];
-//    }];
+    [self.movieManager stopRecordWithCompletion:^(BOOL success, NSURL * _Nullable fileURL) {
+        if (success) {
+            NSLog(@"Record Success!");
+        }
+    }];
 }
 
 #pragma mark - 方向变化处理
@@ -429,7 +403,6 @@ API_AVAILABLE(ios(10.0))
     UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
     if (UIDeviceOrientationIsPortrait(deviceOrientation) || UIDeviceOrientationIsLandscape(deviceOrientation)) {
         self.cameraView.previewView.videoPreviewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
-        self.videoConnection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
     }
 }
 
@@ -479,11 +452,7 @@ API_AVAILABLE(ios(10.0))
 
 - (SCMovieManager *)movieManager {
     if (_movieManager == nil) {
-//        _movieManager = [SCMovieManager new];
-        NSString *fileType = AVFileTypeQuickTimeMovie;
-        NSDictionary *videoSettings = [self.videoOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:fileType];
-        NSDictionary *audioSettings = [self.audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:fileType];
-        _movieManager = [[SCMovieManager alloc] initWithVideoSettings:videoSettings audioSettings:audioSettings dispatchQueue:self.captureQueue];
+        _movieManager = [[SCMovieManager alloc] initWithDispatchQueue:self.captureQueue];
     }
     return _movieManager;
 }

@@ -48,19 +48,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SCMovieManager : NSObject
 
-@property (nonatomic, strong) NSDictionary *videoSettings;
-@property (nonatomic, strong) NSDictionary *audioSettings;
 @property (nonatomic, assign, getter=isRecording) BOOL recording;
 
-- (instancetype)initWithVideoSettings:(NSDictionary*)videoSettings
-                        audioSettings:(NSDictionary*)audioSettings
-                        dispatchQueue:(dispatch_queue_t)dispatchQueue;
+- (instancetype)initWithDispatchQueue:(dispatch_queue_t)dispatchQueue;
 
-- (void)startWriting;
+- (void)startRecordWithVideoSettings:(NSDictionary*)videoSettings
+                       audioSettings:(NSDictionary*)audioSettings
+                              handle:(void(^_Nullable)(NSError *error))handle;
 
-- (void)stopWriting;
+- (void)recordSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
-- (void)processSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (void)stopRecordWithCompletion:(void(^)(BOOL success, NSURL* _Nullable fileURL))completion;
 
 @end
 
