@@ -164,6 +164,8 @@ API_AVAILABLE(ios(10.0))
                                        [NSNumber numberWithInt:kCMPixelFormat_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
     [_videoOutput setVideoSettings:rgbOutputSettings];
     [_videoOutput setSampleBufferDelegate:self queue:self.captureQueue];
+    // 代理方法会提供额外的时间用于处理样本，但会增加内存消耗
+    [_videoOutput setAlwaysDiscardsLateVideoFrames:NO];
     if ([_session canAddOutput:_videoOutput]) {
         [_session addOutput:_videoOutput];
     }
@@ -292,13 +294,6 @@ API_AVAILABLE(ios(10.0))
     }
 }
 
-#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
-    if (self.movieManager.isRecording) {
-        [self.movieManager recordSampleBuffer:sampleBuffer];
-    }
-}
-
 #pragma mark - 拍照
 /// 静态拍照
 - (void)takeStillPhotoAction:(SCCameraView *)cameraView {
@@ -377,6 +372,13 @@ API_AVAILABLE(ios(10.0))
     [self.movieManager startRecordWithVideoSettings:videoSettings
                                       audioSettings:audioSettings
                                              handle:nil];
+}
+
+/// AVCaptureVideoDataOutputSampleBufferDelegate & AVCaptureAudioDataOutputSampleBufferDelegate
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection{
+    if (self.movieManager.isRecording) {
+        [self.movieManager recordSampleBuffer:sampleBuffer];
+    }
 }
 
 /// 停止录像视频
