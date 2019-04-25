@@ -11,7 +11,7 @@
 @implementation PHPhotoLibrary (Save)
 
 #pragma mark - still photo
-- (void)saveImageToCameraRool:(UIImage *)image
++ (void)saveImageToCameraRool:(UIImage *)image
                     imageType:(SCImageType)type
              compressionQuality:(CGFloat)quality
                    authHandle:(SCPhotosSaveAuthHandle)authHandle
@@ -28,21 +28,21 @@
     [self saveImageDataToCameraRool:data authHandle:authHandle completion:completion];
 }
 
-- (void)saveImageDataToCameraRool:(NSData *)imageData
++ (void)saveImageDataToCameraRool:(NSData *)imageData
                    authHandle:(SCPhotosSaveAuthHandle)authHandle
                    completion:(SCPhotosSaveCompletion)completion {
-    [self sc_saveCoreWithChangeBlock:^{
+    [self customSaveWithChangeBlock:^{
         PHAssetCreationRequest *imageRequest = [PHAssetCreationRequest creationRequestForAsset];
         [imageRequest addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
     } authHandle:authHandle completion:completion];
 }
 
 #pragma mark - live photo
-- (void)saveLiveImageToCameraRool:(NSData *)imageData
++ (void)saveLiveImageToCameraRool:(NSData *)imageData
                         shortFilm:(NSURL *)filmURL
                        authHandle:(SCPhotosSaveAuthHandle)authHandle
                        completion:(SCPhotosSaveCompletion)completion {
-    [self sc_saveCoreWithChangeBlock:^{
+    [self customSaveWithChangeBlock:^{
         PHAssetCreationRequest* creationRequest = [PHAssetCreationRequest creationRequestForAsset];
         [creationRequest addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
         PHAssetResourceCreationOptions* resourceOptions = [[PHAssetResourceCreationOptions alloc] init];
@@ -53,10 +53,10 @@
 
 
 #pragma mark - movie
-- (void)saveMovieFileToCameraRoll:(NSURL *)fileURL
++ (void)saveMovieFileToCameraRoll:(NSURL *)fileURL
                    authHandle:(SCPhotosSaveAuthHandle)authHandle
                    completion:(SCPhotosSaveCompletion)completion {
-    [self sc_saveCoreWithChangeBlock:^{
+    [self customSaveWithChangeBlock:^{
         PHAssetCreationRequest *videoRequest = [PHAssetCreationRequest creationRequestForAsset];
         PHAssetResourceCreationOptions* resourceOptions = [[PHAssetResourceCreationOptions alloc] init];
         resourceOptions.shouldMoveFile = YES;
@@ -66,7 +66,7 @@
 
 
 #pragma mark - private
-- (void)sc_saveCoreWithChangeBlock:(dispatch_block_t)changeBlock
++ (void)customSaveWithChangeBlock:(dispatch_block_t)changeBlock
                         authHandle:(SCPhotosSaveAuthHandle)authHandle
                        completion:(SCPhotosSaveCompletion)completion {
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {

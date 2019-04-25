@@ -21,28 +21,33 @@ typedef NS_ENUM(NSInteger, SCImageType) {
 @interface PHPhotoLibrary (Save)
 
 /// 图片数据保存
-- (void)saveImageDataToCameraRool:(NSData *)imageData
++ (void)saveImageDataToCameraRool:(NSData *)imageData
                        authHandle:(SCPhotosSaveAuthHandle)authHandle
                        completion:(SCPhotosSaveCompletion)completion;
 
 /// 图片保存
-- (void)saveImageToCameraRool:(UIImage *)image
++ (void)saveImageToCameraRool:(UIImage *)image
                     imageType:(SCImageType)type
            compressionQuality:(CGFloat)quality
                    authHandle:(SCPhotosSaveAuthHandle)authHandle
                    completion:(SCPhotosSaveCompletion)completion;
 
 /// 动态图片保存
-- (void)saveLiveImageToCameraRool:(NSData *)imageData
++ (void)saveLiveImageToCameraRool:(NSData *)imageData
                         shortFilm:(NSURL *)filmURL
                        authHandle:(SCPhotosSaveAuthHandle)authHandle
                        completion:(SCPhotosSaveCompletion)completion;
 
 
 /// 视频保存
-- (void)saveMovieFileToCameraRoll:(NSURL *)fileURL
++ (void)saveMovieFileToCameraRoll:(NSURL *)fileURL
                        authHandle:(SCPhotosSaveAuthHandle)authHandle
                        completion:(SCPhotosSaveCompletion)completion;
+
+/// 自定义保存
++ (void)customSaveWithChangeBlock:(dispatch_block_t)changeBlock
+                        authHandle:(SCPhotosSaveAuthHandle)authHandle
+                        completion:(SCPhotosSaveCompletion)completion;
 
 @end
 
