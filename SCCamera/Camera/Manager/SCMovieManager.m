@@ -113,13 +113,6 @@ static NSString *const SCMovieFileName = @"movie.mov";
                     self.firstSample = YES;
                     NSURL *fileURL = [self.movieWriter outputURL];
                     completion(YES, fileURL);
-                    
-                    // FIXME: - 测试用保存
-                    [self saveMovieToCameraRoll:fileURL authHandle:^(BOOL success, PHAuthorizationStatus status) {
-                        NSLog(@"相册添加权限：%d, %ld", success, (long)status);
-                    } completion:^(BOOL success, NSError * _Nullable error) {
-                        NSLog(@"视频添加结果：%d, %@", success, error);
-                    }];
                     break;
                 }
                 default:

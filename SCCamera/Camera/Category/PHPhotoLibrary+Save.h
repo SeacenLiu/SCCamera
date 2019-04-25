@@ -10,8 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^SCPhotosSaveAuthHandle)(BOOL success, PHAuthorizationStatus status);
-typedef void(^SCPhotosSaveCompletion)(BOOL success, NSError * _Nullable error);
+typedef void(^ _Nullable SCPhotosSaveAuthHandle)(BOOL success, PHAuthorizationStatus status);
+typedef void(^ _Nullable SCPhotosSaveCompletion)(BOOL success, NSError * _Nullable error);
 
 typedef NS_ENUM(NSInteger, SCImageType) {
     SCImageTypeJPEG,
@@ -33,7 +33,7 @@ typedef NS_ENUM(NSInteger, SCImageType) {
                    completion:(SCPhotosSaveCompletion)completion;
 
 /// 动态图片保存
-+ (void)saveLiveImageToCameraRool:(NSData *)imageData
++ (void)saveLivePhotoToCameraRool:(NSData *)imageData
                         shortFilm:(NSURL *)filmURL
                        authHandle:(SCPhotosSaveAuthHandle)authHandle
                        completion:(SCPhotosSaveCompletion)completion;

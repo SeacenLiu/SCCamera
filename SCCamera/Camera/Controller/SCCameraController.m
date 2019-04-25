@@ -20,7 +20,11 @@
 #import "SCMovieManager.h"
 #import "SCPhotoManager.h"
 
-#import <Photos/Photos.h>
+#import "PHPhotoLibrary+save.h"
+
+// TODO: - 待处理
+// - 视频录制过程中，补光失效
+// - 视频录制与拍照需要分开，保证能进行 Live Photo 捕获
 
 API_AVAILABLE(ios(10.0))
 @interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate,SCPermissionsViewDelegate>
@@ -185,13 +189,16 @@ API_AVAILABLE(ios(10.0))
         [_metaOutput setMetadataObjectTypes:@[AVMetadataObjectTypeFace]];
         [_metaOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
     }
-
+    
     // 照片输出
     _photoOutput = [AVCapturePhotoOutput new];
     if ([_session canAddOutput:_photoOutput]) {
         [_session addOutput:_photoOutput];
+        // 配置高分辨率静态拍摄
         _photoOutput.highResolutionCaptureEnabled = YES;
         if (_photoOutput.livePhotoCaptureSupported) {
+            // 自动修建 Live Photo 避免过度移动
+            _photoOutput.livePhotoAutoTrimmingEnabled = YES;
             _photoOutput.livePhotoCaptureEnabled = YES;
         } else {
             NSLog(@"不支持 livePhotoCaptureEnabled");
@@ -301,60 +308,41 @@ API_AVAILABLE(ios(10.0))
     [self.photoManager takeStillPhoto:self.cameraView.previewView.videoPreviewLayer completion:^(UIImage *originImage, UIImage *scaledImage, UIImage *croppedImage, NSError * _Nullable error) {
         SCCameraResultController *rc = [SCCameraResultController new];
         rc.img = croppedImage;
-        [self saveImageToCameraRoll:croppedImage];
+        [PHPhotoLibrary saveImageToCameraRool:croppedImage
+                                    imageType:SCImageTypePNG
+                           compressionQuality:1.0
+                                   authHandle:nil
+                                   completion:^(BOOL success, NSError * _Nullable error) {
+                                       if (error) {
+                                           NSLog(@"%@", error);
+                                           return;
+                                       }
+                                       NSLog(@"图片保存成功");
+        }];
         [self presentViewController:rc animated:YES completion:nil];
     }];
     
     /** stillPhotoManager 使用
     [self.stillPhotoManager takePhoto:self.cameraView.previewView.videoPreviewLayer stillImageOutput:self.stillImageOutput handle:^(UIImage * _Nonnull originImage, UIImage * _Nonnull scaleImage, UIImage * _Nonnull cropImage) {
         NSLog(@"take photo success.");
-        // 测试用保存图片
-        [self saveImageToCameraRoll:originImage];
-        [self saveImageToCameraRoll:scaleImage];
-        [self saveImageToCameraRoll:cropImage];
-
-        SCCameraResultController *rc = [SCCameraResultController new];
-        rc.img = cropImage;
-        [self presentViewController:rc animated:YES completion:nil];
     }];
      */
 }
 
 /// 动态拍照
 - (void)takeLivePhotoAction:(SCCameraView *)cameraView {
-    // photoManager 使用
     [self.photoManager takeLivePhoto:self.cameraView.previewView.videoPreviewLayer completion:^(NSURL *liveURL, NSData *liveData, NSError * _Nullable error) {
         if (error) {
             NSLog(@"%@", error);
             return;
         }
-        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-//            PHAssetResourceCreationOptions* options = [[PHAssetResourceCreationOptions alloc] init];
-//            options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType;
-//            NSLog(@"%@",liveData);
-            PHAssetCreationRequest* creationRequest = [PHAssetCreationRequest creationRequestForAsset];
-            [creationRequest addResourceWithType:PHAssetResourceTypePhoto data:liveData options:nil];
-            
-            PHAssetResourceCreationOptions* livePhotoCompanionMovieResourceOptions = [[PHAssetResourceCreationOptions alloc] init];
-            livePhotoCompanionMovieResourceOptions.shouldMoveFile = YES;
-            [creationRequest addResourceWithType:PHAssetResourceTypePairedVideo fileURL:liveURL options:livePhotoCompanionMovieResourceOptions];
-        } completionHandler:^( BOOL success, NSError * _Nullable error ) {
+        [PHPhotoLibrary saveLivePhotoToCameraRool:liveData shortFilm:liveURL authHandle:nil completion:^(BOOL success, NSError * _Nullable error) {
             if (error) {
                 NSLog(@"%@", error);
                 return;
             }
-            NSLog(@"保存完毕");
+            NSLog(@"Live Photo保存完毕");
         }];
-    }];
-}
-
-
-/// 保存图片
-- (void)saveImageToCameraRoll:(UIImage*)image {
-    [self.stillPhotoManager saveImageToCameraRoll:image authHandle:^(BOOL success, PHAuthorizationStatus status) {
-        
-    } completion:^(BOOL success, NSError * _Nullable error) {
-        
     }];
 }
 
@@ -365,7 +353,6 @@ API_AVAILABLE(ios(10.0))
     // 转换镜头的时候 connection 会变！！！！！
     AVCaptureConnection *currentConnection = [self.videoOutput connectionWithMediaType:AVMediaTypeVideo];
     currentConnection.videoOrientation = self.cameraView.previewView.videoOrientation;
-    NSLog(@"videoOrientation:%ld", (long)[self.videoOutput connectionWithMediaType:AVMediaTypeVideo].videoOrientation);
     NSString *fileType = AVFileTypeQuickTimeMovie;
     NSDictionary *videoSettings = [self.videoOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:fileType];
     NSDictionary *audioSettings = [self.audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:fileType];
@@ -384,8 +371,14 @@ API_AVAILABLE(ios(10.0))
 /// 停止录像视频
 - (void)stopRecordVideoAction:(SCCameraView *)cameraView {
     [self.movieManager stopRecordWithCompletion:^(BOOL success, NSURL * _Nullable fileURL) {
-        if (success) {
-            NSLog(@"Record Success!");
+        if (success && fileURL) {
+            [PHPhotoLibrary saveMovieFileToCameraRoll:fileURL authHandle:nil completion:^(BOOL success, NSError * _Nullable error) {
+                if (error) {
+                    NSLog(@"%@", error);
+                    return;
+                }
+                NSLog(@"视频保存完成");
+            }];
         }
     }];
 }

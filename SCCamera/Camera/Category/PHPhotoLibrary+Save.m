@@ -38,7 +38,7 @@
 }
 
 #pragma mark - live photo
-+ (void)saveLiveImageToCameraRool:(NSData *)imageData
++ (void)saveLivePhotoToCameraRool:(NSData *)imageData
                         shortFilm:(NSURL *)filmURL
                        authHandle:(SCPhotosSaveAuthHandle)authHandle
                        completion:(SCPhotosSaveCompletion)completion {
