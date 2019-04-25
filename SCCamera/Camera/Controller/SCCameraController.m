@@ -131,7 +131,8 @@ API_AVAILABLE(ios(10.0))
 /** 配置会话 */
 - (void)configureSession:(NSError**)error {
     [self.session beginConfiguration];
-    self.session.sessionPreset = AVCaptureSessionPresetHigh;//AVCaptureSessionPresetPhoto;
+    // Live Photo 不支持 AVCaptureSessionPresetHigh !!!
+    self.session.sessionPreset = AVCaptureSessionPresetPhoto;
     [self setupSessionInput:error];
     dispatch_async(dispatch_get_main_queue(), ^{
         // 在添加视频输入后就可以设置
