@@ -9,9 +9,9 @@
 #import "SCCameraController.h"
 #import "SCVideoPreviewView.h"
 #import "SCCameraResultController.h"
+#import "SCShowMovieController.h"
 #import "SCCameraView.h"
 #import "AVCaptureDevice+SCCategory.h"
-#import "UIView+CCHUD.h"
 #import <Photos/Photos.h>
 #import "SCPermissionsView.h"
 
@@ -24,7 +24,6 @@
 
 // TODO: - 待处理
 // - 视频录制过程中，补光失效
-// - 视频录制与拍照需要分开，保证能进行 Live Photo 捕获
 
 API_AVAILABLE(ios(10.0))
 @interface SCCameraController () <SCCameraViewDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate,SCPermissionsViewDelegate>
@@ -373,13 +372,16 @@ API_AVAILABLE(ios(10.0))
 - (void)stopRecordVideoAction:(SCCameraView *)cameraView {
     [self.movieManager stopRecordWithCompletion:^(BOOL success, NSURL * _Nullable fileURL) {
         if (success && fileURL) {
-            [PHPhotoLibrary saveMovieFileToCameraRoll:fileURL authHandle:nil completion:^(BOOL success, NSError * _Nullable error) {
-                if (error) {
-                    NSLog(@"%@", error);
-                    return;
-                }
-                NSLog(@"视频保存完成");
-            }];
+//            [PHPhotoLibrary saveMovieFileToCameraRoll:fileURL authHandle:nil completion:^(BOOL success, NSError * _Nullable error) {
+//                if (error) {
+//                    NSLog(@"%@", error);
+//                    return;
+//                }
+//                NSLog(@"视频保存完成");
+//            }];
+            // 影片预览
+            SCShowMovieController *mc = [SCShowMovieController showMovieControllerWithFileURL:fileURL];
+            [self presentViewController:mc animated:YES completion:nil];
         }
     }];
 }
